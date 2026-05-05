@@ -1,0 +1,84 @@
+# Profile: minimal
+#
+# A minimal, human-readable demo profile designed for onboarding and first tests.
+# It deliberately keeps things simple so the concepts (extends, tools, resources)
+# are easy to follow and experiment with.
+#
+# What this profile does:
+#   - Captures tasks quickly via add_task
+#   - Discovers existing projects, tags, and UDAs before adding/updating tasks
+#   - Provides resources for existing values, pending tasks, and inbox
+#
+# What this profile intentionally omits:
+#   - UDAs, contexts, prompts — added only when a real workflow requires them
+#
+author: TaskMajor Team
+name: minimal
+version: 1.0.0
+description: >
+  Lightweight demo for testing and onboarding.
+  Captures tasks, reuses existing metadata, and keeps the workflow simple.
+
+# --- Base ---
+# The `base` profile is the universal foundation. It brings:
+#   Tools:     add_task, get_task, query_tasks, update_task, delete_task, done_task
+#   Resource:  taskmajor://tasks/pending
+extends: base
+
+# --- Tools ---
+# Tools added on top of what the `base` profile provides.
+tools:
+  - next_task
+  - get_projects
+  - get_tags
+  - get_udas
+
+# --- Resources ---
+# Resources are read-only views the agent (or user) can inspect at any time.
+# The `base` profile already provides taskmajor://tasks/pending.
+# We add metadata (projects, tags, udas) and views (by-project, inbox).
+resources:
+  - uri: "taskmajor://metadata/projects"
+    name: "Projects"
+    description: >
+      All projects in use by pending tasks.
+      Consult before add_task/update_task to reuse existing project names.
+    backend:
+      function: get_projects
+
+  - uri: "taskmajor://metadata/tags"
+    name: "Tags"
+    description: >
+      All tags in use by pending tasks.
+      Consult before add_task/update_task to reuse existing tags.
+    backend:
+      function: get_tags
+
+  - uri: "taskmajor://metadata/udas"
+    name: "UDAs"
+    description: >
+      All UDAs defined in TaskWarrior configuration.
+      Consult before using UDAs in add_task/update_task.
+    backend:
+      function: get_udas
+
+  - uri: "taskmajor://roadmap/project"
+    name: "Tasks by Project"
+    description: >
+      Pending tasks grouped by project.
+      Use for exploration and overview.
+    backend:
+      function: get_tasks_by_scope
+      params:
+        scope: project
+        filters: {status: pending}
+
+  - uri: "taskmajor://queue/unsorted"
+    name: "Unsorted Queue"
+    description: >
+      Pending tasks without a project — to be assigned.
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending project:"
+        sort: ["urgency"]

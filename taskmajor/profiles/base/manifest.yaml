@@ -1,0 +1,34 @@
+# Profile: base
+#
+# Minimal task CRUD profile — the baseline building block for all profiles.
+# Provides the essential tools to create, read, update, and delete tasks,
+# plus a single resource listing all pending tasks. Intentionally lean:
+# no UDAs, no contexts, no prompts.
+#
+# Usage: extend this profile via `extends: base` in your manifest.
+
+author: TaskMajor Team
+name: base
+version: 1.0.0
+description: >
+  Minimal task CRUD foundation.
+  Provides essential tools, a pending-tasks resource, and shared date/text rules.
+  Extend via `extends: base` for richer workflows.
+
+tools:
+  - add_task     # Create
+  - get_task     # Read (single)
+  - query_tasks  # Read (list / filter)
+  - update_task  # Update
+  - delete_task  # Delete
+  - done_task    # Complete
+
+resources:
+  - uri: "taskmajor://tasks/pending"
+    name: "Pending Tasks"
+    description: "All pending tasks, sorted by urgency"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending"
+        sort: ["urgency"]

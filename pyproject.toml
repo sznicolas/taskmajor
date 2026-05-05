@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project]
+name = "taskmajor"
+version = "0.2.0"
+description = "TaskMajor MCP. Coordinate your tasks. Execute with precision."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=3.0.0,<4.0.0",
+    "httpx>=0.28.1,<1.0.0",
+    "opentelemetry-distro>=0.60b1,<1.0.0",
+    "opentelemetry-exporter-otlp>=1.39.1,<2.0.0",
+    "opentelemetry-instrumentation-httpx>=0.60b1,<1.0.0",
+    "python-json-logger>=4.0.0,<5.0.0",
+    "pydantic>=2.8,<3.0.0",
+    "pydantic-ai>=1.59.0,<2.0.0",
+    "pytaskwarrior==2.0.6",
+    "pyyaml>=6.0.2,<7.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.8,<1.0.0",
+    "pytest>=9.0.2,<10.0.0",
+    "mypy>=1.13.0,<2.0.0",
+    "pytest-cov>=7.0.0,<8.0.0",
+    "astor>=0.8.1,<1.0.0",
+    "types-PyYAML>=6.0.0,<7.0.0",
+    "hypothesis>=6.151.12,<7.0.0",
+    "ruamel-yaml>=0.19.1",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-include-markdown-plugin>=7.2.2",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+    "mkdocs-mermaid2-plugin>=1.2.3",
+]
+writer = [
+    "terminaltables3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+# Target Python version for lint checks. Align with requires-python in [project].
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade (modern Python syntax)
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["taskmajor"]
+
+#[tool.uv.sources]
+#pytaskwarrior = { path = "../../pytaskwarrior", editable = true }

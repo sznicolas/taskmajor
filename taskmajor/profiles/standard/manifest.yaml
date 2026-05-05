@@ -1,0 +1,140 @@
+author: TaskMajor Team
+description: "Universal task organization without imposed methodology. Includes dates, projects, priorities, and calendar views."
+name: standard
+version: 2.0.0
+
+# Inherit the shared baseline from base.
+extends: base
+
+# Tools enabled in this profile
+tools:
+  # Task management
+  - query_tasks
+  - get_stats
+  - next_task
+  - get_task
+  - done_task
+  - add_task
+  - update_task
+  - delete_task
+  - start_task
+  - stop_task
+  # Context management (runtime)
+  - list_contexts
+  - set_context
+  - unset_context
+  # Date utilities
+  - resolve_date
+  - validate_date
+  # Metadata
+  - get_projects
+  - get_tags
+  - get_udas
+  # Diagnostics
+  - report_error
+
+# Standard resources
+resources:
+  - uri: "taskmajor://agenda/today"
+    name: "Today's Agenda"
+    description: "Pending tasks due today"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending due.before:eod"
+        sort: ["due", "priority", "description"]
+
+  - uri: "taskmajor://agenda/week"
+    name: "Week Ahead"
+    description: "Pending tasks due in the next 7 days"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending due.after:now due.before:now+7d"
+        sort: ["due", "priority", "description"]
+
+  - uri: "taskmajor://status/overdue"
+    name: "Overdue Tasks"
+    description: "Pending tasks past their due date"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending due.before:now"
+        sort: ["due", "priority", "description"]
+
+  - uri: "taskmajor://queue/unsorted"
+    name: "Unsorted Queue"
+    description: "Pending tasks without a project (Inbox)"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending project:Inbox"
+        sort: ["priority", "due", "description"]
+
+  - uri: "taskmajor://roadmap/project"
+    name: "Project Roadmap"
+    description: "Pending tasks grouped by project"
+    backend:
+      function: get_tasks_by_scope
+      params:
+        scope: project
+        filters: {status: pending}
+
+  - uri: "taskmajor://roadmap/priority"
+    name: "Priority Roadmap"
+    description: "Pending tasks grouped by priority"
+    backend:
+      function: get_tasks_by_scope
+      params:
+        scope: priority
+        filters: {status: pending}
+
+  - uri: "taskmajor://roadmap/day"
+    name: "Day Roadmap"
+    description: "Pending tasks grouped by day"
+    backend:
+      function: get_tasks_by_scope
+      params:
+        scope: day
+        filters: {status: pending}
+
+  - uri: "taskmajor://roadmap/week"
+    name: "Week Roadmap"
+    description: "Pending tasks grouped by ISO week"
+    backend:
+      function: get_tasks_by_scope
+      params:
+        scope: week
+        filters: {status: pending}
+
+  - uri: "taskmajor://analytics/summary"
+    name: "Task Statistics"
+    description: "Task counts by status, project, and priority"
+    backend:
+      function: get_stats
+      params:
+        filters: {status: all}
+
+  - uri: "taskmajor://metadata/projects"
+    name: "Projects"
+    description: "All projects in use by pending tasks"
+    backend:
+      function: get_projects
+
+  - uri: "taskmajor://metadata/tags"
+    name: "Tags"
+    description: "All tags in use by pending tasks"
+    backend:
+      function: get_tags
+
+  - uri: "taskmajor://metadata/udas"
+    name: "UDAs"
+    description: "All UDAs defined in TaskWarrior configuration"
+    backend:
+      function: get_udas
+
+  - uri: "taskmajor://config/schema"
+    name: "API Schema"
+    description: "Projects, tags, priorities, contexts, and API capabilities"
+    backend:
+      function: get_metadata

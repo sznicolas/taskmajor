@@ -1,0 +1,2 @@
+"""TaskMajor package."""
+

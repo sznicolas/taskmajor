@@ -1,0 +1,20 @@
+# ReadTheDocs configuration
+version: 2
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"
+  jobs:
+    pre_build:
+      - python tools/generate_profile_docs.py --no-update-mkdocs
+
+python:
+  install:
+    - method: uv
+      command: sync
+      groups:
+        - docs
+
+mkdocs:
+  configuration: mkdocs.yml

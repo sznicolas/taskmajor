@@ -1,0 +1,114 @@
+site_name: TaskMajor
+site_description: TaskMajor MCP. Coordinate your tasks. Execute with precision.
+site_url: https://taskmajor.readthedocs.io/
+repo_url: https://github.com/yourusername/taskmajor
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  palette:
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+plugins:
+  - mermaid2
+  - search
+  - include-markdown
+  - mkdocstrings:
+      handlers:
+        python: {}
+nav:
+  - Home: index.md
+  - Quick Start:
+      - Quickstart: getting-started/quickstart.md
+      - Simple Agent Setup: user-guides/integrations/simple-agent-setup.md
+      - GitHub Copilot: user-guides/integrations/copilot.md
+      - Claude Code: user-guides/integrations/claude-code.md
+      - Cursor IDE: user-guides/integrations/cursor.md
+      - Generic MCP Client: user-guides/integrations/generic-mcp.md
+      - MCP JSON Client: user-guides/integrations/mcp-json.md
+  - Installation & Setup:
+      - Getting Started: getting-started/index.md
+      - Build from Source: deployment/build-from-source.md
+      - Troubleshooting: https://github.com/yourusername/taskmajor/issues
+  - Configuration: getting-started/configuration.md
+  - API Reference:
+      - Overview: api-reference/index.md
+      - Auto-generated: api-reference/autodoc.md
+      - Resources: api-reference/resources.md
+      - Tools: api-reference/tools.md
+  - Architecture: developer/architecture.md
+  - Deployment:
+      - Docker:
+          - Overview: deployment/docker.md
+          - Compose (full): deployment/docker-compose.full.md
+      - Docker Custom Profile: deployment/docker-custom-profile.md
+      - Deployment Troubleshooting: 
+          https://github.com/yourusername/taskmajor/issues
+      - Observability: developer/observability.md
+  - Workflows & Guides:
+      - GTD Workflow: user-guides/workflows/gtd-workflow.md
+      - Task Lifecycle: user-guides/workflows/task-lifecycle.md
+  - Development:
+      - Branch Protection: developer/branch-protection.md
+      - CI/CD Infrastructure: developer/ci-cd-infrastructure.md
+      - Pre-commit: developer/pre-commit.md
+      - Contributing: developer/contributing.md
+      - Adding Agent Integrations: developer/agent-integrations.md
+      - Profile Composition: developer/profile-composition.md
+      - MCP Components: developer/mcp-components.md
+      - Testing: developer/testing.md
+  - User Guides:
+      - Profiles:
+          - Profile System: user-guides/profiles/profile-system.md
+          - Index: user-guides/profiles/reference/index.md
+          - Reference:
+              - Base:
+                  - README: user-guides/profiles/reference/base/README.md
+                  - Debug: 
+                      user-guides/profiles/reference/base/instructions/debug.md
+              - Minimal:
+                  - README: user-guides/profiles/reference/minimal/README.md
+                  - Debug: 
+                      user-guides/profiles/reference/minimal/instructions/debug.md
+              - Productivity:
+                  - README: 
+                      user-guides/profiles/reference/productivity/README.md
+                  - Debug: 
+                      user-guides/profiles/reference/productivity/instructions/debug.md
+              - Project Mgmt:
+                  - README: 
+                      user-guides/profiles/reference/project-mgmt/README.md
+                  - Debug: 
+                      user-guides/profiles/reference/project-mgmt/instructions/debug.md
+              - Standard:
+                  - README: user-guides/profiles/reference/standard/README.md
+                  - Debug: 
+                      user-guides/profiles/reference/standard/instructions/debug.md
+  - Changelog: changelog.md
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tasklist
+  - tables
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true

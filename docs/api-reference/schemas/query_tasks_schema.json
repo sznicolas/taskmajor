@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryTasksInput",
+  "type": "object",
+  "description": "JSON Schema for the query_tasks() input parameters: filters, sort, limit, offset.",
+  "properties": {
+    "filters": {
+      "type": "object",
+      "description": "Filter object. All fields are optional. Multiple filter keys are combined with AND; values that are arrays imply OR semantics within that key.",
+      "properties": {
+        "project": {"type": "string", "description": "Single project name (exact match)."},
+        "projects": {"type": "array","items": {"type": "string"}, "description": "Multiple project names; matches any listed project (OR)."},
+        "priority": {"type": "string", "enum": ["H", "M", "L", ""], "description": "Priority code: H, M, L or empty string for none."},
+        "status": {"description": "Task status or list of statuses (e.g. 'pending', 'completed').", "anyOf": [{"type": "string"}, {"type": "array", "items": {"type": "string"}}]},
+        "tags_any": {"type": "array", "items": {"type": "string"}, "description": "Task has ANY of these tags (OR)."},
+        "tags_all": {"type": "array", "items": {"type": "string"}, "description": "Task has ALL of these tags (AND)."},
+        "due_before": {"type": "string", "description": "Due date upper bound. ISO date/time or TaskWarrior expression (e.g., \"today\", \"eow\")."},
+        "due_after": {"type": "string", "description": "Due date lower bound. ISO date/time or TaskWarrior expression."},
+        "text": {"type": "string", "description": "Full-text query applied to description and tags."}
+      },
+      "additionalProperties": false
+    },
+    "sort": {
+      "type": "array",
+      "description": "Sort fields in precedence order. Prefix a field with '-' for descending order (e.g., '-due'). Supported fields include: due, priority, urgency, start, end, project.",
+      "items": {"type": "string"}
+    },
+    "limit": {"anyOf": [{"type": "integer", "minimum": 0}, {"type": "null"}], "description": "Maximum number of results to return. Null or omitted means server default/no limit."},
+    "offset": {"type": "integer", "minimum": 0, "default": 0, "description": "Number of items to skip for pagination."}
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "filters": {"status": "pending", "priority": "H", "project": "work"},
+      "sort": ["due", "-priority"],
+      "limit": 20,
+      "offset": 0
+    },
+    {
+      "filters": {"projects": ["work", "personal"], "tags_any": ["urgent", "blocked"]},
+      "sort": ["-urgency"],
+      "limit": 50
+    }
+  ]
+}

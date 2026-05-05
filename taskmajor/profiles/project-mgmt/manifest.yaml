@@ -1,0 +1,47 @@
+name: project-mgmt
+version: 1.0.0
+extends: standard
+author: TaskMajor Team
+description: "Advanced tracking with estimates, ownership, and dependencies."
+udas:
+  - name: estimate
+    type: numeric
+    label: "Estimate (hours)"
+    description: "Estimated effort in hours."
+  - name: owner
+    type: string
+    label: "Owner"
+    description: "Person responsible for the task."
+  - name: sprint
+    type: string
+    label: "Sprint"
+    description: "Sprint name (e.g., Sprint-42)."
+resources:
+  - uri: taskmajor://roadmap/sprint
+    name: "Sprint Roadmap"
+    description: "Pending tasks grouped by sprint"
+    backend:
+      function: get_tasks_by_scope
+      params:
+        scope: sprint
+        filters: {status: pending}
+  - uri: taskmajor://analytics/effort
+    name: "Effort Analytics"
+    description: "Total estimate by project"
+    backend:
+      function: get_stats
+      params:
+        metric: estimate
+        group_by: project
+  - uri: taskmajor://queue/blockers
+    name: "Blocked Queue"
+    description: "Tasks blocked by dependencies"
+    backend:
+      function: query_tasks
+      params:
+        filter: "is_blocked:true"
+        sort: ["priority", "due"]
+prompts:
+  - sprint_planning
+  - project_status
+instructions_file: instructions/

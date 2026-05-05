@@ -1,0 +1,31 @@
+name: productivity
+version: 1.0.0
+extends: standard
+author: TaskMajor Team
+description: "Structured workflow with reviews, dashboards, and context tags. Ideal for GTD-inspired users."
+resources:
+  - uri: taskmajor://dashboard/overview
+    name: "Dashboard Overview"
+    description: "Consolidated view: Overdue + Today + Inbox"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending due.before:now+7d"
+  - uri: taskmajor://review/daily
+    name: "Daily Review View"
+    description: "Prepared view for daily review"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending due.before:eod"
+  - uri: taskmajor://review/weekly
+    name: "Weekly Review View"
+    description: "Prepared view for weekly review"
+    backend:
+      function: query_tasks
+      params:
+        filter: "status:pending due.before:now+7d"
+prompts:
+  - daily_review
+  - weekly_review
+instructions_file: instructions/
