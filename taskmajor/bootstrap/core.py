@@ -243,8 +243,8 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
             raise SystemExit(1) from exc
         # Not a TaskConfigurationError - re-raise so the caller/test sees it
         raise
-   info = task_service.taskwarrior_client.get_info()
-   if not info.get("version").startswith("3"):
+    info = task_service.taskwarrior_client.get_info()
+    if not info.get("version").startswith("3"):
        import sys
 
        msg = (
