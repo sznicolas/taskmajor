@@ -170,7 +170,6 @@ def create_mcp(
         taskrc_file=cfg.taskrc,
         data_location=cfg.taskdata,
     )
-
     profile_manager = ProfileManager(cfg, cli_profile=cli_profile)
     error_log = AgentErrorLog(cfg.agent_errors_path)
 
@@ -219,7 +218,7 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
     log.info(f"Using MCP transport: {transport}")
 
     try:
-        mcp, _, _ = create_mcp(cfg, cli_profile=cli_profile)
+        mcp, task_service, _ = create_mcp(cfg, cli_profile=cli_profile)
     except Exception as exc:
         # If the underlying error is a TaskConfigurationError from pytaskwarrior,
         # provide a friendly, actionable message. Otherwise re-raise.
@@ -244,6 +243,19 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
             raise SystemExit(1) from exc
         # Not a TaskConfigurationError - re-raise so the caller/test sees it
         raise
+   info = task_service.taskwarrior_client.get_info()
+   if not info.get("version").startswith("3"):
+       import sys
+
+       msg = (
+           "TaskMajor cannot start because the TaskWarrior 'task' version shoud be '3.*.*'.\n"
+           "If your TaskWarrior version is older, please ensure TaskWarrior is installed and available in PATH, and that\n"
+           "pytaskwarrior is correctly configured. See the build instructions:\n"
+           "https://pytaskwarrior.readthedocs.io/en/latest/building-taskwarrior/\n\n"
+       )
+       print(msg, file=sys.stderr)
+       print(str(exc), file=sys.stderr)
+       raise SystemExit(1)
 
     await mcp.run_async(transport=transport, port=cfg.server_port, host=cfg.server_host)
 
