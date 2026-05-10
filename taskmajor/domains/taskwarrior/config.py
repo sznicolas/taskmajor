@@ -19,7 +19,10 @@ class TaskMajorConfig(BaseModel):
     server_transport: str = "streamable-http"
     server_name: str = "TaskMajor Server"
 
-    taskrc: str | None = None
+    # TaskWarrior configuration
+    taskrc: str = "~/.taskrc_mcp"
+    # If None, uses isolated mode (auto-derived from taskrc)
+    # If set to a path like "~/.task", agent shares user's real task database
     taskdata: str | None = None
     profiles_dir: str = str((Path(__file__).parent.parent.parent / "profiles").resolve())
     profile: str = "standard"
