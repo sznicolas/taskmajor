@@ -514,3 +514,47 @@ def test_priority_enum_ordering():
     assert Priority.H < Priority.M
     assert Priority.M < Priority.L
     assert Priority.L < Priority.NONE
+
+
+def test_query_objects_uses_raw_filter_for_tw_expr(monkeypatch):
+    """When due_before is a TaskWarrior expression, a raw filter should be
+    constructed and _load_tasks_raw should be invoked."""
+    tw = Mock()
+    svc = TaskService(tw)
+
+    captured = {}
+
+    def fake_load_raw(filter_string):
+        captured['filter'] = filter_string
+        return []
+
+    monkeypatch.setattr(svc, "_load_tasks_raw", fake_load_raw)
+
+    svc._query_task_objects(filters={"due_before": "today"})
+
+    assert 'filter' in captured
+    assert "due.before:today" in captured['filter']
+
+
+def test_query_objects_uses_inmemory_for_iso(monkeypatch):
+    """When due_before is an ISO datetime, in-memory loading/filtering should be used."""
+    tw = Mock()
+    svc = TaskService(tw)
+
+    called = {'raw': False, 'load': False}
+
+    def fake_load_raw(filter_string):
+        called['raw'] = True
+        return []
+
+    def fake_load(statuses):
+        called['load'] = True
+        return []
+
+    monkeypatch.setattr(svc, "_load_tasks_raw", fake_load_raw)
+    monkeypatch.setattr(svc, "_load_tasks", fake_load)
+
+    svc._query_task_objects(filters={"due_before": "2026-05-08T10:00:00Z"})
+
+    assert called['raw'] is False
+    assert called['load'] is True

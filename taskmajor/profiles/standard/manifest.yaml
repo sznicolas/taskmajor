@@ -19,10 +19,7 @@ tools:
   - delete_task
   - start_task
   - stop_task
-  # Context management (runtime)
-  - list_contexts
-  - set_context
-  - unset_context
+
   # Date utilities
   - resolve_date
   - validate_date
@@ -135,6 +132,6 @@ resources:
 
   - uri: "taskmajor://config/schema"
     name: "API Schema"
-    description: "Projects, tags, priorities, contexts, and API capabilities"
+    description: "Projects, tags, priorities, and API capabilities"
     backend:
       function: get_metadata

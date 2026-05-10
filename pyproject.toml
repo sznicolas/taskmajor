@@ -7,7 +7,7 @@ allow-direct-references = true
 
 [project]
 name = "taskmajor"
-version = "0.2.0"
+version = "0.2.1"
 description = "TaskMajor MCP. Coordinate your tasks. Execute with precision."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -20,7 +20,7 @@ dependencies = [
     "python-json-logger>=4.0.0,<5.0.0",
     "pydantic>=2.8,<3.0.0",
     "pydantic-ai>=1.59.0,<2.0.0",
-    "pytaskwarrior==2.0.6",
+    "pytaskwarrior>=2.0.7",
     "pyyaml>=6.0.2,<7.0.0",
 ]
 

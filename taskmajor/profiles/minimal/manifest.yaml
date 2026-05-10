@@ -10,7 +10,7 @@
 #   - Provides resources for existing values, pending tasks, and inbox
 #
 # What this profile intentionally omits:
-#   - UDAs, contexts, prompts — added only when a real workflow requires them
+#   - UDAs, prompts — added only when a real workflow requires them
 #
 author: TaskMajor Team
 name: minimal

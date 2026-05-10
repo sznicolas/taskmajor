@@ -2,7 +2,13 @@ name: productivity
 version: 1.0.0
 extends: standard
 author: TaskMajor Team
-description: "Structured workflow with reviews, dashboards, and context tags. Ideal for GTD-inspired users."
+description: "Structured workflow with reviews, dashboards, and tags. Ideal for GTD-inspired users."
+udas:
+  - name: energy
+    type: enum
+    label: "Energy"
+    description: "Niveau d'énergie : low | medium | high"
+    values: [low, medium, high]
 resources:
   - uri: taskmajor://dashboard/overview
     name: "Dashboard Overview"

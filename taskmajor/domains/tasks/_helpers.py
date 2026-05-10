@@ -7,20 +7,31 @@ from datetime import UTC, date, datetime, time
 
 
 def coerce_datetime(value: str | date | datetime | None) -> datetime | None:
-    """Coerce a date, datetime, or ISO string to a timezone-aware datetime."""
+    """Coerce a date, datetime, or ISO string to a timezone-aware datetime.
+
+    If the string cannot be parsed as ISO format, it's assumed to be a
+    TaskWarrior date expression and should be passed as-is to TaskWarrior.
+    """
     if value is None:
         return None
+
     if isinstance(value, datetime):
         return value if value.tzinfo else value.replace(tzinfo=UTC)
     if isinstance(value, date):
         return datetime.combine(value, time.min, tzinfo=UTC)
 
+    # Try to parse as ISO format
     normalized = value.strip()
     if normalized.endswith("Z"):
         normalized = normalized[:-1] + "+00:00"
 
-    parsed = datetime.fromisoformat(normalized)
-    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+    try:
+        parsed = datetime.fromisoformat(normalized)
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+    except ValueError:
+        # Not an ISO format - assume it's a TaskWarrior expression
+        # Return None to signal: "pass this string directly to TaskWarrior"
+        return None
 
 
 def serialize_datetime(value: date | datetime | None) -> str | None:
@@ -52,3 +63,11 @@ def normalize_sort_specs(sort: Sequence[str] | str | None) -> list[str]:
     if isinstance(sort, str):
         return [sort]
     return list(sort)
+
+
+def is_taskwarrior_date_expr(value: str | None) -> bool:
+    """Return True if value looks like a TaskWarrior date expression (not ISO)."""
+    if value is None:
+        return False
+    # coerce_datetime returns None for non-ISO strings; treat non-empty non-ISO as TW expr
+    return coerce_datetime(value) is None and bool(str(value).strip())

@@ -3,7 +3,7 @@
 # Minimal task CRUD profile — the baseline building block for all profiles.
 # Provides the essential tools to create, read, update, and delete tasks,
 # plus a single resource listing all pending tasks. Intentionally lean:
-# no UDAs, no contexts, no prompts.
+# no UDAs, no prompts.
 #
 # Usage: extend this profile via `extends: base` in your manifest.
 

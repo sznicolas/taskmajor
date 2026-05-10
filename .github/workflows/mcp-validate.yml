@@ -2,6 +2,7 @@ name: Validate MCP artifacts
 
 on:
   pull_request:
+    branches: [ main ]
   push:
     branches: [ main ]
 

@@ -1,27 +1,26 @@
 # Review Protocols
 
-## Daily Review
-1. **Overdue**: Check `taskmajor://status/overdue`. Reschedule or delete.
-2. **Today**: Check `taskmajor://agenda/today`. Confirm capacity.
-3. **Inbox**: Check `taskmajor://queue/unsorted`. Triage items.
-4. **Next Action**: Call `next_task()` or select manually.
+## Daily review
+1. **Overdue tasks** : `query_tasks(filter="status:pending due.before:now")` → Reschedule or delete.
+2. **Today** : `query_tasks(filter="status:pending due.before:eod")` → Confirm capacity.
+3. **Inbox** : `query_tasks(filter="status:pending project:Inbox")` → Triage.
+4. **Next action** : `next_task()` or manual selection.
 
-Output format:
-📅 Daily Review
-🔴 OVERDUE: ...
-📋 TODAY: ...
-📥 INBOX: ...
-💡 NEXT: ...
+Output format :
+📅 Daily review
+🔴 OVERDUE : ...
+📋 TODAY : ...
+📥 INBOX : ...
+💡 NEXT : ...
 
-## Weekly Review
-1. **Summary**: Count completed tasks this week.
-2. **Planning**: Check `taskmajor://agenda/week`. Identify busy days.
-3. **Orphans**: Find tasks without due dates. Assign dates or move to `+someday`.
-4. **Projects**: Check `taskmajor://analytics/summary`. Ensure no project is blocked.
+## Weekly review
+1. **Summary** : Count completed tasks from the week.
+2. **Week ahead** : `query_tasks(filter="status:pending due.after:now due.before:now+7d")`. Identify busy days.
+3. **Orphans** : `query_tasks(filter="status:pending")` then manually filter tasks without `due`.
 
-Output format:
-📊 Weekly Review
-✅ COMPLETED: ...
-📅 WEEK AHEAD: ...
-⚠️ ORPHANS: ...
-📁 PROJECTS: ...
+Output format :
+📊 Weekly review
+✅ COMPLETED : ...
+🗓️ WEEK AHEAD :
+Monday: {count} tasks
+Tuesday: {count} tasks...

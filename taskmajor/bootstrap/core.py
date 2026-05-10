@@ -33,6 +33,7 @@ def parse_profile_args() -> argparse.Namespace:
     # Single profile only (config.profile or CLI override)
     parser.add_argument("--profile", dest="profile", default=None)
     parser.add_argument("--no-profiles", action="store_true", default=False)
+    parser.add_argument("--transport", dest="transport", default=None, help="MCP transport (stdio, streamable-http, sse)")
     return parser.parse_known_args()[0]
 
 
@@ -212,6 +213,11 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
     cfg = config_override or config
     profile_args = parse_profile_args()
     cli_profile = None if profile_args.no_profiles else profile_args.profile
+
+    # Determine transport: CLI override > config > default
+    transport = profile_args.transport or cfg.server_transport
+    log.info(f"Using MCP transport: {transport}")
+
     try:
         mcp, _, _ = create_mcp(cfg, cli_profile=cli_profile)
     except Exception as exc:
@@ -239,7 +245,7 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
         # Not a TaskConfigurationError - re-raise so the caller/test sees it
         raise
 
-    await mcp.run_async(transport="streamable-http", port=cfg.server_port, host=cfg.server_host)
+    await mcp.run_async(transport=transport, port=cfg.server_port, host=cfg.server_host)
 
 
 async def main():

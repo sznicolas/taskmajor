@@ -16,6 +16,7 @@ class TaskMajorConfig(BaseModel):
 
     server_host: str = "localhost"
     server_port: int = 8888
+    server_transport: str = "streamable-http"
     server_name: str = "TaskMajor Server"
 
     taskrc: str | None = None

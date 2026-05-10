@@ -46,6 +46,15 @@ def register_task_tools(
                     Prefix a field with '-' for descending order.
                 limit: Maximum number of tasks to return.
                 offset: Number of matching tasks to skip before returning the page.
+
+            Examples:
+                ```json
+                {
+                  "filters": {"status": "pending", "project": "Work"},
+                  "sort": ["-urgency", "due"],
+                  "limit": 10
+                }
+                ```
             """
             return task_service.query_tasks(filters=filters, sort=sort, limit=limit, offset=offset)
 
@@ -59,6 +68,13 @@ def register_task_tools(
             Args:
                 filters: Optional filters applied before computing aggregates.
                     Returns counts by status, project, and priority plus overdue count.
+
+            Examples:
+                ```json
+                {
+                  "filters": {"status": "pending", "project": "Work"}
+                }
+                ```
             """
             return task_service.get_stats(filters=filters)
 
@@ -71,6 +87,13 @@ def register_task_tools(
 
             Args:
                 filters: Optional filters to narrow the selection.
+
+            Examples:
+                ```json
+                {
+                  "filters": {"status": "pending"}
+                }
+                ```
             """
             return task_service.next_task(filters=filters)
 
@@ -83,6 +106,13 @@ def register_task_tools(
 
             Args:
                 task_id: The ID or UUID of the task to retrieve
+
+            Examples:
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc"
+                }
+                ```
             """
             try:
                 task = task_service.taskwarrior_client.get_task(task_id)
@@ -115,6 +145,13 @@ def register_task_tools(
 
             Args:
                 task_id: The ID of the task to complete
+
+            Examples:
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc"
+                }
+                ```
             """
             if task_service.complete_task(task_id):
                 return f"Task {task_id} marked as completed successfully."
@@ -125,10 +162,65 @@ def register_task_tools(
         @mcp.tool
         def add_task(task_input: TaskInputDTO) -> dict[str, Any]:
             """
-            Add a new task.
+            Add a new task to TaskWarrior.
+
+            IMPORTANT: All task fields must be nested inside the `task_input` object.
+            Do NOT send fields like `priority`, `project`, `due` as top-level parameters.
 
             Args:
-                task_input: The task input data
+                task_input: The task input data containing all task fields.
+                    Supported fields:
+                    - description (required): Task description text
+                    - project: Project name (e.g., "Work", "Home", "santé")
+                    - priority: Priority level ("H", "M", "L")
+                    - due: Due date (ISO format like "2026-05-15" or TaskWarrior expressions like "today", "tomorrow", "eod", "now+1d")
+                    - tags: List of tags (e.g., ["+work", "+urgent"])
+                    - depends: List of task UUIDs this task depends on
+                    - annotations: List of annotation objects
+                    - recur: Recurrence period for recurring tasks (string). Examples: 'daily', '2weeks', 'every 3 days'
+                    - udas: Custom UDA fields
+
+            Examples:
+                ```json
+                {
+                  "task_input": {
+                    "description": "Appeler le médecin",
+                    "project": "santé",
+                    "priority": "H",
+                    "due": "2026-05-15"
+                  }
+                }
+                ```
+
+                ```json
+                {
+                  "task_input": {
+                    "description": "Chercher le numéro du docteur Madri",
+                    "project": "santé",
+                    "priority": "M",
+                    "tags": ["+call", "+urgent"],
+                    "due": "today"
+                  }
+                }
+                ```
+
+                ```json
+                {
+                  "task_input": {
+                    "description": "Review API documentation",
+                    "project": "Work.ProjectA",
+                    "priority": "M",
+                    "due": "tomorrow",
+                    "tags": ["+computer", "+review"]
+                  }
+                }
+                ```
+
+            Notes:
+                - Use `project: "Inbox"` for quick capture without organization
+                - Date expressions like "today", "now+1d", "eod" are supported
+                - Recurrence expressions examples: 'daily', '2weeks', 'every 3 days'
+                - Tags should include the '+' prefix (e.g., "+work", not "work")
             """
             created_task = task_service.add_task(task_input)
             return task_service.serialize_task(created_task)
@@ -138,11 +230,50 @@ def register_task_tools(
         @mcp.tool
         def update_task(task_id: str, task_input: TaskInputDTO) -> dict[str, Any]:
             """
-            Update an existing task.
+            Update an existing task in TaskWarrior.
+
+            IMPORTANT: All task fields must be nested inside the `task_input` object.
+            Do NOT send fields like `priority`, `project`, `due` as top-level parameters.
 
             Args:
-                task_id: The ID of the task to update
-                task_input: The updated task data
+                task_id: The ID or UUID of the task to update
+                task_input: The updated task data. At least one field must be modified.
+                    Supported fields:
+                    - description: Task description text
+                    - project: Project name
+                    - priority: Priority level ("H", "M", "L")
+                    - due: Due date (ISO format or TaskWarrior expressions)
+                    - tags: List of tags
+                    - depends: List of task UUIDs
+                    - annotations: List of annotation objects
+                    - recur: Recurrence period for recurring tasks (string). Examples: 'daily', '2weeks', 'every 3 days'
+                    - udas: Custom UDA fields
+
+            Examples:
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc",
+                  "task_input": {
+                    "priority": "H",
+                    "due": "tomorrow"
+                  }
+                }
+                ```
+
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc",
+                  "task_input": {
+                    "project": "Work",
+                    "tags": ["+urgent", "+call"]
+                  }
+                }
+                ```
+
+            Notes:
+                - At least one field must be different from current task values
+                - Recurrence expressions examples: 'daily', '2weeks', 'every 3 days'
+                - Use this for both triage (assigning project/priority) and modifications
             """
             updated_task = task_service.update_task(task_id, task_input)
             return task_service.serialize_task(updated_task)
@@ -156,6 +287,13 @@ def register_task_tools(
 
             Args:
                 task_id: The ID of the task to delete
+
+            Examples:
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc"
+                }
+                ```
             """
             if task_service.delete_task(task_id):
                 return f"Task {task_id} marked as deleted successfully."
@@ -170,6 +308,13 @@ def register_task_tools(
 
             Args:
                 task_id: The ID of the task to start
+
+            Examples:
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc"
+                }
+                ```
             """
             if task_service.start_task(task_id):
                 return f"Task {task_id} started successfully."
@@ -184,6 +329,13 @@ def register_task_tools(
 
             Args:
                 task_id: The ID of the task to stop
+
+            Examples:
+                ```json
+                {
+                  "task_id": "12345678-1234-1234-1234-123456789abc"
+                }
+                ```
             """
             if task_service.stop_task(task_id):
                 return f"Task {task_id} stopped successfully."
@@ -197,6 +349,14 @@ def register_task_tools(
             List all projects currently in use by pending tasks.
 
             Use this to discover existing projects before creating tasks.
+
+            Examples:
+                ```json
+                {}
+                ```
+
+            Returns:
+                List of project names and total count
             """
             return task_service.get_projects()
 
@@ -208,6 +368,14 @@ def register_task_tools(
             List all tags currently in use by pending tasks.
 
             Use this to discover existing tags before creating tasks.
+
+            Examples:
+                ```json
+                {}
+                ```
+
+            Returns:
+                List of tags (with '+' prefix) and total count
             """
             return task_service.get_tags()
 
@@ -219,6 +387,13 @@ def register_task_tools(
             List all UDAs defined in TaskWarrior configuration.
 
             Use this to discover available UDAs and their types before using them.
+
+            Examples:
+                ```json
+                {}
+                ```
+
+            Returns:
+                List of UDAs and total count
             """
             return task_service.get_udas()
-

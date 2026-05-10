@@ -1,12 +1,12 @@
 # Daily Review
 
-Perform a quick daily review to set the day's focus.
+Quick review to define the day's focus.
 
 ## Steps
-1. Check `taskmajor://status/overdue`. List overdue tasks.
-2. Check `taskmajor://agenda/today`. List appointments and tasks due today.
-3. Check `taskmajor://queue/unsorted`. Count inbox items.
-4. Call `next_task()` to get the top recommendation.
+1. `query_tasks(filter="status:pending due.before:now", sort=["due"])` → Overdue tasks.
+2. `query_tasks(filter="status:pending due.before:eod", sort=["priority"])` → Today's tasks.
+3. `get_stats(filters={"project": "Inbox"})` → Count items to triage.
+4. `next_task()` → Main recommendation.
 
 ## Output Format
 📅 Daily Review — {date}

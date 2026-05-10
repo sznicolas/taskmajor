@@ -542,6 +542,7 @@ Notes:
             "available_contexts": sorted(available_contexts, key=str.casefold),
             "active_context": active_context,
             "priorities": priorities,
+            "recurrence_formats": ["daily", "2weeks", "every 3 days"],
             "views": list(METADATA_VIEWS),
             "supported_filters": list(METADATA_SUPPORTED_FILTERS),
             "supported_sorts": list(METADATA_SUPPORTED_SORTS),
