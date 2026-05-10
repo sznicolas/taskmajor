@@ -3,6 +3,8 @@ version: 1.0.0
 extends: standard
 author: TaskMajor Team
 description: "Advanced tracking with estimates, ownership, and dependencies."
+tools:
+  - get_udas
 udas:
   - name: estimate
     type: numeric
@@ -17,6 +19,11 @@ udas:
     label: "Sprint"
     description: "Sprint name (e.g., Sprint-42)."
 resources:
+  - uri: "taskmajor://metadata/udas"
+    name: "UDAs"
+    description: "All UDAs defined in TaskWarrior configuration"
+    backend:
+      function: get_udas
   - uri: taskmajor://roadmap/sprint
     name: "Sprint Roadmap"
     description: "Pending tasks grouped by sprint"

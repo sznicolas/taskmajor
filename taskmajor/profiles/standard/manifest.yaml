@@ -26,7 +26,6 @@ tools:
   # Metadata
   - get_projects
   - get_tags
-  - get_udas
   # Diagnostics
   - report_error
 
@@ -124,11 +123,7 @@ resources:
     backend:
       function: get_tags
 
-  - uri: "taskmajor://metadata/udas"
-    name: "UDAs"
-    description: "All UDAs defined in TaskWarrior configuration"
-    backend:
-      function: get_udas
+
 
   - uri: "taskmajor://config/schema"
     name: "API Schema"

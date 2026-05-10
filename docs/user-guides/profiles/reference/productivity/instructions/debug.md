@@ -148,4 +148,20 @@
 🔍 
 🔍 When the user asks "What can I do at home?", filter by `+home`.
 🔍 When the user asks "I have 10 minutes", suggest `+errands` or low-priority `+work`.
+
+🔍 ## Energy (UDA)
+🔍 - Custom UDA `energy` (enum: low, medium, high). Use it to indicate the user’s current energy level and help match tasks to available energy.
+🔍 - Recommended usage:
+🔍   - Set when capturing a task or during reviews to mark tasks by energy requirement.
+🔍   - Values:
+🔍     - `low` — minimal focus or effort (quick emails, small chores).
+🔍     - `medium` — normal sustained work (standard tasks, meetings).
+🔍     - `high` — deep-focus or physical effort (complex development, heavy lifting).
+🔍 - Filtering and selection:
+🔍   - Query with `energy:low`, `energy:medium`, or `energy:high` to find matching tasks.
+🔍   - Combine with `next_task()` or review prompts to select tasks that fit current energy.
+🔍 - Examples:
+🔍   - `add_task "Fix bug" project:Work energy:high`
+🔍   - `query_tasks filter:"status:pending energy:low tag:+errands"`
+
 ```

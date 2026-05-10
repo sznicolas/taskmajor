@@ -24,3 +24,11 @@ Output format :
 🗓️ WEEK AHEAD :
 Monday: {count} tasks
 Tuesday: {count} tasks...
+
+## Energy (UDA)
+- Use `energy` to help select tasks that match current capacity.
+- Daily review tip: after assessing capacity, run `query_tasks(filter:"status:pending energy:low")` to find low-effort tasks for constrained energy windows.
+- Weekly review tip: balance `energy:high` tasks across the week to avoid clustering heavy work.
+- Examples:
+  - `query_tasks(filter:"status:pending energy:low project:Home")`
+  - `next_task(filter:"energy:high")`

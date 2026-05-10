@@ -31,7 +31,6 @@ tools:
   - next_task
   - get_projects
   - get_tags
-  - get_udas
 
 # --- Resources ---
 # Resources are read-only views the agent (or user) can inspect at any time.
@@ -54,13 +53,7 @@ resources:
     backend:
       function: get_tags
 
-  - uri: "taskmajor://metadata/udas"
-    name: "UDAs"
-    description: >
-      All UDAs defined in TaskWarrior configuration.
-      Consult before using UDAs in add_task/update_task.
-    backend:
-      function: get_udas
+
 
   - uri: "taskmajor://roadmap/project"
     name: "Tasks by Project"

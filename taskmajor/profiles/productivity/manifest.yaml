@@ -2,14 +2,21 @@ name: productivity
 version: 1.0.0
 extends: standard
 author: TaskMajor Team
+tools:
+  - get_udas
 description: "Structured workflow with reviews, dashboards, and tags. Ideal for GTD-inspired users."
 udas:
   - name: energy
     type: enum
     label: "Energy"
-    description: "Niveau d'énergie : low | medium | high"
+    description: "Energy required: low | medium | high"
     values: [low, medium, high]
 resources:
+  - uri: "taskmajor://metadata/udas"
+    name: "UDAs"
+    description: "All UDAs defined in TaskWarrior configuration"
+    backend:
+      function: get_udas
   - uri: taskmajor://dashboard/overview
     name: "Dashboard Overview"
     description: "Consolidated view: Overdue + Today + Inbox"
