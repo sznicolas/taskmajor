@@ -254,7 +254,6 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
            "https://pytaskwarrior.readthedocs.io/en/latest/building-taskwarrior/\n\n"
        )
        print(msg, file=sys.stderr)
-       print(str(exc), file=sys.stderr)
        raise SystemExit(1)
 
     await mcp.run_async(transport=transport, port=cfg.server_port, host=cfg.server_host)
