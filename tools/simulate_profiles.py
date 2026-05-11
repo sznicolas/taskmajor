@@ -228,9 +228,9 @@ def render_profile_report(ctx: ProfileContext, format: str = "markdown") -> str:
 
     # Tools
     md.append("## Tools")
-    tool_rows = [[t, " -> ".join(ctx.tool_history.get(t, [])), (ctx.tool_history.get(t, [])[-1] if ctx.tool_history.get(t) else "")] for t in ctx.tools_seen]
+    tool_rows = [[t, " -> ".join(ctx.tool_history.get(t, []))] for t in ctx.tools_seen]
     if tool_rows:
-        md.extend(_md_table(["Tool", "Declared in (chain)", "Final owner"], tool_rows))
+        md.extend(_md_table(["Tool", "Declared in (chain)"], tool_rows))
     else:
         md.append("- None")
     md.append("")

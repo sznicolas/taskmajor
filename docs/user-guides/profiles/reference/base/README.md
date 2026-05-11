@@ -2,7 +2,7 @@
 
 > **AUTO-GENERATED - Do not edit manually**
 
-Generated: 2026-04-30T22:44:18.063057
+Generated: 2026-05-11T20:42:45.913274  
 Regenerate: `python tools/generate_profile_docs.py`
 
 ---
@@ -20,14 +20,14 @@ Minimal task CRUD foundation. Provides essential tools, a pending-tasks resource
 **Instructions sources:** (see Instructions section)
 
 ## Tools
-| Tool | Declared in (chain) | Final owner |
-|---|---|---|
-| add_task | base | base |
-| get_task | base | base |
-| query_tasks | base | base |
-| update_task | base | base |
-| delete_task | base | base |
-| done_task | base | base |
+| Tool | Declared in (chain) |
+|---|---|
+| add_task | base |
+| get_task | base |
+| query_tasks | base |
+| update_task | base |
+| delete_task | base |
+| done_task | base |
 
 ## Prompts
 - None

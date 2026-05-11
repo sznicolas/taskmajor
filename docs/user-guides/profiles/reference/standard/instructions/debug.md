@@ -114,7 +114,7 @@
 🔍 `project`, `priority`, `due`, `tags`, or `description`.
 🔍 
 🔍 ## Tags
-🔍 Tags add context to tasks. Use them when they help, skip them when they don't.
+🔍 Tags add metadata to tasks. Use them when they help, skip them when they don't.
 🔍 Common examples: `+waiting`, `+call`, `+errands`, `+computer`
 🔍 
 🔍 Check existing tags with `get_tags()` before creating new ones.

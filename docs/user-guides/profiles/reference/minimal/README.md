@@ -2,7 +2,7 @@
 
 > **AUTO-GENERATED - Do not edit manually**
 
-Generated: 2026-04-30T22:44:18.067908
+Generated: 2026-05-11T20:42:45.935153  
 Regenerate: `python tools/generate_profile_docs.py`
 
 ---
@@ -24,18 +24,17 @@ Lightweight demo for testing and onboarding. Captures tasks, reuses existing met
 **Instructions sources:** (see Instructions section)
 
 ## Tools
-| Tool | Declared in (chain) | Final owner |
-|---|---|---|
-| add_task | base | base |
-| get_task | base | base |
-| query_tasks | base | base |
-| update_task | base | base |
-| delete_task | base | base |
-| done_task | base | base |
-| next_task | minimal | minimal |
-| get_projects | minimal | minimal |
-| get_tags | minimal | minimal |
-| get_udas | minimal | minimal |
+| Tool | Declared in (chain) |
+|---|---|
+| add_task | base |
+| get_task | base |
+| query_tasks | base |
+| update_task | base |
+| delete_task | base |
+| done_task | base |
+| next_task | minimal |
+| get_projects | minimal |
+| get_tags | minimal |
 
 ## Prompts
 - None
@@ -52,7 +51,6 @@ Lightweight demo for testing and onboarding. Captures tasks, reuses existing met
 | taskmajor://tasks/pending | query_tasks | {"filter": "status:pending", "sort": ["urgency"]} | Pending Tasks |  |
 | taskmajor://metadata/projects | get_projects | {} | Projects |  |
 | taskmajor://metadata/tags | get_tags | {} | Tags |  |
-| taskmajor://metadata/udas | get_udas | {} | UDAs |  |
 | taskmajor://roadmap/project | get_tasks_by_scope | {"filters": {"status": "pending"}, "scope": "project"} | Tasks by Project |  |
 | taskmajor://queue/unsorted | query_tasks | {"filter": "status:pending project:", "sort": ["urgency"]} | Unsorted Queue |  |
 
@@ -70,7 +68,7 @@ Stay lightweight: capture tasks fast, keep triage shallow, and avoid extra workf
 # Workflow
 
 1. Capture with `add_task`; keep descriptions short and clear.
-2. Before triage, reuse existing values with `get_projects`, `get_tags`, and `get_udas`.
+2. Before triage, reuse existing values with `get_projects` and `get_tags`.
 3. Use `update_task` to assign project, priority, due date, or tags; change at least one field.
 4. Use `next_task` only when the user explicitly asks what to do next.
 

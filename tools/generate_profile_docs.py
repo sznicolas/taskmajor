@@ -3,7 +3,7 @@
 
  Writes:
   - docs/user-guides/profiles/reference/{profile}.md
-  - docs/user-guides/profiles/reference/index.md
+  - docs/user-guides/profiles/reference/README.md
 
 Updates mkdocs.yml nav and attempts to ensure mermaid plugin present.
 Run this before docs build so generated profile pages stay in sync.
@@ -177,7 +177,7 @@ def write_index_md(outdir: Path, profiles: list[str], chains: dict[str, list[str
     body_lines.append("")
     body_lines.extend(list_lines)
 
-    write_text(outdir / "index.md", "\n".join(body_lines).rstrip() + "\n")
+    write_text(outdir / "README.md", "\n".join(body_lines).rstrip() + "\n")
 
 
 def update_mkdocs_configuration(mkdocs_path: Path, profiles: list[str], ensure_mermaid: bool = True) -> None:
@@ -344,7 +344,7 @@ def build_profile_doc_artifacts(sim, ctx, *, generated_at: str | None = None, re
 
     profile_header = "<!-- AUTO-GENERATED - Do not edit manually -->\n\n"
     profile_header += "> **AUTO-GENERATED - Do not edit manually**\n\n"
-    profile_header += f"Generated: {generated_at}\n"
+    profile_header += f"Generated: {generated_at}  \n"
     profile_header += f"Regenerate: `{regen_cmd}`\n\n"
     profile_header += "---\n\n"
 

@@ -2,7 +2,7 @@
 
 > **AUTO-GENERATED - Do not edit manually**
 
-Generated: 2026-04-30T22:44:18.086844
+Generated: 2026-05-11T20:42:46.020688  
 Regenerate: `python tools/generate_profile_docs.py`
 
 ---
@@ -26,27 +26,24 @@ Advanced tracking with estimates, ownership, and dependencies.
 **Instructions sources:** (see Instructions section)
 
 ## Tools
-| Tool | Declared in (chain) | Final owner |
-|---|---|---|
-| add_task | base -> standard | standard |
-| get_task | base -> standard | standard |
-| query_tasks | base -> standard | standard |
-| update_task | base -> standard | standard |
-| delete_task | base -> standard | standard |
-| done_task | base -> standard | standard |
-| get_stats | standard | standard |
-| next_task | standard | standard |
-| start_task | standard | standard |
-| stop_task | standard | standard |
-| list_contexts | standard | standard |
-| set_context | standard | standard |
-| unset_context | standard | standard |
-| resolve_date | standard | standard |
-| validate_date | standard | standard |
-| get_projects | standard | standard |
-| get_tags | standard | standard |
-| get_udas | standard | standard |
-| report_error | standard | standard |
+| Tool | Declared in (chain) |
+|---|---|
+| add_task | base -> standard |
+| get_task | base -> standard |
+| query_tasks | base -> standard |
+| update_task | base -> standard |
+| delete_task | base -> standard |
+| done_task | base -> standard |
+| get_stats | standard |
+| next_task | standard |
+| start_task | standard |
+| stop_task | standard |
+| resolve_date | standard |
+| validate_date | standard |
+| get_projects | standard |
+| get_tags | standard |
+| report_error | standard |
+| get_udas | project-mgmt |
 
 ## Prompts
 | name | source_profile |
@@ -79,8 +76,8 @@ Advanced tracking with estimates, ownership, and dependencies.
 | taskmajor://analytics/summary | get_stats | {"filters": {"status": "all"}} | Task Statistics |  |
 | taskmajor://metadata/projects | get_projects | {} | Projects |  |
 | taskmajor://metadata/tags | get_tags | {} | Tags |  |
-| taskmajor://metadata/udas | get_udas | {} | UDAs |  |
 | taskmajor://config/schema | get_metadata | {} | API Schema |  |
+| taskmajor://metadata/udas | get_udas | {} | UDAs |  |
 | taskmajor://roadmap/sprint | get_tasks_by_scope | {"filters": {"status": "pending"}, "scope": "sprint"} | Sprint Roadmap |  |
 | taskmajor://analytics/effort | get_stats | {"group_by": "project", "metric": "estimate"} | Effort Analytics |  |
 | taskmajor://queue/blockers | query_tasks | {"filter": "is_blocked:true", "sort": ["priority", "due"]} | Blocked Queue |  |
@@ -205,7 +202,7 @@ When processing an inbox task, use `update_task` to assign at least one of:
 `project`, `priority`, `due`, `tags`, or `description`.
 
 ## Tags
-Tags add context to tasks. Use them when they help, skip them when they don't.
+Tags add metadata to tasks. Use them when they help, skip them when they don't.
 Common examples: `+waiting`, `+call`, `+errands`, `+computer`
 
 Check existing tags with `get_tags()` before creating new ones.
