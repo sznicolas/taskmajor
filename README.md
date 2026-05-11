@@ -10,12 +10,9 @@
 
 ---
 
-## 🎯 One Server. Every Workflow.
-TaskWarrior offers powerful task management, but interacting with it via CLI can interrupt your flow. TaskMajor solves this by enabling natural language interaction with your existing task database.
+TaskMajor bridges your AI agents with a fantastic, battle-tested backend: **TaskWarrior**. It transforms your local task database into a fluid conversational interface, allowing you to create, triage, and track tasks in natural language without leaving your workflow.
 
-But it's more than just a bridge. **TaskMajor adapts to your methodology.** Whether you follow GTD, Kanban, or a custom workflow, our **specialized profiles** and **extensible architecture** allow you to tailor the agent's behavior, available tools, and reporting formats to your exact needs.
-
-Ask your AI agent:
+Ask your agent:
 ```
 "Add a task to review the API spec"
 "What's on my plate for today?"
@@ -23,7 +20,11 @@ Ask your AI agent:
 "Show me the roadmap for Project X"
 ```
 
-Your agent executes these commands directly on your TaskWarrior database—**without leaving your workflow**.
+Your agent executes these commands directly on your database—**without leaving your workflow**.
+
+TaskMajor adapts to your needs, ranging from a simple to-do list to a robust GTD system or a multi-agent coordination hub. Its power lies in its **profile system**: each profile defines a unique contract of exposed tools, views, and behaviors. Explore the [built-in profiles](docs/user-guides/profiles/profile-system.md) or learn how to compose and extend them to match your exact methodology in the [profile documentation](docs/user-guides/profiles/profile-system.md).
+
+Ready to transform your task management? Jump straight into the [Quick Start](#quick-start) to get running in minutes.
 
 ## 🚀 Quick Start
 

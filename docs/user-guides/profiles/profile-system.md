@@ -10,6 +10,8 @@ A profile is a directory containing a `manifest.yaml` plus optional files (promp
 
 Keep manifests small and prefer composition via `extends` and shared fragments.
 
+See the [available profiles](reference/README.md)
+
 ## Quick manifest example
 
 ```yaml
