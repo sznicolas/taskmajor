@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import pytest
 
 from taskmajor.domains.tasks._helpers import coerce_datetime, is_taskwarrior_date_expr

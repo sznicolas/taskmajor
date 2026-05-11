@@ -209,12 +209,50 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
     If TaskWarrior is not available on the PATH, print a friendly message
     and exit with a helpful link to the py-taskwarrior build documentation.
     """
+    # Parse command-line arguments for configuration overrides
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--taskrc", help="TaskWarrior config file path")
+    parser.add_argument("--taskdata", help="TaskWarrior data directory path")
+    parser.add_argument("--server-port", type=int, help="Server port number")
+    parser.add_argument("--server-host", help="Server host address")
+    parser.add_argument("--log-level", help="Log level")
+    parser.add_argument("--profile", help="Profile name to use")
+    parser.add_argument("--no-profiles", action="store_true", help="Disable profile loading")
+
+    # Parse all additional arguments as config overrides, but keep command-line args separate
     cfg = config_override or config
-    profile_args = parse_profile_args()
-    cli_profile = None if profile_args.no_profiles else profile_args.profile
+
+    # Parse arguments and update config if necessary
+    args, unknown_args = parser.parse_known_args()
+
+    # Apply configuration overrides from command-line arguments
+    if args.taskrc:
+        cfg.taskrc = args.taskrc
+    if args.taskdata:
+        cfg.taskdata = args.taskdata
+    if args.server_port:
+        cfg.server_port = args.server_port
+    if args.server_host:
+        cfg.server_host = args.server_host
+    if args.log_level:
+        cfg.log_level = args.log_level
+
+    # Determine profile from command line or config
+    if args.profile:
+        cli_profile = args.profile
+    elif not args.no_profiles and cfg.profile:
+        cli_profile = cfg.profile
+    else:
+        cli_profile = None
 
     # Determine transport: CLI override > config > default
-    transport = profile_args.transport or cfg.server_transport
+    transport = cfg.server_transport
+    if "transport" in unknown_args:
+        # Find the value after --transport argument
+        transport_idx = unknown_args.index("transport")
+        if transport_idx + 1 < len(unknown_args):
+            transport = unknown_args[transport_idx + 1]
+
     log.info(f"Using MCP transport: {transport}")
 
     try:

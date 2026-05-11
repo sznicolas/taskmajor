@@ -11,42 +11,66 @@
 ---
 
 ## 🎯 One Server. Every Workflow.
+TaskWarrior offers powerful task management, but interacting with it via CLI can interrupt your flow. TaskMajor solves this by enabling natural language interaction with your existing task database.
 
-TaskMajor is a Model Context Protocol (MCP) server that connects any AI agent—Copilot, Claude, Cursor, or your own—to your TaskWarrior database. But it's more than a bridge: **it's a configurable task orchestration layer** that adapts to *how* you work.
+But it's more than just a bridge. **TaskMajor adapts to your methodology.** Whether you follow GTD, Kanban, or a custom workflow, our **specialized profiles** and **extensible architecture** allow you to tailor the agent's behavior, available tools, and reporting formats to your exact needs.
 
-~~~
+Ask your AI agent:
+```
 "Add a task to review the API spec"
 "What's on my plate for today?"
-"Mark the design review as done"
 "Run my daily review"
-"Show me the project roadmap for Work.Q4"
-~~~
+"Show me the roadmap for Project X"
+```
 
 Your agent executes these commands directly on your TaskWarrior database—**without leaving your workflow**.
 
-### Architecture Overview
+## 🚀 Quick Start
 
-~~~
-┌────────────────────────────────────────────────────────┐
-│                  Your AI Agent                          │
-│  (Copilot, Claude Code, Cursor, or any MCP client)     │
-└────────────────────┬─────────────────────────────────┘
-                     │ (Natural Language)
-                     │
-        ┌────────────▼──────────────┐
-        │    TaskMajor MCP Server   │
-        │   ├─ Resources (read)     │
-        │   ├─ Tools (write/manage) │
-        │   └─ Profiles (behavior)  │
-        └────────────┬──────────────┘
-                     │ (TaskWarrior CLI)
-                     │
-        ┌────────────▼──────────────┐
-        │    TaskWarrior           │
-        │   ~/.taskrc, ~/.task/    │
-        │   (Your task database)   │
-        └───────────────────────────┘
-~~~
+### Prerequisites
+
+- **TaskWarrior v3.0+** is required.
+  - **macOS**: `brew install task`
+  - **Linux/Windows**: Download from [taskwarrior.org](https://taskwarrior.org/download/)
+  - **Alternative**: If you cannot install TaskWarrior locally, use the **Docker** option below which includes a bundled version.
+- **Python 3.10+**
+- **uv** (recommended) or **pip**
+
+### Installation & Running
+
+1. **Clone and Install**
+   ```bash
+   git clone https://github.com/nschmeltz/taskmajor.git
+   cd taskmajor
+   uv sync
+   ```
+   *(Or use `pip install -e .`)*
+
+2. **Configure for Existing Users**
+   > **Important for TaskWarrior users:** If you already have a TaskWarrior database, you **must** edit `taskmajor/config/config.yaml` to point to your existing `.taskrc` and data directory.
+   >
+   > ```yaml
+   > # taskmajor/config/config.yaml
+   > taskrc: /path/to/your/.taskrc
+   > taskdata: /path/to/your/.task
+   > ```
+   > *If you skip this, TaskMajor will initialize a new, empty database.*
+
+3. **Launch the Server**
+   ```bash
+   uv run -m taskmajor.bootstrap.server # --help to view overridable options in CLI
+   ```
+   You should see: `INFO: TaskMajor MCP Server ready`.
+
+4. **Connect Your Agent**
+   That's it. Now, simply configure your AI agent (Copilot, Claude, Cursor) to connect to this local MCP server. See the **[Quick Connect Guide](docs/user-guides/integrations/simple-agent-setup.md)** for copy-paste snippets for your specific editor.
+
+### Docker Option
+If you prefer containerization or need a bundled TaskWarrior instance:
+```bash
+docker build -t taskmajor . && docker run -d -v -p 8888:8888 taskmajor
+```
+*Remember to mount your `config.yaml` and TaskWarrior data directory if you want to persist data.*
 
 ---
 

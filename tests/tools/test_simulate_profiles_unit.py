@@ -18,7 +18,6 @@ from simulate_profiles import (  # noqa: E402
     render_profile_report,
 )
 
-
 # ---------------------------------------------------------------------------
 # discover_builtin_profiles
 # ---------------------------------------------------------------------------
@@ -93,21 +92,21 @@ def test_load_profile_context_project_mgmt_has_udas():
 # ---------------------------------------------------------------------------
 
 def _make_minimal_ctx(**overrides) -> ProfileContext:
-    defaults = dict(
-        profile_name="test",
-        chain=[{"name": "test", "version": "1.0.0", "description": "desc"}],
-        manifests=[],
-        tools_seen=["add_task", "query_tasks"],
-        tool_history={"add_task": ["test"], "query_tasks": ["test"]},
-        prompt_defs={},
-        udas={},
-        uda_source={},
-        contexts=[],
-        overlaps={},
-        resources={},
-        final_instructions="Do something.",
-        fragments=[],
-    )
+    defaults = {
+        "profile_name": "test",
+        "chain": [{"name": "test", "version": "1.0.0", "description": "desc"}],
+        "manifests": [],
+        "tools_seen": ["add_task", "query_tasks"],
+        "tool_history": {"add_task": ["test"], "query_tasks": ["test"]},
+        "prompt_defs": {},
+        "udas": {},
+        "uda_source": {},
+        "contexts": [],
+        "overlaps": {},
+        "resources": {},
+        "final_instructions": "Do something.",
+        "fragments": [],
+    }
     defaults.update(overrides)
     return ProfileContext(**defaults)
 

@@ -17,6 +17,7 @@ from taskmajor.domains.taskwarrior import TaskConfigService
 from ._helpers import (
     coerce_datetime,
     format_tag,
+    is_taskwarrior_date_expr,
     normalize_sort_specs,
     serialize_datetime,
 )
@@ -644,6 +645,37 @@ Notes:
             return tasks
 
         normalized = normalize_filters(filters)
+
+        # If either due_before or due_after looks like a TaskWarrior date expression
+        # (non-ISO string), construct a raw TaskWarrior filter and load via _load_tasks_raw.
+        if is_taskwarrior_date_expr(normalized.due_before) or is_taskwarrior_date_expr(
+            normalized.due_after
+        ):
+            parts: list[str] = []
+            # include status filter(s)
+            statuses = normalize_statuses(normalized.status)
+            for s in statuses:
+                parts.append(f"status:{s}")
+            # include project
+            if normalized.project:
+                parts.append(f"project:{normalized.project}")
+            # include tags_any (as +tag)
+            if normalized.tags_any:
+                parts.extend(format_tag(t) for t in normalized.tags_any)
+            # include tags_all (all tags must be present; include as +tag)
+            if normalized.tags_all:
+                parts.extend(format_tag(t) for t in normalized.tags_all)
+            # include due expressions
+            if is_taskwarrior_date_expr(normalized.due_before):
+                parts.append(f"due.before:{normalized.due_before}")
+            if is_taskwarrior_date_expr(normalized.due_after):
+                parts.append(f"due.after:{normalized.due_after}")
+
+            filter_string = " ".join(parts)
+            tasks = self._load_tasks_raw(filter_string)
+            self._sort_tasks(tasks, sort)
+            return tasks
+
         due_before = coerce_datetime(normalized.due_before)
         due_after = coerce_datetime(normalized.due_after)
         statuses = normalize_statuses(normalized.status)

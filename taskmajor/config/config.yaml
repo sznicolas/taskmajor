@@ -1,14 +1,13 @@
 server_host: 0.0.0.0
 server_port: 8888
 server_name: TaskMajor Server
-taskrc: ~/.taskrc_ai
-taskdata: ~/.task_ai
+taskrc: ~/.taskrc_mcp
+taskdata: ~/.task_mcp
 profiles_dir: "taskmajor/profiles"
 profile: productivity
 log_level: INFO
 #log_level: DEBUG
 log_format: text
-#agent_errors_path: /data/task/agent_errors.jsonl
 agent_errors_path: /tmp/task/agent_errors.jsonl
 otel_service_name: null
 otel_enabled: true
