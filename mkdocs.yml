@@ -70,7 +70,7 @@ nav:
       - Testing: developer/testing.md
   - User Guides:
       - Profiles:
-          - Index: user-guides/profiles/reference/README.md
+          - Index: user-guides/profiles/reference/index.md
           - Reference:
               - Base:
                   - README: user-guides/profiles/reference/base/README.md

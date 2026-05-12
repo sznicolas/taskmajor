@@ -2,7 +2,7 @@
 
 > **AUTO-GENERATED - Do not edit manually**
 
-Generated: 2026-05-11T20:42:46.029750  
+Generated: 2026-05-12T23:38:05.081195  
 Regenerate: `python tools/generate_profile_docs.py`
 
 ---
@@ -162,6 +162,43 @@ When a task is done, call `done_task(task_id)`.
 
 ---
 
+# Context Tags (`+@`)
+
+## Concept
+A **context tag** indicates *where* or *with what* a task must be performed.
+Unlike categorical tags (`+urgent`), context tags use the `@` symbol to
+signal a location, tool, or situation.
+
+| Type | Prefix | Meaning | Examples |
+|------|--------|---------|----------|
+| Categorical | `+` | Quality or category | `+urgent`, `+grocery`, `+someday` |
+| Context | `+@` | Location or tool | `+@home`, `+@computer`, `+@phone`, `+@errands` |
+
+## Why `+@` instead of TaskWarrior Contexts?
+TaskWarrior's native `context` is a **global persistent filter**. If set,
+it silently hides tasks until unset, which is dangerous for AI agents.
+Context tags (`+@`) are safer because:
+- They live **on the task**, not in global state.
+- They are **explicit** (you filter by them only when needed).
+- They **never hide** tasks by accident.
+
+## Usage Rules
+1. **Prefix:** Always use `+@` for contexts (e.g., `+@home`, never `+home`).
+2. **Filtering:** Use `query_tasks(tags_any=["+@computer"])` to find tasks for a specific context.
+3. **Assignment:** Assign at least one context tag during triage (e.g., "Call dentist" → `+@phone`).
+4. **No Native Contexts:** Never use `set_context` or `list_contexts`.
+
+## Common Context Tags
+- `+@home`: Chores, family, personal tasks.
+- `+@office`: Work-specific tasks.
+- `+@computer`: Requires a laptop/desktop.
+- `+@phone`: Calls or messaging.
+- `+@errands`: Requires leaving the house.
+- `+@anywhere`: Can be done anywhere (reading, thinking).
+
+
+---
+
 # Task Organization
 
 ## Projects
@@ -211,6 +248,8 @@ Check existing tags with `get_tags()` before creating new ones.
 ### 🔍 base/instructions/030_date_usage.md
 
 ### 🔍 base/instructions/040_text_quality.md
+
+### 🔍 standard/instructions/045_context_tags.md
 
 ### 🔍 standard/instructions/050_organization.md
 
