@@ -41,6 +41,7 @@ def _task(
         payload["urgency"] = urgency
     return TaskOutputDTO(**cast(Any, payload))
 
+
 def test_add_task():
     """Test adding a new task."""
     mock_taskwarrior = Mock()
@@ -58,6 +59,7 @@ def test_add_task():
     assert result.uuid == uuid.UUID("12345678-1234-1234-1234-123456789012")
     assert result.description == "Test task"
 
+
 def test_list_pending_tasks():
     """Test listing pending tasks."""
     mock_taskwarrior = Mock()
@@ -71,6 +73,7 @@ def test_list_pending_tasks():
 
     assert len(result) == 2
     assert all(task.status == "pending" for task in result)
+
 
 def test_update_task():
     """Test updating a task with field changes."""
@@ -98,6 +101,7 @@ def test_update_task():
     assert result.description == "Updated task"
     assert result.project == "test_project"
 
+
 def test_delete_task():
     """Test deleting a task."""
     mock_taskwarrior = Mock()
@@ -111,6 +115,7 @@ def test_delete_task():
     result = task_service.delete_task("12345678-1234-1234-1234-123456789012")
 
     assert result is True
+
 
 def test_query_tasks_returns_canonical_shape():
     mock_taskwarrior = Mock()
@@ -146,6 +151,7 @@ def test_query_tasks_returns_canonical_shape():
             "depends": [],
         }
     ]
+
 
 def test_query_tasks_supports_filters_and_sorting():
     mock_taskwarrior = Mock()
@@ -192,6 +198,7 @@ def test_query_tasks_supports_filters_and_sorting():
     assert result["total"] == 1
     assert result["tasks"][0]["description"] == "Ship feature"
 
+
 def test_get_stats_counts_overdue():
     mock_taskwarrior = Mock()
     now = datetime.now(UTC)
@@ -225,6 +232,7 @@ def test_get_stats_counts_overdue():
     assert stats["by_project"]["Inbox"] == 2
     assert stats["overdue"] == 1
 
+
 def test_get_tasks_by_scope_groups_tasks_by_scope():
     mock_taskwarrior = Mock()
     now = datetime.now(UTC)
@@ -248,6 +256,7 @@ def test_get_tasks_by_scope_groups_tasks_by_scope():
     assert roadmap["scope"] == "project"
     assert roadmap["total"] == 2
     assert [group["key"] for group in roadmap["groups"]] == ["alpha", "beta"]
+
 
 def test_next_task_returns_highest_urgency_unblocked_task():
     mock_taskwarrior = Mock()
@@ -273,6 +282,7 @@ def test_next_task_returns_highest_urgency_unblocked_task():
     assert result["total"] == 2
     assert result["tasks"][0]["description"] == "High urgency"
     assert result["selection_reason"] == "highest_urgency"
+
 
 def test_update_task_with_triage_metadata():
     """Test update_task for triage classification (project, priority, due, tags)."""
@@ -313,6 +323,7 @@ def test_update_task_with_triage_metadata():
     assert result.project == "work"
     assert result.priority == "H"
 
+
 def test_update_task_raises_on_no_changes():
     """Test that update_task raises ValueError when no fields would change."""
     mock_taskwarrior = Mock()
@@ -335,12 +346,14 @@ def test_update_task_raises_on_no_changes():
             task_input,
         )
 
+
 def test_update_task_raises_on_empty_changes():
     """Test that update_task raises ValueError when no fields are specified."""
     task_service = TaskService(Mock())
 
     with pytest.raises(ValueError, match="No changes detected"):
         task_service.update_task("123", TaskInputDTO())
+
 
 def test_metadata_exposes_v2_contract():
     mock_taskwarrior = Mock()
@@ -361,7 +374,9 @@ def test_metadata_exposes_v2_contract():
     ]
     mock_taskwarrior.context_service.get_contexts.return_value = [
         SimpleNamespace(name="calls", read_filter="+@calls", write_filter="+@calls", active=True),
-        SimpleNamespace(name="office", read_filter="+@office", write_filter="+@office", active=False),
+        SimpleNamespace(
+            name="office", read_filter="+@office", write_filter="+@office", active=False
+        ),
     ]
     mock_taskwarrior.context_service.get_current_context.return_value = "calls"
 
@@ -423,6 +438,7 @@ def test_metadata_exposes_v2_contract():
 # stop_task edge cases
 # ---------------------------------------------------------------------------
 
+
 def test_stop_task_not_found_returns_false():
     """When task is not in storage AND not in TaskWarrior, stop_task returns False."""
     tw = Mock()
@@ -455,6 +471,7 @@ def test_stop_task_success_calls_tw_stop():
 # start_task edge cases
 # ---------------------------------------------------------------------------
 
+
 def test_start_task_not_found_returns_false():
     """When task is absent from storage and TaskWarrior, start_task returns False."""
     tw = Mock()
@@ -472,6 +489,7 @@ def test_start_task_not_found_returns_false():
 # ---------------------------------------------------------------------------
 # complete_task edge cases
 # ---------------------------------------------------------------------------
+
 
 def test_complete_task_verifies_completion_via_status():
     """done_task returns object with status=completed → storage marked, returns True."""
@@ -495,6 +513,7 @@ def test_complete_task_verifies_completion_via_status():
 # list_contexts edge cases
 # ---------------------------------------------------------------------------
 
+
 def test_list_contexts_returns_empty_on_error():
     """When context_service.get_contexts() raises, list_contexts returns []."""
     tw = Mock()
@@ -509,6 +528,7 @@ def test_list_contexts_returns_empty_on_error():
 # ---------------------------------------------------------------------------
 # Priority enum ordering
 # ---------------------------------------------------------------------------
+
 
 def test_priority_enum_ordering():
     assert Priority.H < Priority.M
@@ -525,15 +545,15 @@ def test_query_objects_uses_raw_filter_for_tw_expr(monkeypatch):
     captured = {}
 
     def fake_load_raw(filter_string):
-        captured['filter'] = filter_string
+        captured["filter"] = filter_string
         return []
 
     monkeypatch.setattr(svc, "_load_tasks_raw", fake_load_raw)
 
     svc._query_task_objects(filters={"due_before": "today"})
 
-    assert 'filter' in captured
-    assert "due.before:today" in captured['filter']
+    assert "filter" in captured
+    assert "due.before:today" in captured["filter"]
 
 
 def test_query_objects_uses_inmemory_for_iso(monkeypatch):
@@ -541,14 +561,14 @@ def test_query_objects_uses_inmemory_for_iso(monkeypatch):
     tw = Mock()
     svc = TaskService(tw)
 
-    called = {'raw': False, 'load': False}
+    called = {"raw": False, "load": False}
 
     def fake_load_raw(filter_string):
-        called['raw'] = True
+        called["raw"] = True
         return []
 
     def fake_load(statuses):
-        called['load'] = True
+        called["load"] = True
         return []
 
     monkeypatch.setattr(svc, "_load_tasks_raw", fake_load_raw)
@@ -556,5 +576,5 @@ def test_query_objects_uses_inmemory_for_iso(monkeypatch):
 
     svc._query_task_objects(filters={"due_before": "2026-05-08T10:00:00Z"})
 
-    assert called['raw'] is False
-    assert called['load'] is True
+    assert called["raw"] is False
+    assert called["load"] is True

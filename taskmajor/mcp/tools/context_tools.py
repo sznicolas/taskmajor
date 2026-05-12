@@ -82,4 +82,3 @@ def register_context_tools(
                 return "Context deactivated."
             except Exception as e:
                 return f"Failed to unset context: {e}"
-

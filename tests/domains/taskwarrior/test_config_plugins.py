@@ -24,7 +24,9 @@ def test_taskmajor_config_loads_profile_key(tmp_path):
         "profiles_dir": str(tmp_path / "profiles"),
         "profile": "alpha",
     }
-    (tmp_path / "config.yaml").write_text(yaml.safe_dump(config_yaml, sort_keys=False), encoding="utf-8")
+    (tmp_path / "config.yaml").write_text(
+        yaml.safe_dump(config_yaml, sort_keys=False), encoding="utf-8"
+    )
 
     config = TaskMajorConfig.load(tmp_path)
 

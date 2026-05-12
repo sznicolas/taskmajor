@@ -105,7 +105,9 @@ class ProfileManager:
             # Re-raise ProfileConflictError without wrapping
             raise
         except Exception as e:
-            log.error(f"[PROFILE CHAIN ERROR] Failed to build chain for '{profile_name_or_path}': {type(e).__name__}: {e}")
+            log.error(
+                f"[PROFILE CHAIN ERROR] Failed to build chain for '{profile_name_or_path}': {type(e).__name__}: {e}"
+            )
             raise RuntimeError(f"[PROFILE CHAIN ERROR] {type(e).__name__}: {e}") from e
 
         # Check for conflicts in the chain
@@ -121,7 +123,9 @@ class ProfileManager:
             try:
                 self._load_prompts_and_instructions(manifest)
             except Exception as e:
-                log.error(f"[PROFILE LOAD ERROR] Profile '{manifest.name}': {type(e).__name__}: {e}")
+                log.error(
+                    f"[PROFILE LOAD ERROR] Profile '{manifest.name}': {type(e).__name__}: {e}"
+                )
                 raise RuntimeError(f"[PROFILE LOAD ERROR] {type(e).__name__}: {e}") from e
 
         # Validate UDAs across the chain (parents first)
@@ -148,7 +152,9 @@ class ProfileManager:
             try:
                 self._load_resources(manifest)
             except Exception as e:
-                log.error(f"[RESOURCE LOAD ERROR] Profile '{manifest.name}': {type(e).__name__}: {e}")
+                log.error(
+                    f"[RESOURCE LOAD ERROR] Profile '{manifest.name}': {type(e).__name__}: {e}"
+                )
                 raise RuntimeError(f"[RESOURCE LOAD ERROR] {type(e).__name__}: {e}") from e
 
     def _load_prompts_and_instructions(self, manifest: ProfileManifest) -> None:
@@ -226,7 +232,6 @@ class ProfileManager:
             log.debug("Resolved profile '%s' to built-in: %s", profile, pkg_dir)
             return pkg_dir
 
-
         # Not found
         raise FileNotFoundError(
             f"Profile '{profile}' not found. Searched: "
@@ -255,7 +260,9 @@ class ProfileManager:
 
         # Cycle detection
         if canonical in visited:
-            raise ProfileConflictError(f"Cycle detected in extends chain at '{name_or_path}' ({canonical})")
+            raise ProfileConflictError(
+                f"Cycle detected in extends chain at '{name_or_path}' ({canonical})"
+            )
         visited.add(canonical)
 
         # Load this profile's manifest
@@ -264,7 +271,9 @@ class ProfileManager:
             manifest.path = path
             log.debug("Loaded manifest for profile '%s' from %s", manifest.name, path)
         except Exception as e:
-            raise FileNotFoundError(f"Failed to load manifest for '{name_or_path}' at {path / 'manifest.yaml'}: {e}") from e
+            raise FileNotFoundError(
+                f"Failed to load manifest for '{name_or_path}' at {path / 'manifest.yaml'}: {e}"
+            ) from e
 
         # Build parent chains first
         chain: list[ProfileManifest] = []

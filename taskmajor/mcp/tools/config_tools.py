@@ -136,4 +136,3 @@ def register_config_tools(
                 return f"Context '{name}' deleted."
             except Exception as e:
                 return f"Failed to delete context '{name}': {e}"
-

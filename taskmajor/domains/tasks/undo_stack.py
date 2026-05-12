@@ -12,12 +12,14 @@ from typing import Any
 
 _MAX_STACK_SIZE = 20
 
+
 @dataclass
 class UndoEntry:
     n: int
     uuid: str
     description: str
     action: str  # "done" | "deleted"
+
 
 class UndoStack:
     """In-memory stack of recent reversible task actions."""

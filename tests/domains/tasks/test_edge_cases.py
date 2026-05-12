@@ -37,9 +37,7 @@ def _mock_task_service() -> TaskService:
         context_service=SimpleNamespace(
             define_context=lambda c: None, delete_context=lambda n: None
         ),
-        uda_service=SimpleNamespace(
-            define_uda=lambda u: None, delete_uda=lambda n: None
-        ),
+        uda_service=SimpleNamespace(define_uda=lambda u: None, delete_uda=lambda n: None),
     )
     return TaskService(taskwarrior_client=fake_client)
 
@@ -662,9 +660,7 @@ class TestErrorMessages:
             service.query_tasks(filters={"status": "pending"}, limit=-1)
 
         assert "limit" in str(exc_info.value).lower()
-        assert "greater" in str(exc_info.value).lower() or ">=" in str(
-            exc_info.value
-        )
+        assert "greater" in str(exc_info.value).lower() or ">=" in str(exc_info.value)
 
     def test_negative_offset_error_message(self):
         """Negative offset should give clear error."""
@@ -674,9 +670,7 @@ class TestErrorMessages:
             service.query_tasks(filters={"status": "pending"}, offset=-5)
 
         assert "offset" in str(exc_info.value).lower()
-        assert "greater" in str(exc_info.value).lower() or ">=" in str(
-            exc_info.value
-        )
+        assert "greater" in str(exc_info.value).lower() or ">=" in str(exc_info.value)
 
     def test_invalid_priority_in_filters(self):
         """Invalid priority should raise clear error."""

@@ -7,7 +7,7 @@ allow-direct-references = true
 
 [project]
 name = "taskmajor"
-version = "0.2.3"
+version = "0.2.4"
 description = "TaskMajor MCP. Coordinate your tasks. Execute with precision."
 readme = "README.md"
 requires-python = ">=3.12"

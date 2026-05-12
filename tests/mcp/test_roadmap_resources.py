@@ -22,7 +22,9 @@ def _mock_task_service(**overrides) -> TaskService:
     """Create a TaskService with a mocked TaskWarrior client."""
     fake_client = SimpleNamespace(
         config_store=SimpleNamespace(config={}, get_contexts=lambda: []),
-        context_service=SimpleNamespace(define_context=lambda c: None, delete_context=lambda n: None),
+        context_service=SimpleNamespace(
+            define_context=lambda c: None, delete_context=lambda n: None
+        ),
         uda_service=SimpleNamespace(define_uda=lambda u: None, delete_uda=lambda n: None),
     )
     return TaskService(taskwarrior_client=fake_client, **overrides)
@@ -34,7 +36,10 @@ class TestRoadmapResources:
         """Each roadmap resource returns JSON containing groups and total."""
         service = _mock_task_service()
         from typing import cast
-        cast(Any, service).get_tasks_by_scope = MagicMock(return_value={"scope": scope, "groups": [], "total": 0})
+
+        cast(Any, service).get_tasks_by_scope = MagicMock(
+            return_value={"scope": scope, "groups": [], "total": 0}
+        )
 
         payload = service.get_tasks_by_scope(scope, filters={"status": "pending"})
         result_str = json.dumps(payload, default=str)
@@ -43,18 +48,23 @@ class TestRoadmapResources:
         assert "groups" in result
         assert "total" in result
         from typing import cast
+
         cast(Any, service).get_tasks_by_scope.assert_called_once()
 
     def test_roadmap_scope_calls_service_with_pending_filter(self, scope: str):
         """Each roadmap resource calls get_tasks_by_scope(scope, filters={'status':'pending'})."""
         service = _mock_task_service()
         from typing import cast
-        cast(Any, service).get_tasks_by_scope = MagicMock(return_value={"scope": scope, "groups": [], "total": 0})
+
+        cast(Any, service).get_tasks_by_scope = MagicMock(
+            return_value={"scope": scope, "groups": [], "total": 0}
+        )
 
         payload = service.get_tasks_by_scope(scope, filters={"status": "pending"})
         json.dumps(payload, default=str)
 
         from typing import cast
+
         cast(Any, service).get_tasks_by_scope.assert_called_once()
         call_args = cast(Any, service).get_tasks_by_scope.call_args
         # positional first arg is scope
@@ -65,7 +75,10 @@ class TestRoadmapResources:
         """If the underlying service raises, the resource should return an error JSON."""
         service = _mock_task_service()
         from typing import cast
-        cast(Any, service).get_tasks_by_scope = MagicMock(side_effect=RuntimeError("service failure"))
+
+        cast(Any, service).get_tasks_by_scope = MagicMock(
+            side_effect=RuntimeError("service failure")
+        )
 
         try:
             payload = service.get_tasks_by_scope(scope, filters={"status": "pending"})

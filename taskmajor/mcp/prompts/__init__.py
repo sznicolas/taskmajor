@@ -8,4 +8,3 @@ from __future__ import annotations
 
 # prompt registration modules live here; no runtime imports required
 __all__ = []
-

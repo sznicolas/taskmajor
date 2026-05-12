@@ -88,9 +88,7 @@ class InstructionsLoader:
                 break
 
         if end_index is None:
-            raise ValueError(
-                f"YAML front matter in '{fragment_path}' must be closed with '---'."
-            )
+            raise ValueError(f"YAML front matter in '{fragment_path}' must be closed with '---'.")
 
         yaml.safe_load("".join(lines[1:end_index]))
         return "".join(lines[end_index + 1 :]).lstrip("\n")

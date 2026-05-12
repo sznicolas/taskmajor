@@ -7,7 +7,7 @@ tools:
 description: "Structured workflow with reviews, dashboards, and tags. Ideal for GTD-inspired users."
 udas:
   - name: energy
-    type: enum
+    type: string
     label: "Energy"
     description: "Energy required: low | medium | high"
     values: [low, medium, high]

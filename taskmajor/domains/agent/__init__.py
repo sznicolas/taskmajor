@@ -7,4 +7,3 @@ __all__ = [
     "create_resource_tools",
     "get_system_prompt",
 ]
-

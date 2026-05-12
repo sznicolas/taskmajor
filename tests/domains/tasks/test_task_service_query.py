@@ -32,7 +32,9 @@ class FakeTaskWarrior:
         # minimal config_store expected by TaskConfigService
         self.config_store = SimpleNamespace(config={}, get_contexts=lambda: [])
         # minimal services used by TaskConfigService
-        self.context_service = SimpleNamespace(define_context=lambda c: None, delete_context=lambda n: None)
+        self.context_service = SimpleNamespace(
+            define_context=lambda c: None, delete_context=lambda n: None
+        )
         self.uda_service = SimpleNamespace(define_uda=lambda u: None, delete_uda=lambda n: None)
 
     def get_tasks(self, *_args, include_completed=False, include_deleted=False):
@@ -78,10 +80,19 @@ class FakeTaskWarrior:
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 def _make_task(**kwargs):
-    defaults = {"uuid": uuid.uuid4(), "description": "task", "project": None,
-                    "priority": None, "tags": [], "due": None, "status": "pending",
-                    "urgency": 0, "entry": None}
+    defaults = {
+        "uuid": uuid.uuid4(),
+        "description": "task",
+        "project": None,
+        "priority": None,
+        "tags": [],
+        "due": None,
+        "status": "pending",
+        "urgency": 0,
+        "entry": None,
+    }
     defaults.update(kwargs)
     return SimpleNamespace(**defaults)
 
@@ -90,12 +101,28 @@ def _make_task(**kwargs):
 def sample_tasks():
     """A diverse set of tasks covering multiple projects, priorities and statuses."""
     return [
-        _make_task(description="Pending Work H",  project="Work",  priority="H", status="pending",   urgency=9),
-        _make_task(description="Pending Work M",  project="Work",  priority="M", status="pending",   urgency=5),
-        _make_task(description="Pending Inbox",   project="Inbox", priority="L", status="pending",   urgency=2),
-        _make_task(description="Completed Work",  project="Work",  priority="M", status="completed", urgency=0),
-        _make_task(description="Deleted task",    project="Inbox", priority=None, status="deleted",  urgency=0),
-        _make_task(description="No project task", project=None,    priority="H", status="pending",   urgency=7),
+        _make_task(
+            description="Pending Work H", project="Work", priority="H", status="pending", urgency=9
+        ),
+        _make_task(
+            description="Pending Work M", project="Work", priority="M", status="pending", urgency=5
+        ),
+        _make_task(
+            description="Pending Inbox", project="Inbox", priority="L", status="pending", urgency=2
+        ),
+        _make_task(
+            description="Completed Work",
+            project="Work",
+            priority="M",
+            status="completed",
+            urgency=0,
+        ),
+        _make_task(
+            description="Deleted task", project="Inbox", priority=None, status="deleted", urgency=0
+        ),
+        _make_task(
+            description="No project task", project=None, priority="H", status="pending", urgency=7
+        ),
     ]
 
 
@@ -108,6 +135,7 @@ def service(sample_tasks):
 # ---------------------------------------------------------------------------
 # Existing tests (must still pass)
 # ---------------------------------------------------------------------------
+
 
 def test_query_tasks_returns_tasks(service):
     res = service.query_tasks(filters={"status": "pending"}, sort=["-urgency"], limit=10, offset=0)
@@ -130,6 +158,7 @@ def test_query_tasks_negative_offset_raises(service):
 # ---------------------------------------------------------------------------
 # Filter-verification tests
 # ---------------------------------------------------------------------------
+
 
 def test_query_tasks_filters_by_project(service):
     """Only tasks belonging to the requested project are returned."""

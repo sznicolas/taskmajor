@@ -53,14 +53,18 @@ def write_profile(
         (profile_dir / "prompts" / prompt["source"]).write_text("# prompt\n", encoding="utf-8")
 
     if instructions is not None:
-        (profile_dir / "instructions" / "010_objective.md").write_text(instructions, encoding="utf-8")
+        (profile_dir / "instructions" / "010_objective.md").write_text(
+            instructions, encoding="utf-8"
+        )
 
     manifest = {
         "name": name,
         "version": "1.0.0",
         "resources": resources or [],
     }
-    (profile_dir / "manifest.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    (profile_dir / "manifest.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
+    )
     return profile_dir
 
 
@@ -80,23 +84,30 @@ task_service = None
 
 
 def test_profile_loading_flow(tmp_path):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
-
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
 
 def test_conflict_detection(tmp_path):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
 
 def test_cli_args_parsing(monkeypatch):
-    monkeypatch.setattr(sys, "argv", [
-        "taskmajor",
-        "--profile",
-        "/tmp/alpha",
-        "--profile",
-        "/tmp/beta",
-        "--no-profiles",
-    ])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "taskmajor",
+            "--profile",
+            "/tmp/alpha",
+            "--profile",
+            "/tmp/beta",
+            "--no-profiles",
+        ],
+    )
 
     args = parse_profile_args()
 
@@ -105,19 +116,27 @@ def test_cli_args_parsing(monkeypatch):
     assert args.no_profiles is True
 
 
-
 def test_dynamic_registration(tmp_path, monkeypatch):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
-    prompt_names = {getattr(prompt, "name", str(prompt)) for prompt in _resolve(mcp.list_prompts(run_middleware=False))}
-    resource_uris = {str(getattr(resource, "uri", resource)) for resource in _resolve(mcp.list_resources(run_middleware=False))}
+    prompt_names = {
+        getattr(prompt, "name", str(prompt))
+        for prompt in _resolve(mcp.list_prompts(run_middleware=False))
+    }
+    resource_uris = {
+        str(getattr(resource, "uri", resource))
+        for resource in _resolve(mcp.list_resources(run_middleware=False))
+    }
 
     assert "hello" in prompt_names
     assert "taskmajor://alpha/stats" in resource_uris
 
 
-
 def test_profile_uda_requirements_are_applied(tmp_path, monkeypatch):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
     assert [uda.name for uda in task_service.task_config.added_udas] == ["ticket_id"]

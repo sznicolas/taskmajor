@@ -24,11 +24,13 @@ __all__ = ["configure_telemetry"]
 
 _configured = False
 
+
 def _build_console_formatter(log_format: str) -> logging.Formatter:
     """Return a log formatter appropriate for the chosen format."""
     if log_format == "json":
         try:
             from pythonjsonlogger.json import JsonFormatter  # type: ignore[import]
+
             return JsonFormatter(
                 fmt="%(asctime)s %(levelname)s %(name)s %(message)s %(trace_id)s %(span_id)s",
                 rename_fields={"levelname": "level", "asctime": "timestamp"},
@@ -37,11 +39,13 @@ def _build_console_formatter(log_format: str) -> logging.Formatter:
             logging.warning("python-json-logger not available; falling back to text format")
     return logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+
 class _SpanContextFilter(logging.Filter):
     """Inject the current OTel trace_id and span_id into every log record."""
 
     def filter(self, record: logging.LogRecord) -> bool:
         from opentelemetry import trace as _trace
+
         span = _trace.get_current_span()
         ctx = span.get_span_context()
         if ctx.is_valid:
@@ -51,6 +55,7 @@ class _SpanContextFilter(logging.Filter):
             record.trace_id = None
             record.span_id = None
         return True
+
 
 def configure_telemetry(
     service_name: str,
@@ -107,9 +112,7 @@ def configure_telemetry(
 
     # Metrics
     if otel_enabled and metrics_endpoint:
-        metric_reader = PeriodicExportingMetricReader(
-            _build_metric_exporter(metrics_endpoint)
-        )
+        metric_reader = PeriodicExportingMetricReader(_build_metric_exporter(metrics_endpoint))
         meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
     else:
         meter_provider = MeterProvider(resource=resource)
@@ -127,16 +130,23 @@ def configure_telemetry(
 
     _configured = True
 
+
 # --- Exporter factories (isolated for future OTLP/HTTP support) ---
+
 
 def _build_span_exporter(endpoint: str):
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
     return OTLPSpanExporter(endpoint=endpoint)
+
 
 def _build_metric_exporter(endpoint: str):
     from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+
     return OTLPMetricExporter(endpoint=endpoint)
+
 
 def _build_log_exporter(endpoint: str):
     from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+
     return OTLPLogExporter(endpoint=endpoint)

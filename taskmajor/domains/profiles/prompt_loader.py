@@ -32,7 +32,9 @@ class PromptLoader:
                     source_profile=manifest.name,
                 )
         else:
-            log.debug(f"No {PROMPTS_DIR}/ directory in profile '{manifest.name}'; skipping filesystem scan.")
+            log.debug(
+                f"No {PROMPTS_DIR}/ directory in profile '{manifest.name}'; skipping filesystem scan."
+            )
 
         # Pass 2: Manifest-declared prompts (override filesystem scan for same name)
         for decl in manifest.prompts:

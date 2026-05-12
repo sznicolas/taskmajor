@@ -9,6 +9,7 @@ from taskmajor.domains.tasks import TaskQueryFilters
 # Valid cases
 # ---------------------------------------------------------------------------
 
+
 def test_empty_filters_all_none():
     f = TaskQueryFilters()
     assert f.project is None
@@ -90,6 +91,7 @@ def test_text_filter():
 # ---------------------------------------------------------------------------
 # Invalid cases
 # ---------------------------------------------------------------------------
+
 
 def test_project_and_projects_raises():
     with pytest.raises(ValidationError):

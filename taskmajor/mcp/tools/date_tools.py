@@ -16,13 +16,17 @@ _BROKEN_MINUTE_PATTERN = (
     "+h",  # catches today+9h30m style
 )
 
+
 def _is_iso_duration(expr: str) -> bool:
     return any(expr.lstrip().upper().startswith(p) for p in _ISO_DURATION_PREFIX)
+
 
 def _has_broken_minutes(expr: str) -> bool:
     """Detect today+9h30m style which is broken in TaskWarrior."""
     import re
+
     return bool(re.search(r"\+\d+h\d+m", expr))
+
 
 def register_date_tools(
     mcp: FastMCP,
@@ -119,4 +123,3 @@ def register_date_tools(
             if warning:
                 result["warning"] = warning
             return result
-

@@ -20,14 +20,17 @@ def register_date_templates(mcp: FastMCP, taskwarrior_client: TaskWarrior) -> No
     def get_date(expression: str) -> str:
         """Resolve a TaskWarrior date expression and return ISO datetime."""
         import json
+
         try:
             resolved = taskwarrior_client.task_calc(expression)
             date_part, _, time_part = resolved.partition("T")
-            return json.dumps({
-                "expression": expression,
-                "resolved": resolved,
-                "date": date_part,
-                "time": time_part or None,
-            })
+            return json.dumps(
+                {
+                    "expression": expression,
+                    "resolved": resolved,
+                    "date": date_part,
+                    "time": time_part or None,
+                }
+            )
         except Exception as e:
             return json.dumps({"expression": expression, "error": str(e)})

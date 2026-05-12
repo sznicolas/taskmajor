@@ -54,8 +54,6 @@ def register_tools(
     _pkg_register_tools(mcp, task_service, error_log, tool_whitelist=tool_whitelist)
 
 
-
-
 def register_templates(mcp: FastMCP, task_service: Any) -> None:
     """Delegate to package-level templates.register_templates."""
     from taskmajor.mcp.templates import register_templates as _pkg_register_templates

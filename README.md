@@ -10,9 +10,11 @@
 
 ---
 
-TaskMajor bridges your AI agents with a fantastic, battle-tested backend: **TaskWarrior**. It transforms your local task database into a fluid conversational interface, allowing you to create, triage, and track tasks in natural language without leaving your workflow.
+> **TaskMajor MCP. Coordinate your tasks. Execute with precision.**
 
-Ask your agent:
+TaskMajor connects your AI assistants to your task management—organized your way, hosted on your terms.
+
+Ask your assistant:
 ```
 "Add a task to review the API spec"
 "What's on my plate for today?"
@@ -20,9 +22,7 @@ Ask your agent:
 "Show me the roadmap for Project X"
 ```
 
-Your agent executes these commands directly on your database—**without leaving your workflow**.
-
-TaskMajor adapts to your needs, ranging from a simple to-do list to a robust GTD system or a multi-agent coordination hub. Its power lies in its **profile system**: each profile defines a unique contract of exposed tools, views, and behaviors. Explore the [built-in profiles](docs/user-guides/profiles/profile-system.md) or learn how to compose and extend them to match your exact methodology in the [profile documentation](docs/user-guides/profiles/profile-system.md).
+Behind this sits [**TaskWarrior**](https://taskwarrior.org)—a remarkably flexible, battle-tested task engine. It runs locally, stores plain text, and bends to almost any organizational style. TaskMajor builds on that foundation and adds its own layer of adaptability: the **profile system**. Each profile defines a unique contract of exposed tools, views, and behaviors—turning TaskMajor into anything from a simple to-do list to a full GTD system or a multi-agent coordination hub. Explore the [built-in profiles](docs/user-guides/profiles/profile-system.md) or learn how to compose and extend them in the [profile documentation](docs/user-guides/profiles/profile-system.md).
 
 Ready to transform your task management? Jump straight into the [Quick Start](#quick-start) to get running in minutes.
 

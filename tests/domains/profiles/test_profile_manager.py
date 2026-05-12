@@ -34,17 +34,23 @@ def write_profile(
         (profile_dir / "prompts" / source).write_text(f"# {prompt['name']}\n", encoding="utf-8")
 
     if instructions is not None:
-        (profile_dir / "instructions" / "010_objective.md").write_text(instructions, encoding="utf-8")
+        (profile_dir / "instructions" / "010_objective.md").write_text(
+            instructions, encoding="utf-8"
+        )
 
     manifest = {
         "name": name,
         "version": version,
         "resources": resources or [],
     }
-    (profile_dir / "manifest.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    (profile_dir / "manifest.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
+    )
 
     if resources_yaml is not None:
-        (profile_dir / "resources.yaml").write_text(yaml.safe_dump(resources_yaml, sort_keys=False), encoding="utf-8")
+        (profile_dir / "resources.yaml").write_text(
+            yaml.safe_dump(resources_yaml, sort_keys=False), encoding="utf-8"
+        )
 
     return profile_dir
 
@@ -53,9 +59,10 @@ def make_config(profiles_root: Path, profile: str | None = None) -> TaskMajorCon
     return TaskMajorConfig(profiles_dir=str(profiles_root), profile=profile or "standard")
 
 
-
 def test_load_all_with_single_profile_via_config(tmp_path):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
 
 def test_load_all_with_cli_profiles_override(tmp_path):
@@ -122,12 +129,26 @@ def test_check_conflicts_child_overrides_parent_warns(caplog):
         ProfileManifest(
             name="parent",
             version="1.0.0",
-            resources=[{"uri": "taskmajor://dup", "name": "A", "description": "A", "backend": {"function": "query_tasks"}}],
+            resources=[
+                {
+                    "uri": "taskmajor://dup",
+                    "name": "A",
+                    "description": "A",
+                    "backend": {"function": "query_tasks"},
+                }
+            ],
         ),
         ProfileManifest(
             name="child",
             version="1.0.0",
-            resources=[{"uri": "taskmajor://dup", "name": "B", "description": "B", "backend": {"function": "get_stats"}}],
+            resources=[
+                {
+                    "uri": "taskmajor://dup",
+                    "name": "B",
+                    "description": "B",
+                    "backend": {"function": "get_stats"},
+                }
+            ],
         ),
     ]
 
@@ -150,7 +171,14 @@ def test_check_conflicts_sibling_resource_conflict_raises(caplog):
         ProfileManifest(
             name="parent1",
             version="1.0.0",
-            resources=[{"uri": "taskmajor://sibling-conflict", "name": "A", "description": "A", "backend": {"function": "query_tasks"}}],
+            resources=[
+                {
+                    "uri": "taskmajor://sibling-conflict",
+                    "name": "A",
+                    "description": "A",
+                    "backend": {"function": "query_tasks"},
+                }
+            ],
         ),
         # Hypothetical: parent2 at depth 1 (sibling of parent1 conceptually, different index)
         # In a real extends chain, siblings would be at different depths due to flattening.
@@ -158,7 +186,14 @@ def test_check_conflicts_sibling_resource_conflict_raises(caplog):
         ProfileManifest(
             name="parent2",
             version="1.0.0",
-            resources=[{"uri": "taskmajor://sibling-conflict", "name": "B", "description": "B", "backend": {"function": "get_stats"}}],
+            resources=[
+                {
+                    "uri": "taskmajor://sibling-conflict",
+                    "name": "B",
+                    "description": "B",
+                    "backend": {"function": "get_stats"},
+                }
+            ],
         ),
     ]
 
@@ -184,9 +219,10 @@ def test_check_conflicts_no_longer_checks_prompts(caplog):
     # No warning expected — prompt conflicts are no longer detected via manifest
 
 
-
 def test_resolve_profile_path_explicit_vs_profiles_dir(tmp_path):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
 
 def test_resolve_profile_path_missing_directory_raises(tmp_path):
@@ -196,10 +232,10 @@ def test_resolve_profile_path_missing_directory_raises(tmp_path):
         manager._resolve_profile_path("missing")
 
 
-
 def test_get_diagnostics_returns_expected_structure(tmp_path):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
-
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
 
 def test_extends_chain_loads_parents_first(tmp_path):
@@ -239,7 +275,9 @@ def test_extends_chain_loads_parents_first(tmp_path):
     child_path.mkdir(parents=True, exist_ok=True)
     (child_path / "manifest.yaml").write_text(yaml.safe_dump(child_manifest), encoding="utf-8")
     (child_path / "instructions").mkdir(parents=True, exist_ok=True)
-    (child_path / "instructions" / "020_workflow.md").write_text("Child instructions\n", encoding="utf-8")
+    (child_path / "instructions" / "020_workflow.md").write_text(
+        "Child instructions\n", encoding="utf-8"
+    )
 
     # Load the child
     manager = ProfileManager(
@@ -297,7 +335,9 @@ def test_extends_cycle_raises_profile_conflict_error(tmp_path):
 
 
 def test_load_all_sorts_by_priority(tmp_path):
-    pytest.skip("Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/")
+    pytest.skip(
+        "Custom profile paths are no longer supported. Profiles must be in taskmajor/profiles/"
+    )
 
 
 def test_uda_type_conflict(tmp_path):
@@ -405,7 +445,14 @@ def test_base_profile_loads():
     assert manifest.name == "base"
     assert manifest.version == "1.0.0"
 
-    expected_tools = {"add_task", "get_task", "query_tasks", "update_task", "delete_task", "done_task"}
+    expected_tools = {
+        "add_task",
+        "get_task",
+        "query_tasks",
+        "update_task",
+        "delete_task",
+        "done_task",
+    }
     assert expected_tools.issubset(set(manifest.tools))
 
     resource_uris = {r["uri"] for r in manifest.resources}

@@ -1,10 +1,12 @@
 """Unit tests for tools/simulate_profiles.py public API."""
+
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
 import pytest
+from typing import Any
 
 # Make tools/ importable without installing
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
@@ -21,6 +23,7 @@ from simulate_profiles import (  # noqa: E402
 # ---------------------------------------------------------------------------
 # discover_builtin_profiles
 # ---------------------------------------------------------------------------
+
 
 def test_discover_builtin_profiles_returns_known_profiles():
     profiles = discover_builtin_profiles()
@@ -44,6 +47,7 @@ def test_discover_builtin_profiles_no_hidden_dirs():
 # ---------------------------------------------------------------------------
 # load_profile_context
 # ---------------------------------------------------------------------------
+
 
 def test_load_profile_context_base():
     ctx = load_profile_context("base")
@@ -91,8 +95,9 @@ def test_load_profile_context_project_mgmt_has_udas():
 # render_profile_report
 # ---------------------------------------------------------------------------
 
+
 def _make_minimal_ctx(**overrides) -> ProfileContext:
-    defaults = {
+    defaults: dict[str, Any] = {
         "profile_name": "test",
         "chain": [{"name": "test", "version": "1.0.0", "description": "desc"}],
         "manifests": [],
@@ -159,6 +164,7 @@ def test_render_profile_report_real_standard():
 # generate_instructions_content
 # ---------------------------------------------------------------------------
 
+
 def test_generate_instructions_content_returns_instructions():
     ctx = _make_minimal_ctx(final_instructions="Use this tool wisely.")
     content = generate_instructions_content(ctx, include_debug=False)
@@ -195,6 +201,7 @@ def test_generate_instructions_content_skip_debug():
 # ---------------------------------------------------------------------------
 # build_profile_index_data
 # ---------------------------------------------------------------------------
+
 
 def test_build_profile_index_data_empty():
     result = build_profile_index_data([])

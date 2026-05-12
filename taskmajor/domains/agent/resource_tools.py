@@ -1,4 +1,5 @@
 """Wrapper tools for exposing MCP resources as callable tools."""
+
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
@@ -24,6 +25,7 @@ def create_resource_tools(mcp_server: MCPServer) -> list[Tool]:
 
     async def create_resource_reader(uri: str) -> Callable[[RunContext], Awaitable[Any]]:
         """Create a tool function for reading a specific resource."""
+
         async def read_resource_tool(ctx: RunContext) -> str:
             """Dynamically generated tool for reading an MCP resource."""
             try:
@@ -45,6 +47,7 @@ def create_resource_tools(mcp_server: MCPServer) -> list[Tool]:
 
     def make_resource_reader(resource_uri: str, resource_name: str, resource_desc: str):
         """Factory to create a resource reading tool."""
+
         async def read_resource(ctx: RunContext) -> str:
             """Read the resource content."""
             try:
@@ -68,6 +71,7 @@ def create_resource_tools(mcp_server: MCPServer) -> list[Tool]:
     # For now, we return an empty list - the agent will populate this dynamically
     return tools
 
+
 def create_generic_resource_tool(mcp_server: MCPServer) -> Tool:
     """
     Create a single generic tool that can read any resource by URI.
@@ -80,6 +84,7 @@ def create_generic_resource_tool(mcp_server: MCPServer) -> Tool:
     Returns:
         A Tool that accepts a resource URI and returns its content
     """
+
     async def read_any_resource(ctx: RunContext, uri: str) -> str:
         """
         Read any available MCP resource by its URI.
@@ -96,9 +101,8 @@ def create_generic_resource_tool(mcp_server: MCPServer) -> Tool:
             available_uris = [r.uri for r in available]
 
             if uri not in available_uris:
-                return (
-                    f"Resource '{uri}' not found. Available resources:\n"
-                    + "\n".join(f"  - {r.uri}: {r.name or 'No name'}" for r in available)
+                return f"Resource '{uri}' not found. Available resources:\n" + "\n".join(
+                    f"  - {r.uri}: {r.name or 'No name'}" for r in available
                 )
 
             # Read the requested resource

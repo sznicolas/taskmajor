@@ -30,9 +30,7 @@ def _mock_task_service(**overrides) -> TaskService:
         context_service=SimpleNamespace(
             define_context=lambda c: None, delete_context=lambda n: None
         ),
-        uda_service=SimpleNamespace(
-            define_uda=lambda u: None, delete_uda=lambda n: None
-        ),
+        uda_service=SimpleNamespace(define_uda=lambda u: None, delete_uda=lambda n: None),
     )
     return TaskService(taskwarrior_client=fake_client, **overrides)
 
@@ -365,9 +363,7 @@ class TestQueryTasksTool:
 
         # Simulate tool call
         filters = TaskQueryFilters(project="Work", status="pending")
-        result = service.query_tasks(
-            filters=filters, sort=["priority"], limit=10, offset=0
-        )
+        result = service.query_tasks(filters=filters, sort=["priority"], limit=10, offset=0)
 
         service.query_tasks.assert_called_once()
         call_kwargs = service.query_tasks.call_args[1]
@@ -518,9 +514,7 @@ class TestAddTaskTool:
         service = _mock_task_service()
         mock_task = SimpleNamespace(uuid="id")
         service.add_task = MagicMock(return_value=mock_task)
-        service.serialize_task = MagicMock(
-            return_value={"uuid": "id", "description": "New task"}
-        )
+        service.serialize_task = MagicMock(return_value={"uuid": "id", "description": "New task"})
 
         task_input = TaskInputDTO(description="New task")
         created_task = service.add_task(task_input)
@@ -616,5 +610,3 @@ class TestStartStopTaskTools:
 # ============================================================================
 # CLASSIFY_TASK TOOL TESTS
 # ============================================================================
-
-

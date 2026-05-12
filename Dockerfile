@@ -65,18 +65,17 @@ FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-RUN groupadd --system --gid 1001 tmajor && \
-    useradd --system --gid 1001 --uid 1001 --create-home tmajor && \
-    mkdir /data ; chown tmajor /data
+RUN groupadd --system --gid 1001 taskmajor && \
+    useradd --system --gid 1001 --uid 1001 --create-home taskmajor && \
+    mkdir /data ; chown taskmajor /data
 
-USER tmajor
+USER taskmajor
 WORKDIR /app
 ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=appbuilder /python /python
 
 COPY --from=taskbuilder /root/code/taskwarrior/build/src/task /usr/local/bin/task
-COPY --from=appbuilder --chown=tmajor:tmajor /app/.venv /app/.venv
-COPY --from=appbuilder --chown=tmajor:tmajor /app/taskmajor /app/taskmajor
-#COPY --from=appbuilder --chown=tmajor:tmajor /app/app/config /app/config
+COPY --from=appbuilder --chown=taskmajor:taskmajor /app/.venv /app/.venv
+COPY --from=appbuilder --chown=taskmajor:taskmajor /app/taskmajor /app/taskmajor
 
 CMD ["python", "-m", "taskmajor.bootstrap.server"]

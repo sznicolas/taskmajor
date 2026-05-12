@@ -14,7 +14,7 @@ def test_register_tools():
 
     register_tools(mock_mcp, mock_task_service, Mock())
 
-    assert hasattr(mock_mcp, 'tool')
+    assert hasattr(mock_mcp, "tool")
 
 
 def test_register_tools_with_whitelist():

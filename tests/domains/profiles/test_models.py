@@ -200,8 +200,6 @@ extends:
         os.unlink(path)
 
 
-
-
 def test_profile_manifest_from_yaml_missing_name():
     yaml_content = "version: 1.0.0"
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".yaml") as tf:

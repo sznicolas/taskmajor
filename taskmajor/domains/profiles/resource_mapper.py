@@ -28,18 +28,20 @@ def deep_merge_dict(parent: dict[str, Any], child: dict[str, Any]) -> dict[str, 
 
 
 class ResourceMapper:
-    ALLOWED_BACKENDS: ClassVar[frozenset[str]] = frozenset({
-        "query_tasks",
-        "get_tasks_by_scope",
-        "get_stats",
-        "next_task",
-        "get_metadata",
-        "add_task",
-        "update_task",
-        "get_projects",
-        "get_tags",
-        "get_udas",
-    })
+    ALLOWED_BACKENDS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "query_tasks",
+            "get_tasks_by_scope",
+            "get_stats",
+            "next_task",
+            "get_metadata",
+            "add_task",
+            "update_task",
+            "get_projects",
+            "get_tags",
+            "get_udas",
+        }
+    )
 
     def __init__(self, task_service: Any) -> None:
         self._resources: dict[str, ResourceDefinition] = {}
@@ -55,7 +57,9 @@ class ResourceMapper:
             uri_val = entry.get("uri")
             # Ensure uri_val is a string before using it as a set key
             if not isinstance(uri_val, str):
-                raise ValueError(f"Resource entry in manifest '{manifest.name}' missing or invalid 'uri': {entry!r}")
+                raise ValueError(
+                    f"Resource entry in manifest '{manifest.name}' missing or invalid 'uri': {entry!r}"
+                )
             if uri_val in seen:
                 duplicates.add(uri_val)
             else:
@@ -97,7 +101,9 @@ class ResourceMapper:
                 parent_res = self._resources[uri]
                 merge_flag = bool(entry.get("merge", False))
                 if merge_flag:
-                    final_backend_params = deep_merge_dict(parent_res.backend_params or {}, child_backend_params)
+                    final_backend_params = deep_merge_dict(
+                        parent_res.backend_params or {}, child_backend_params
+                    )
                     logging.getLogger(__name__).info(
                         "Resource URI '%s' merged with parent by profile '%s'", uri, manifest.name
                     )
@@ -128,21 +134,28 @@ class ResourceMapper:
                     sig = inspect.signature(backend_callable)
                 except (ValueError, TypeError) as exc:
                     logging.getLogger(__name__).debug(
-                        "Could not inspect signature for backend %s: %s", final_backend_function, exc
+                        "Could not inspect signature for backend %s: %s",
+                        final_backend_function,
+                        exc,
                     )
                     sig = None
 
             if sig is not None:
                 params_sig = sig.parameters
-                accepts_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params_sig.values())
-                accepts_varargs = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in params_sig.values())
+                accepts_kwargs = any(
+                    p.kind == inspect.Parameter.VAR_KEYWORD for p in params_sig.values()
+                )
+                accepts_varargs = any(
+                    p.kind == inspect.Parameter.VAR_POSITIONAL for p in params_sig.values()
+                )
 
                 # If function uses **kwargs or *args, skip validation (accept anything)
                 if not accepts_kwargs and not accepts_varargs:
                     accepted = [
                         param_name
                         for param_name, p in params_sig.items()
-                        if p.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+                        if p.kind
+                        in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
                     ]
                     # remove 'self' if present
                     accepted = [n for n in accepted if n != "self"]

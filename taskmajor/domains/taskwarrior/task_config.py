@@ -30,6 +30,7 @@ class TaskConfigService:
             return tz
         # System default
         import datetime
+
         return str(datetime.datetime.now(datetime.UTC).astimezone().tzinfo)
 
     def set_timezone(self, timezone: str) -> None:
@@ -42,10 +43,13 @@ class TaskConfigService:
             ValueError: If timezone is not a valid IANA name.
         """
         import zoneinfo
+
         try:
             zoneinfo.ZoneInfo(timezone)
         except (zoneinfo.ZoneInfoNotFoundError, KeyError) as err:
-            raise ValueError(f"Unknown timezone {timezone!r}. Must be a valid IANA timezone (e.g. 'Europe/Paris', 'UTC').") from err
+            raise ValueError(
+                f"Unknown timezone {timezone!r}. Must be a valid IANA timezone (e.g. 'Europe/Paris', 'UTC')."
+            ) from err
         result = self._tw.adapter.run_task_command(["config", "timezone", timezone])
         if result.returncode != 0:
             raise RuntimeError(f"Failed to set timezone: {result.stderr}")

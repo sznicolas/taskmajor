@@ -8,6 +8,7 @@
 Updates mkdocs.yml nav and attempts to ensure mermaid plugin present.
 Run this before docs build so generated profile pages stay in sync.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -52,8 +53,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def cleanup_obsolete_profile_dirs(outdir: Path, current_profiles: list[str], safe_names: set[str] | None = None, dry_run: bool = False) -> list[str]:
+def cleanup_obsolete_profile_dirs(
+    outdir: Path,
+    current_profiles: list[str],
+    safe_names: set[str] | None = None,
+    dry_run: bool = False,
+) -> list[str]:
     import shutil
+
     if safe_names is None:
         safe_names = {"assets", "examples"}
     if not outdir.exists() or not outdir.is_dir():
@@ -180,7 +187,9 @@ def write_index_md(outdir: Path, profiles: list[str], chains: dict[str, list[str
     write_text(outdir / "README.md", "\n".join(body_lines).rstrip() + "\n")
 
 
-def update_mkdocs_configuration(mkdocs_path: Path, profiles: list[str], ensure_mermaid: bool = True) -> None:
+def update_mkdocs_configuration(
+    mkdocs_path: Path, profiles: list[str], ensure_mermaid: bool = True
+) -> None:
     """
     Safely update mkdocs.yml to ensure the mermaid2 plugin is present and
     to insert or update a `User Guides -> Profiles` navigation section.
@@ -243,12 +252,14 @@ def update_mkdocs_configuration(mkdocs_path: Path, profiles: list[str], ensure_m
     ref_items: list[dict] = []
     for name in profiles:
         title = name.replace("-", " ").title()
-        ref_items.append({
-            title: [
-                {"README": f"user-guides/profiles/reference/{name}/README.md"},
-                {"Debug": f"user-guides/profiles/reference/{name}/instructions/debug.md"},
-            ]
-        })
+        ref_items.append(
+            {
+                title: [
+                    {"README": f"user-guides/profiles/reference/{name}/README.md"},
+                    {"Debug": f"user-guides/profiles/reference/{name}/instructions/debug.md"},
+                ]
+            }
+        )
 
     profiles_block = {
         "Profiles": [
@@ -314,12 +325,16 @@ def update_mkdocs_configuration(mkdocs_path: Path, profiles: list[str], ensure_m
     except Exception as exc:  # pragma: no cover - error path
         # restore backup on error
         shutil.copy2(backup, mkdocs_path)
-        raise RuntimeError(f"Failed to update mkdocs.yml; restored backup at {backup}. Error: {exc}") from exc
+        raise RuntimeError(
+            f"Failed to update mkdocs.yml; restored backup at {backup}. Error: {exc}"
+        ) from exc
 
     print(f"Updated mkdocs.yml using {yaml_backend}; backup at {backup}")
 
 
-def build_profile_doc_artifacts(sim, ctx, *, generated_at: str | None = None, regen_cmd: str | None = None) -> dict[str, str]:
+def build_profile_doc_artifacts(
+    sim, ctx, *, generated_at: str | None = None, regen_cmd: str | None = None
+) -> dict[str, str]:
     """Build README.md and instructions/debug.md for a profile using simulate_profiles APIs.
 
     sim: the simulate_profiles module object
@@ -382,7 +397,9 @@ def main(argv: list[str] | None = None) -> int:
         profiles = sim.discover_builtin_profiles()
     except Exception:
         p = REPO_ROOT / "taskmajor" / "profiles"
-        profiles = sorted([d.name for d in p.iterdir() if d.is_dir() and not d.name.startswith(".")])
+        profiles = sorted(
+            [d.name for d in p.iterdir() if d.is_dir() and not d.name.startswith(".")]
+        )
 
     if not profiles:
         print("No profiles found. Exiting.")
@@ -408,7 +425,9 @@ def main(argv: list[str] | None = None) -> int:
         generated_at = datetime.now().isoformat()
         regen_cmd = regen_base
 
-        artifacts = build_profile_doc_artifacts(sim, ctx, generated_at=generated_at, regen_cmd=regen_cmd)
+        artifacts = build_profile_doc_artifacts(
+            sim, ctx, generated_at=generated_at, regen_cmd=regen_cmd
+        )
 
         # Write artifacts returned as relative paths -> content
         for rel_path, content in artifacts.items():

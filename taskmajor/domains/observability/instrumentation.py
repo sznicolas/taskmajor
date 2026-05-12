@@ -35,6 +35,7 @@ _latency_histogram = _meter.create_histogram(
 
 logger = logging.getLogger(__name__)
 
+
 def _wrap(fn: Callable, span_name: str, call_type: str, extra_attrs: dict[str, str]) -> Callable:
     """Wrap *fn* with OTel span, metrics recording, and structured logging."""
 
@@ -82,14 +83,23 @@ def _wrap(fn: Callable, span_name: str, call_type: str, extra_attrs: dict[str, s
 
     return async_wrapper if asyncio.iscoroutinefunction(fn) else sync_wrapper
 
+
 def instrument_tool(fn: Callable) -> Callable:
     """Wrap a MCP tool handler with OTel instrumentation."""
-    return _wrap(fn, span_name=fn.__name__, call_type="tool", extra_attrs={"mcp.tool.name": fn.__name__})
+    return _wrap(
+        fn, span_name=fn.__name__, call_type="tool", extra_attrs={"mcp.tool.name": fn.__name__}
+    )
+
 
 def instrument_resource(fn: Callable, uri: str | None = None) -> Callable:
     """Wrap a MCP resource handler with OTel instrumentation."""
     resource_uri = uri or fn.__name__
-    return _wrap(fn, span_name=resource_uri, call_type="resource", extra_attrs={"mcp.resource.uri": resource_uri})
+    return _wrap(
+        fn,
+        span_name=resource_uri,
+        call_type="resource",
+        extra_attrs={"mcp.resource.uri": resource_uri},
+    )
 
 
 def patch_mcp_instrumentation(mcp: FastMCP) -> None:
@@ -110,9 +120,11 @@ def patch_mcp_instrumentation(mcp: FastMCP) -> None:
     def patched_tool(name_or_fn=None, **kwargs):
         if callable(name_or_fn):
             return original_tool(instrument_tool(name_or_fn), **kwargs)
+
         def decorator(fn: Callable) -> Callable:
             inner = original_tool(name_or_fn, **kwargs)
             return inner(instrument_tool(fn))
+
         return decorator
 
     patched_tool._taskmajor_instrumented = True  # type: ignore[attr-defined]
@@ -122,8 +134,10 @@ def patch_mcp_instrumentation(mcp: FastMCP) -> None:
 
     def patched_resource(uri: str, **kwargs):
         decorator = original_resource(uri, **kwargs)
+
         def instrumented_decorator(fn: Callable) -> Callable:
             return decorator(instrument_resource(fn, uri))
+
         return instrumented_decorator
 
     mcp.resource = patched_resource  # type: ignore[method-assign]

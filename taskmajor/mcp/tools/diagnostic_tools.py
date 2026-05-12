@@ -46,4 +46,3 @@ def register_diagnostic_tools(
             """
             entry = error_log.append(tool_name, parameters, error)
             return f"Error logged at {entry['timestamp']}."
-

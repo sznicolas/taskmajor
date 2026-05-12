@@ -1,11 +1,12 @@
 """
 Core logic for TaskMajor server, separated from CLI and package entrypoints.
 """
+
 from __future__ import annotations
 
 import argparse
 import logging
-from typing import cast
+from typing import cast, Literal
 
 from fastmcp import FastMCP
 from fastmcp.resources import FunctionResource
@@ -33,12 +34,18 @@ def parse_profile_args() -> argparse.Namespace:
     # Single profile only (config.profile or CLI override)
     parser.add_argument("--profile", dest="profile", default=None)
     parser.add_argument("--no-profiles", action="store_true", default=False)
-    parser.add_argument("--transport", dest="transport", default=None, help="MCP transport (stdio, streamable-http, sse)")
+    parser.add_argument(
+        "--transport",
+        dest="transport",
+        default=None,
+        help="MCP transport (stdio, streamable-http, sse)",
+    )
     return parser.parse_known_args()[0]
 
 
-
-def _apply_profile(mcp: FastMCP, task_service: TaskService, profile_manager: ProfileManager) -> None:
+def _apply_profile(
+    mcp: FastMCP, task_service: TaskService, profile_manager: ProfileManager
+) -> None:
     """Apply all profile contributions from the loaded chain: UDAs, contexts, prompts, and resources.
 
     Processes the profile chain (parents first, child last) to apply:
@@ -69,7 +76,12 @@ def _apply_profile(mcp: FastMCP, task_service: TaskService, profile_manager: Pro
                 )
                 log.debug("Registered UDA '%s' from profile '%s'", uda.name, manifest.name)
             except Exception as exc:
-                log.warning("Failed to register UDA '%s' from profile '%s': %s", uda.name, manifest.name, exc)
+                log.warning(
+                    "Failed to register UDA '%s' from profile '%s': %s",
+                    uda.name,
+                    manifest.name,
+                    exc,
+                )
 
         # Contexts
         for ctx in manifest.contexts:
@@ -86,7 +98,12 @@ def _apply_profile(mcp: FastMCP, task_service: TaskService, profile_manager: Pro
                 )
                 log.debug("Defined context '%s' from profile '%s'", ctx.name, manifest.name)
             except Exception as exc:
-                log.warning("Failed to define context '%s' from profile '%s': %s", ctx.name, manifest.name, exc)
+                log.warning(
+                    "Failed to define context '%s' from profile '%s': %s",
+                    ctx.name,
+                    manifest.name,
+                    exc,
+                )
 
     # Prompts (from all profiles, merged by PromptLoader)
     prompt_loader = profile_manager.get_prompt_loader()
@@ -98,7 +115,9 @@ def _apply_profile(mcp: FastMCP, task_service: TaskService, profile_manager: Pro
         if definition is None:
             log.warning("Skipping empty prompt %s", prompt_name)
             continue
-        log.info("Registering prompt '%s' from profile '%s'", prompt_name, definition.source_profile)
+        log.info(
+            "Registering prompt '%s' from profile '%s'", prompt_name, definition.source_profile
+        )
 
         def _make_prompt_callable(name: str):
             def _dynamic_prompt() -> str:
@@ -109,7 +128,9 @@ def _apply_profile(mcp: FastMCP, task_service: TaskService, profile_manager: Pro
 
             return _dynamic_prompt
 
-        mcp.prompt(name=prompt_name, description=f"Prompt: {prompt_name}")(_make_prompt_callable(prompt_name))
+        mcp.prompt(name=prompt_name, description=f"Prompt: {prompt_name}")(
+            _make_prompt_callable(prompt_name)
+        )
 
     # Resources (from all profiles, merged by ResourceMapper)
     resource_mapper = profile_manager.get_resource_mapper()
@@ -160,6 +181,17 @@ def create_mcp(
         resource_attributes={"fastmcp.server.name": cfg.server_name},
     )
 
+    # Log TaskWarrior config (taskrc and taskdata) now that logging is configured
+    if cfg.taskdata:
+        log.info(
+            "Using TaskWarrior configuration: taskrc=%s, taskdata=%s", cfg.taskrc, cfg.taskdata
+        )
+    else:
+        log.info("Using TaskWarrior configuration: taskrc=%s, taskdata=<isolated>", cfg.taskrc)
+
+    # Log TaskMajor config file path
+    log.info("TaskMajor config file: %s", getattr(cfg, "config_file", "<none>"))
+
     # Instrument HTTPX for OpenTelemetry
     HTTPXClientInstrumentor().instrument()
 
@@ -199,6 +231,7 @@ def create_mcp(
     _apply_profile(mcp, task_service, profile_manager)
 
     return mcp, task_service, error_log
+
 
 async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
     """Main function to run the TaskMajor server.
@@ -282,19 +315,24 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
         # Not a TaskConfigurationError - re-raise so the caller/test sees it
         raise
     info = task_service.taskwarrior_client.get_info()
-    if not info.get("version").startswith("3"):
-       import sys
+    version = info.get("version")
+    if not (isinstance(version, str) and version.startswith("3")):
+        import sys
 
-       msg = (
-           "TaskMajor cannot start because the TaskWarrior 'task' version shoud be '3.*.*'.\n"
-           "If your TaskWarrior version is older, please ensure TaskWarrior is installed and available in PATH, and that\n"
-           "pytaskwarrior is correctly configured. See the build instructions:\n"
-           "https://pytaskwarrior.readthedocs.io/en/latest/building-taskwarrior/\n\n"
-       )
-       print(msg, file=sys.stderr)
-       raise SystemExit(1)
+        msg = (
+            "TaskMajor cannot start because the TaskWarrior 'task' version shoud be '3.*.*'.\n"
+            "If your TaskWarrior version is older, please ensure TaskWarrior is installed and available in PATH, and that\n"
+            "pytaskwarrior is correctly configured. See the build instructions:\n"
+            "https://pytaskwarrior.readthedocs.io/en/latest/building-taskwarrior/\n\n"
+        )
+        print(msg, file=sys.stderr)
+        raise SystemExit(1)
 
-    await mcp.run_async(transport=transport, port=cfg.server_port, host=cfg.server_host)
+    await mcp.run_async(
+        transport=cast(Literal['stdio', 'http', 'sse', 'streamable-http'] | None, transport),
+        port=cfg.server_port,
+        host=cfg.server_host,
+    )
 
 
 async def main():

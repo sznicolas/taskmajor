@@ -106,6 +106,7 @@ Perform a complete weekly review.
 ```
 """
 
+
 def register_review_prompts(mcp: FastMCP) -> None:
     """Register daily and weekly review prompts."""
 

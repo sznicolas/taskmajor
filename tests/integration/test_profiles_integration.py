@@ -50,10 +50,10 @@ for _p in BUILTIN_PROFILES:
         continue
 
 
-
 @pytest.fixture
 def mock_task_service():
     """Minimal TaskService stub: methods accept **kwargs so ResourceMapper validation is permissive."""
+
     class MinimalTaskService:
         def query_tasks(self, **kwargs):
             return []
@@ -156,7 +156,10 @@ def test_prompts_loaded(profile_name, mock_task_service):
     assert prompts, f"No prompts found for profile '{profile_name}'"
 
 
-@pytest.mark.skipif('coding-assistant' not in BUILTIN_PROFILES, reason="'coding-assistant' profile not available in built-ins")
+@pytest.mark.skipif(
+    "coding-assistant" not in BUILTIN_PROFILES,
+    reason="'coding-assistant' profile not available in built-ins",
+)
 def test_extends_chain_resolved_correctly(mock_task_service):
     # coding-assistant extends standard; validate chain order
     cfg = TaskMajorConfig(profile="coding-assistant")
@@ -164,10 +167,15 @@ def test_extends_chain_resolved_correctly(mock_task_service):
     pm.set_task_service(mock_task_service)
     chain = pm.load_all()
     names = [m.name for m in chain]
-    assert "standard" in names and names[-1] == "coding-assistant", f"Unexpected extends chain: {names}"
+    assert "standard" in names and names[-1] == "coding-assistant", (
+        f"Unexpected extends chain: {names}"
+    )
 
 
-@pytest.mark.skipif('coding-assistant' not in BUILTIN_PROFILES, reason="'coding-assistant' profile not available in built-ins")
+@pytest.mark.skipif(
+    "coding-assistant" not in BUILTIN_PROFILES,
+    reason="'coding-assistant' profile not available in built-ins",
+)
 def test_inherited_resources_merged(mock_task_service):
     cfg = TaskMajorConfig(profile="coding-assistant")
     pm = ProfileManager(cfg)

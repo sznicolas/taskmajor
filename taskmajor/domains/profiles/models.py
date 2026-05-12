@@ -95,7 +95,6 @@ class ProfileManifest:
         # Parse UDAs: top-level 'udas' only (legacy 'requirements.udas' support removed)
         udas_raw = data.get("udas", [])
 
-
         udas: list[UdaDefinition] = []
         for uda_entry in udas_raw:
             if isinstance(uda_entry, dict):
@@ -132,8 +131,12 @@ class ProfileManifest:
         review_raw = data.get("review", {})
         review = ReviewConfig(
             projects=review_raw.get("projects", []) if isinstance(review_raw, dict) else [],
-            default_project=review_raw.get("default_project", "") if isinstance(review_raw, dict) else "",
-            include_no_project=review_raw.get("include_no_project", False) if isinstance(review_raw, dict) else False,
+            default_project=review_raw.get("default_project", "")
+            if isinstance(review_raw, dict)
+            else "",
+            include_no_project=review_raw.get("include_no_project", False)
+            if isinstance(review_raw, dict)
+            else False,
         )
 
         # Parse prompts: entries with 'file' key become PromptDeclaration

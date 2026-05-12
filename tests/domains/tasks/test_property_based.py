@@ -170,9 +170,7 @@ def _mock_task_service(**overrides) -> TaskService:
         context_service=SimpleNamespace(
             define_context=lambda c: None, delete_context=lambda n: None
         ),
-        uda_service=SimpleNamespace(
-            define_uda=lambda u: None, delete_uda=lambda n: None
-        ),
+        uda_service=SimpleNamespace(define_uda=lambda u: None, delete_uda=lambda n: None),
         get_tasks=lambda *args, **kwargs: [],
     )
     return TaskService(taskwarrior_client=fake_client, **overrides)

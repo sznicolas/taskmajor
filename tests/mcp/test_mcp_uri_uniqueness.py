@@ -1,4 +1,5 @@
 """Test: no duplicate MCP URIs or tool names after registration."""
+
 import inspect
 from collections import Counter
 

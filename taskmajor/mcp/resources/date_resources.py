@@ -38,11 +38,13 @@ def register_date_resources(
             except Exception:
                 shortcuts[name] = None
 
-        return json.dumps({
-            "now": now.strftime("%Y-%m-%dT%H:%M:%S"),
-            "date": now.strftime("%Y-%m-%d"),
-            "time": now.strftime("%H:%M:%S"),
-            "weekday": now.strftime("%A"),
-            "timezone": tz_name,
-            "shortcuts": shortcuts,
-        })
+        return json.dumps(
+            {
+                "now": now.strftime("%Y-%m-%dT%H:%M:%S"),
+                "date": now.strftime("%Y-%m-%d"),
+                "time": now.strftime("%H:%M:%S"),
+                "weekday": now.strftime("%A"),
+                "timezone": tz_name,
+                "shortcuts": shortcuts,
+            }
+        )

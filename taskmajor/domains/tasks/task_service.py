@@ -368,51 +368,51 @@ class TaskService:
         offset: int = 0,
     ) -> dict[str, Any]:
         """
-Return a paginated list of tasks matching the provided filters.
+        Return a paginated list of tasks matching the provided filters.
 
-Args:
-    filters: Optional structured filters. Accepts either a
-        TaskQueryFilters instance or a plain mapping with keys from
-        TaskQueryFilters (project, projects, priority, status,
-        tags_any, tags_all, due_before, due_after, text).
-        Examples:
-            {"status": "pending"}
-            {"project": "Inbox", "tags_any": ["urgent"]}
+        Args:
+            filters: Optional structured filters. Accepts either a
+                TaskQueryFilters instance or a plain mapping with keys from
+                TaskQueryFilters (project, projects, priority, status,
+                tags_any, tags_all, due_before, due_after, text).
+                Examples:
+                    {"status": "pending"}
+                    {"project": "Inbox", "tags_any": ["urgent"]}
 
-    filter: Optional raw TaskWarrior filter string passed directly to
-        the TaskWarrior CLI. Takes precedence over `filters` when both
-        are provided. Supports the full TaskWarrior filter language,
-        including date math, annotations and complex expressions.
-        Example: "status:pending +feature due.before:tomorrow"
+            filter: Optional raw TaskWarrior filter string passed directly to
+                the TaskWarrior CLI. Takes precedence over `filters` when both
+                are provided. Supports the full TaskWarrior filter language,
+                including date math, annotations and complex expressions.
+                Example: "status:pending +feature due.before:tomorrow"
 
-    sort: Optional sort order. Either a single sort string or a
-        sequence of sort strings. Supported values include:
-        'due', '-due', 'priority', '-priority', 'project', 'urgency',
-        'description', 'status', 'entry'.
-        Prefix '-' for descending order. Example: ['-urgency', 'due']
+            sort: Optional sort order. Either a single sort string or a
+                sequence of sort strings. Supported values include:
+                'due', '-due', 'priority', '-priority', 'project', 'urgency',
+                'description', 'status', 'entry'.
+                Prefix '-' for descending order. Example: ['-urgency', 'due']
 
-    limit: Maximum number of tasks to return (None for no limit).
-        Must be >= 0. Defaults to 50.
+            limit: Maximum number of tasks to return (None for no limit).
+                Must be >= 0. Defaults to 50.
 
-    offset: Zero-based index of the first task to return. Must be >= 0.
-        Defaults to 0.
+            offset: Zero-based index of the first task to return. Must be >= 0.
+                Defaults to 0.
 
-Returns:
-    dict: Canonical MCP-style response with keys:
-        - "tasks": list of serialized task objects (dicts)
-        - "total": integer total number of matching tasks
+        Returns:
+            dict: Canonical MCP-style response with keys:
+                - "tasks": list of serialized task objects (dicts)
+                - "total": integer total number of matching tasks
 
-Raises:
-    ValueError: If `limit` or `offset` are negative, or if filters are
-        invalid (e.g., mutually exclusive 'project' and 'projects').
+        Raises:
+            ValueError: If `limit` or `offset` are negative, or if filters are
+                invalid (e.g., mutually exclusive 'project' and 'projects').
 
-Notes:
-    - When `filters` is a plain mapping, it will be normalized using
-      TaskQueryFilters. Unknown keys are rejected by the Pydantic model
-      and will raise a validation error — do not pass arbitrary keys
-      such as a top-level "description" field in the call payload.
-    - Pagination is performed after sorting and filtering.
-"""
+        Notes:
+            - When `filters` is a plain mapping, it will be normalized using
+              TaskQueryFilters. Unknown keys are rejected by the Pydantic model
+              and will raise a validation error — do not pass arbitrary keys
+              such as a top-level "description" field in the call payload.
+            - Pagination is performed after sorting and filtering.
+        """
         if offset < 0:
             raise ValueError("'offset' must be greater than or equal to 0.")
         if limit is not None and limit < 0:
@@ -512,9 +512,7 @@ Notes:
         tasks = self._query_task_objects(filters={"status": "pending"})
         active_context = self.get_current_context()
         available_contexts = {
-            context.name
-            for context in self.list_contexts()
-            if getattr(context, "name", None)
+            context.name for context in self.list_contexts() if getattr(context, "name", None)
         }
         if active_context:
             available_contexts.add(active_context)
@@ -524,11 +522,7 @@ Notes:
             key=str.casefold,
         )
         tags = sorted(
-            {
-                format_tag(tag)
-                for task in tasks
-                for tag in (task.tags or [])
-            },
+            {format_tag(tag) for task in tasks for tag in (task.tags or [])},
             key=str.casefold,
         )
         context_tags = [
@@ -568,11 +562,7 @@ Notes:
         """Return all tags currently in use by pending tasks."""
         tasks = self._query_task_objects(filters={"status": "pending"})
         tags = sorted(
-            {
-                format_tag(tag)
-                for task in tasks
-                for tag in (task.tags or [])
-            },
+            {format_tag(tag) for task in tasks for tag in (task.tags or [])},
             key=str.casefold,
         )
         return {
@@ -648,8 +638,9 @@ Notes:
 
         # If either due_before or due_after looks like a TaskWarrior date expression
         # (non-ISO string), construct a raw TaskWarrior filter and load via _load_tasks_raw.
-        if is_taskwarrior_date_expr(normalized.due_before) or is_taskwarrior_date_expr(
-            normalized.due_after
+        if (
+            (isinstance(normalized.due_before, str) and is_taskwarrior_date_expr(normalized.due_before))
+            or (isinstance(normalized.due_after, str) and is_taskwarrior_date_expr(normalized.due_after))
         ):
             parts: list[str] = []
             # include status filter(s)
@@ -666,9 +657,9 @@ Notes:
             if normalized.tags_all:
                 parts.extend(format_tag(t) for t in normalized.tags_all)
             # include due expressions
-            if is_taskwarrior_date_expr(normalized.due_before):
+            if isinstance(normalized.due_before, str) and is_taskwarrior_date_expr(normalized.due_before):
                 parts.append(f"due.before:{normalized.due_before}")
-            if is_taskwarrior_date_expr(normalized.due_after):
+            if isinstance(normalized.due_after, str) and is_taskwarrior_date_expr(normalized.due_after):
                 parts.append(f"due.after:{normalized.due_after}")
 
             filter_string = " ".join(parts)

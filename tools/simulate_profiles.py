@@ -14,6 +14,7 @@ Public API:
 
 A small CLI is provided for convenience; it prints rendered Markdown to stdout.
 """
+
 from __future__ import annotations
 
 import json
@@ -167,7 +168,9 @@ def load_profile_context(profile_name: str) -> ProfileContext:
     final_instructions = instructions_loader.get_instructions() or ""
     fragments: list[tuple[str, str]] = []
     try:
-        frag_items = sorted(getattr(instructions_loader, "_fragments", {}).items(), key=lambda it: it[0])
+        frag_items = sorted(
+            getattr(instructions_loader, "_fragments", {}).items(), key=lambda it: it[0]
+        )
         for fname, frag in frag_items:
             profile_name_frag = getattr(frag, "profile_name", "")
             filepath = f"{profile_name_frag}/instructions/{fname}" if profile_name_frag else fname
@@ -237,7 +240,9 @@ def render_profile_report(ctx: ProfileContext, format: str = "markdown") -> str:
 
     # Prompts
     md.append("## Prompts")
-    prompt_rows = [[name, getattr(defn, "source_profile", "")] for name, defn in ctx.prompt_defs.items()]
+    prompt_rows = [
+        [name, getattr(defn, "source_profile", "")] for name, defn in ctx.prompt_defs.items()
+    ]
     if prompt_rows:
         md.extend(_md_table(["name", "source_profile"], prompt_rows))
     else:
@@ -248,9 +253,13 @@ def render_profile_report(ctx: ProfileContext, format: str = "markdown") -> str:
     md.append("## UDAs")
     uda_rows = []
     for name, uda in ctx.udas.items():
-        extras = {k: v for k, v in getattr(uda, "__dict__", {}).items() if k not in ("name", "type")}
+        extras = {
+            k: v for k, v in getattr(uda, "__dict__", {}).items() if k not in ("name", "type")
+        }
         source = ctx.uda_source.get(name, "")
-        uda_rows.append([name, getattr(uda, "type", ""), source, json.dumps(extras, sort_keys=True)])
+        uda_rows.append(
+            [name, getattr(uda, "type", ""), source, json.dumps(extras, sort_keys=True)]
+        )
     if uda_rows:
         md.extend(_md_table(["name", "type", "defined_in", "extras"], uda_rows))
     else:
@@ -279,7 +288,15 @@ def render_profile_report(ctx: ProfileContext, format: str = "markdown") -> str:
     for uri, definition in (ctx.resources or {}).items():
         params = json.dumps(getattr(definition, "backend_params", {}) or {}, sort_keys=True)
         src = getattr(definition, "name", "") if definition is not None else ""
-        res_rows.append([uri, getattr(definition, "backend_function", ""), params, src, (ctx.overlaps.get(uri, [""])[0] if uri in ctx.overlaps else "")])
+        res_rows.append(
+            [
+                uri,
+                getattr(definition, "backend_function", ""),
+                params,
+                src,
+                (ctx.overlaps.get(uri, [""])[0] if uri in ctx.overlaps else ""),
+            ]
+        )
     if res_rows:
         md.extend(_md_table(["URI", "backend.function", "params", "name", "source"], res_rows))
     else:
@@ -329,8 +346,20 @@ if __name__ == "__main__":
     import sys
 
     ap = argparse.ArgumentParser(description="Render TaskMajor profile report (Markdown) to stdout")
-    ap.add_argument("-p", "--profiles", dest="profiles", default=None, help="Comma-separated profile names (default: all built-in profiles)")
-    ap.add_argument("-i", "--instructions", dest="instructions", action="store_true", help="Also print instructions")
+    ap.add_argument(
+        "-p",
+        "--profiles",
+        dest="profiles",
+        default=None,
+        help="Comma-separated profile names (default: all built-in profiles)",
+    )
+    ap.add_argument(
+        "-i",
+        "--instructions",
+        dest="instructions",
+        action="store_true",
+        help="Also print instructions",
+    )
     args = ap.parse_args()
 
     if args.profiles:
