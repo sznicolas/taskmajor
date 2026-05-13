@@ -22,7 +22,7 @@ Ask your assistant:
 "Show me the roadmap for Project X"
 ```
 
-Behind this sits [**TaskWarrior**](https://taskwarrior.org)—a remarkably flexible, battle-tested task engine. It runs locally, stores plain text, and bends to almost any organizational style. TaskMajor builds on that foundation and adds its own layer of adaptability: the **profile system**. Each profile defines a unique contract of exposed tools, views, and behaviors—turning TaskMajor into anything from a simple to-do list to a full GTD system or a multi-agent coordination hub. Explore the [built-in profiles](docs/user-guides/profiles/profile-system.md) or learn how to compose and extend them in the [profile documentation](docs/user-guides/profiles/profile-system.md).
+Behind this sits [**TaskWarrior**](https://taskwarrior.org)—a remarkably flexible, battle-tested task engine. It runs locally, stores plain text, and bends to almost any organizational style. TaskMajor builds on that foundation and adds its own layer of adaptability: the **profile system**. Each profile defines a unique contract of exposed tools, views, and behaviors—turning TaskMajor into anything from a simple to-do list to a full GTD system or a multi-agent coordination hub. Explore the [built-in profiles](docs/user-guides/profiles/reference/README.md) or learn how to compose and extend them in the [profile documentation](docs/user-guides/profiles/profile-system.md).
 
 Ready to transform your task management? Jump straight into the [Quick Start](#quick-start) to get running in minutes.
 
@@ -45,17 +45,14 @@ Ready to transform your task management? Jump straight into the [Quick Start](#q
    cd taskmajor
    uv sync
    ```
-   *(Or use `pip install -e .`)*
-
-2. **Configure for Existing Users**
-   > **Important for TaskWarrior users:** If you already have a TaskWarrior database, you **must** edit `taskmajor/config/config.yaml` to point to your existing `.taskrc` and data directory.
+2. **(Optional) Configure**
+   > **Important for TaskWarrior users:** If you already have a TaskWarrior database, you **must** edit `taskmajor/config/config.yaml` if you want to share your existing data directory.
    >
    > ```yaml
    > # taskmajor/config/config.yaml
-   > taskrc: /path/to/your/.taskrc
-   > taskdata: /path/to/your/.task
+   > taskrc: /path/to/your/.taskrc # default: ~/.taskrc_mcp
+   > taskdata: /path/to/your/.task # default: ~/.task_mcp/
    > ```
-   > *If you skip this, TaskMajor will initialize a new, empty database.*
 
 3. **Launch the Server**
    ```bash
@@ -69,7 +66,7 @@ Ready to transform your task management? Jump straight into the [Quick Start](#q
 ### Docker Option
 If you prefer containerization or need a bundled TaskWarrior instance:
 ```bash
-docker build -t taskmajor . && docker run -d -v -p 8888:8888 taskmajor
+docker build -t taskmajor . && mkdir taskdata && docker run -d -v $PWD/taskdata:/home/taskmajor/.task_mcp -p 8888:8888 taskmajor
 ```
 *Remember to mount your `config.yaml` and TaskWarrior data directory if you want to persist data.*
 
