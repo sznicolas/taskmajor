@@ -10,7 +10,7 @@ TaskMajor follows the **Model Context Protocol (MCP)** standard, which most AI t
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio"
   }
 }
@@ -43,7 +43,7 @@ Claude Desktop (formerly Claude for Slack/Web) uses MCP servers defined in `~/.c
    {
      "taskMajor": {
        "command": "uv",
-       "args": ["run", "-m", "taskmajor.server"],
+       "args": ["run", "-m", "taskmajor.bootstrap.server"],
        "type": "stdio"
      }
    }
@@ -87,7 +87,7 @@ Add TaskMajor to your MCP client's config:
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio"
   }
 }
@@ -101,7 +101,7 @@ If you need to customize TaskWarrior data location or logging:
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
       "TASKMAJOR_TASKDATA": "~/.task",
@@ -126,7 +126,7 @@ import subprocess
 import json
 
 # Start TaskMajor server (ensure it's running)
-# subprocess.Popen(["uv", "run", "-m", "taskmajor.server"])
+# subprocess.Popen(["uv", "run", "-m", "taskmajor.bootstrap.server"])
 
 client = Anthropic()
 
@@ -134,7 +134,7 @@ client = Anthropic()
 mcp_config = {
     "taskMajor": {
         "command": "uv",
-        "args": ["run", "-m", "taskmajor.server"],
+        "args": ["run", "-m", "taskmajor.bootstrap.server"],
         "type": "stdio"
     }
 }
@@ -199,7 +199,7 @@ Add to your config:
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "logfile": "/tmp/taskmajor-mcp.log"
   }
@@ -266,5 +266,5 @@ See [API Reference](../../api-reference/index.md) for details.
 ## Support
 
 - **Having trouble?** Check [Troubleshooting](https://github.com/yourusername/taskmajor/issues)
-- **Want to contribute a guide for your client?** [Contribute](../../development/contribution-path.md)
+- **Want to contribute a guide for your client?** [Contribute](../../developer/contributing.md)
 - **Found a bug?** [Report it](https://github.com/yourusername/taskmajor/issues)

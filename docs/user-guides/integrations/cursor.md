@@ -10,7 +10,7 @@ In a dedicated terminal, start the MCP server:
 
 ```bash
 cd /path/to/taskmajor
-uv run -m taskmajor.server
+uv run -m taskmajor.bootstrap.server
 ```
 
 **Expected output:**
@@ -33,7 +33,7 @@ Leave this terminal running.
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio"
   }
 }
@@ -89,7 +89,7 @@ What's my next task? Let's tackle it together.
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
       "TASKMAJOR_TASKDATA": "/path/to/my/.task",
@@ -130,7 +130,7 @@ Logs appear in Cursor's output panel.
 
 **Solution:**
 1. Ensure TaskMajor is installed: `cd /path/to/taskmajor && uv sync`
-2. Test manually: `uv run -m taskmajor.server`
+2. Test manually: `uv run -m taskmajor.bootstrap.server`
 3. Use full path in mcp_servers.json
 
 ### "Connection refused"
@@ -189,4 +189,4 @@ Based on the code I'm working on, what should my priorities be?
 
 - **Questions?** Check [Troubleshooting](https://github.com/yourusername/taskmajor/issues)
 - **Found an issue?** [Report it](https://github.com/yourusername/taskmajor/issues)
-- **Want to help?** See [Contributing](../../development/contribution-path.md)
+- **Want to help?** See [Contributing](../../developer/contributing.md)

@@ -8,10 +8,6 @@
 
 > **TaskMajor MCP. Coordinate your tasks. Execute with precision.**
 
----
-
-> **TaskMajor MCP. Coordinate your tasks. Execute with precision.**
-
 TaskMajor connects your AI assistants to your task management—organized your way, hosted on your terms.
 
 Ask your assistant:
@@ -85,7 +81,7 @@ docker build -t taskmajor . && mkdir taskdata && docker run -d -v $PWD/taskdata:
 | **[Profiles](docs/user-guides/profiles/profile-system.md)** | Workflow methodologies & custom profiles |
 | **[Docker: Custom Profiles](docs/deployment/docker-custom-profile.md)** | Mount profiles without overwriting built-ins |
 | **[Troubleshooting](https://github.com/nschmeltz/taskmajor/issues)** | Common issues and solutions |
-| **[Contributing](docs/development/contribution-path.md)** | Add a new agent integration |
+| **[Contributing](docs/developer/contributing.md)** | Add a new agent integration |
 
 
 ## 🌐 Community
@@ -105,7 +101,7 @@ MIT License — See [LICENSE](https://github.com/nschmeltz/taskmajor/blob/main/L
 
 Built with:
 
-- **[FastMCP](https://github.com/joshstevens19/fastmcp)** — Modern MCP framework
+- **[FastMCP](https://github.com/jlowin/fastmcp)** — Modern MCP framework
 - **[pytaskwarrior](https://github.com/sznicolas/pytaskwarrior)** — Python TaskWarrior wrapper
 - **[Pydantic](https://docs.pydantic.dev/)** — Data validation
 - **[OpenTelemetry](https://opentelemetry.io/)** — Observability

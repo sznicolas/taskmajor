@@ -34,7 +34,7 @@ Leave this terminal running.
   "github.copilot.chat.mcp": {
     "taskMajor": {
       "command": "uv",
-      "args": ["run", "-m", "taskmajor.server"],
+      "args": ["run", "-m", "taskmajor.bootstrap.server"],
       "type": "stdio",
       "disabled": false
     }
@@ -99,7 +99,7 @@ Once connected, use natural language:
 2. Install: `cd taskmajor && uv sync`
 3. Update settings.json to use full path to TaskMajor:
    ```json
-   "args": ["run", "-m", "taskmajor.server", "--data=/full/path/to/.task"]
+   "args": ["run", "-m", "taskmajor.bootstrap.server"]
    ```
 
 ### "Connection refused" / Copilot chat hangs
@@ -150,7 +150,7 @@ If you have multiple TaskWarrior configs or data directories:
   "github.copilot.chat.mcp": {
     "taskMajor": {
       "command": "uv",
-      "args": ["run", "-m", "taskmajor.server"],
+      "args": ["run", "-m", "taskmajor.bootstrap.server"],
       "type": "stdio",
       "env": {
         "TASKMAJOR_TASKDATA": "/path/to/my/.task",
@@ -226,4 +226,4 @@ Add this to my inbox: Investigate performance regression
 
 - **Issues?** Check the [Troubleshooting Guide](https://github.com/yourusername/taskmajor/issues)
 - **Bugs or Feature Requests?** [Open an issue](https://github.com/yourusername/taskmajor/issues)
-- **Want to Contribute?** See [Contributing Guide](../../development/contribution-path.md)
+- **Want to Contribute?** See [Contributing Guide](../../developer/contributing.md)

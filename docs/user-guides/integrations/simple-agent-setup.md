@@ -60,7 +60,7 @@ Select your AI agent to see copy-paste configuration instructions:
 1. **Start TaskMajor in a terminal**:
    ```bash
    cd /path/to/taskmajor
-   uv run -m taskmajor.server
+   uv run -m taskmajor.bootstrap.server
    ```
    
    Expected output:
@@ -78,7 +78,7 @@ Select your AI agent to see copy-paste configuration instructions:
      "github.copilot.modelContext.mcp": {
        "taskMajor": {
          "command": "uv",
-         "args": ["run", "-m", "taskmajor.server"],
+         "args": ["run", "-m", "taskmajor.bootstrap.server"],
          "type": "stdio",
          "disabled": false
        }
@@ -110,7 +110,7 @@ Select your AI agent to see copy-paste configuration instructions:
 1. **Start TaskMajor**:
    ```bash
    cd /path/to/taskmajor
-   uv run -m taskmajor.server
+   uv run -m taskmajor.bootstrap.server
    ```
 
 2. **Configure Claude MCP servers** (~/.claude/mcp_servers.json):
@@ -119,7 +119,7 @@ Select your AI agent to see copy-paste configuration instructions:
    {
      "taskMajor": {
        "command": "uv",
-       "args": ["run", "-m", "taskmajor.server"],
+       "args": ["run", "-m", "taskmajor.bootstrap.server"],
        "type": "stdio"
      }
    }
@@ -151,7 +151,7 @@ Select your AI agent to see copy-paste configuration instructions:
 1. **Start TaskMajor**:
    ```bash
    cd /path/to/taskmajor
-   uv run -m taskmajor.server
+   uv run -m taskmajor.bootstrap.server
    ```
 
 2. **Configure Cursor settings.json** (Cmd+, / Ctrl+,):
@@ -162,7 +162,7 @@ Select your AI agent to see copy-paste configuration instructions:
      "mcp.servers": {
        "taskMajor": {
          "command": "uv",
-         "args": ["run", "-m", "taskmajor.server"],
+         "args": ["run", "-m", "taskmajor.bootstrap.server"],
          "type": "stdio"
        }
      }
@@ -194,7 +194,7 @@ If you use a different MCP client (e.g., Claude Desktop, Anthropic API, custom t
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
       "TASKMAJOR_LOG_LEVEL": "info"
@@ -255,11 +255,11 @@ The agent will call `set_context(name="work")` to activate the work filter.
 TaskMajor respects standard configuration via environment variables. The most common:
 
 ```bash
-# TaskWarrior data location (default: ~/.task)
-export TASKMAJOR_TASKDATA=~/.task
+# TaskWarrior data location (default: ~/.task_mcp)
+export TASKMAJOR_TASKDATA=~/.task_mcp
 
-# TaskWarrior config location (default: ~/.taskrc)
-export TASKMAJOR_TASKRC=~/.taskrc
+# TaskWarrior config location (default: ~/.taskrc_mcp)
+export TASKMAJOR_TASKRC=~/.taskrc_mcp
 
 # Log level (default: INFO)
 export TASKMAJOR_LOG_LEVEL=DEBUG
@@ -288,5 +288,5 @@ See [Configuration](../../getting-started/configuration.md) for the full list.
 ## Need Help?
 
 - **Something not working?** Check [Troubleshooting](#troubleshooting)
-- **Want to contribute an agent guide?** See [Contributing](../../development/contribution-path.md)
+- **Want to contribute an agent guide?** See [Contributing](../../developer/contributing.md)
 - **Bug or feature request?** Open an [issue on GitHub](https://github.com/yourusername/taskmajor/issues)

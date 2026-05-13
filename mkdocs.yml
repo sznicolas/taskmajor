@@ -44,7 +44,6 @@ nav:
   - Configuration: getting-started/configuration.md
   - API Reference:
       - Overview: api-reference/index.md
-      - Auto-generated: api-reference/autodoc.md
       - Resources: api-reference/resources.md
       - Tools: api-reference/tools.md
   - Architecture: developer/architecture.md
@@ -62,7 +61,6 @@ nav:
   - Development:
       - Branch Protection: developer/branch-protection.md
       - CI/CD Infrastructure: developer/ci-cd-infrastructure.md
-      - Pre-commit: developer/pre-commit.md
       - Contributing: developer/contributing.md
       - Adding Agent Integrations: developer/agent-integrations.md
       - Profile Composition: developer/profile-composition.md

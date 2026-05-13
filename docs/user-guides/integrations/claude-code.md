@@ -10,7 +10,7 @@ In a dedicated terminal, start the MCP server:
 
 ```bash
 cd /path/to/taskmajor
-uv run -m taskmajor.server
+uv run -m taskmajor.bootstrap.server
 ```
 
 **Expected output:**
@@ -35,7 +35,7 @@ Claude looks for MCP server definitions in `~/.claude/mcp_servers.json`.
    {
      "taskMajor": {
        "command": "uv",
-       "args": ["run", "-m", "taskmajor.server"],
+       "args": ["run", "-m", "taskmajor.bootstrap.server"],
        "type": "stdio"
      }
    }
@@ -99,7 +99,7 @@ If you store TaskWarrior data in a non-standard location:
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
       "TASKMAJOR_TASKDATA": "/path/to/my/.task",
@@ -129,7 +129,7 @@ If Claude times out when querying tasks, increase the timeout:
 {
   "taskMajor": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "timeout": 10
   }
@@ -161,7 +161,7 @@ If Claude times out when querying tasks, increase the timeout:
 2. Test the command manually:
    ```bash
    cd /path/to/taskmajor
-   uv run -m taskmajor.server
+   uv run -m taskmajor.bootstrap.server
    ```
 3. If this works, update `mcp_servers.json` with the absolute path to TaskMajor
 
@@ -170,7 +170,7 @@ If Claude times out when querying tasks, increase the timeout:
 **Problem:** The MCP server is not running or not responding.
 
 **Solution:**
-1. Ensure the server is running in another terminal: `uv run -m taskmajor.server`
+1. Ensure the server is running in another terminal: `uv run -m taskmajor.bootstrap.server`
 2. Check for errors in the server terminal
 3. Verify TaskWarrior is working: `task list` (should not produce errors)
 4. Restart Claude
@@ -211,7 +211,7 @@ Configure multiple MCP servers if you have separate task databases:
 {
   "taskMajor-work": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
       "TASKMAJOR_TASKDATA": "~/.task_work"
@@ -219,7 +219,7 @@ Configure multiple MCP servers if you have separate task databases:
   },
   "taskMajor-personal": {
     "command": "uv",
-    "args": ["run", "-m", "taskmajor.server"],
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
       "TASKMAJOR_TASKDATA": "~/.task_personal"
@@ -283,4 +283,4 @@ Claude can execute complex workflows using TaskMajor's query and update tools.
 
 - **Need help?** Check the [Troubleshooting Guide](https://github.com/yourusername/taskmajor/issues)
 - **Found a bug?** [Open an issue](https://github.com/yourusername/taskmajor/issues)
-- **Want to contribute?** See [Contributing Guide](../../development/contribution-path.md)
+- **Want to contribute?** See [Contributing Guide](../../developer/contributing.md)

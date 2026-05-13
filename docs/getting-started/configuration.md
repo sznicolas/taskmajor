@@ -16,15 +16,15 @@ Example:
 ```yaml
 # Server
 server_host: localhost
-server_port: 7777
+server_port: 8888
 server_name: TaskMajor Server
 
 # TaskWarrior
-taskrc: /data/task/.taskrc
-taskdata: /data/task
+taskrc: ~/.taskrc_mcp
+taskdata: ~/.task_mcp
 
 # Profile
-profile: standard                   # Profile name or path
+profile: productivity               # Profile name or path
 
 # Logging
 log_level: INFO
