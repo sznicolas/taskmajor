@@ -52,7 +52,8 @@ Ready to transform your task management? Jump straight into the [Quick Start](#q
 
 3. **Launch the Server**
    ```bash
-   uv run -m taskmajor.bootstrap.server # --help to view overridable options in CLI
+   uv run -m taskmajor.bootstrap.server --help  # shows overridable options like --transport, --server-port, --server-host
+   uv run -m taskmajor.bootstrap.server
    ```
    You should see: `INFO: TaskMajor MCP Server ready`.
 

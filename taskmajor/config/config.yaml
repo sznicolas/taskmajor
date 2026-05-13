@@ -1,5 +1,6 @@
 server_host: 0.0.0.0
 server_port: 8888
+server_transport: streamable-http
 server_name: TaskMajor Server
 taskrc: ~/.taskrc_mcp
 taskdata: ~/.task_mcp

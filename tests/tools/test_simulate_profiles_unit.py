@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
-from typing import Any
 
 # Make tools/ importable without installing
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import argparse
 import logging
-from typing import cast, Literal
+from typing import Literal, cast
 
 from fastmcp import FastMCP
 from fastmcp.resources import FunctionResource
@@ -250,6 +250,7 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
     parser.add_argument("--server-host", help="Server host address")
     parser.add_argument("--log-level", help="Log level")
     parser.add_argument("--profile", help="Profile name to use")
+    parser.add_argument("--transport", help="MCP transport (stdio, streamable-http, sse)")
     parser.add_argument("--no-profiles", action="store_true", help="Disable profile loading")
 
     # Parse all additional arguments as config overrides, but keep command-line args separate
@@ -280,11 +281,8 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
 
     # Determine transport: CLI override > config > default
     transport = cfg.server_transport
-    if "transport" in unknown_args:
-        # Find the value after --transport argument
-        transport_idx = unknown_args.index("transport")
-        if transport_idx + 1 < len(unknown_args):
-            transport = unknown_args[transport_idx + 1]
+    if getattr(args, "transport", None):
+        transport = args.transport
 
     log.info(f"Using MCP transport: {transport}")
 
@@ -328,11 +326,13 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
         print(msg, file=sys.stderr)
         raise SystemExit(1)
 
-    await mcp.run_async(
-        transport=cast(Literal['stdio', 'http', 'sse', 'streamable-http'] | None, transport),
-        port=cfg.server_port,
-        host=cfg.server_host,
-    )
+    # Run MCP transport. Don't pass port/host for stdio transport implementations
+    # because run_stdio_async() does not accept these keyword arguments.
+    cast_transport = cast(Literal['stdio', 'http', 'sse', 'streamable-http'] | None, transport)
+    if transport == "stdio":
+        await mcp.run_async(transport=cast_transport)
+    else:
+        await mcp.run_async(transport=cast_transport, port=cfg.server_port, host=cfg.server_host)
 
 
 async def main():
