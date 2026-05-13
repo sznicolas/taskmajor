@@ -1,55 +1,28 @@
-# Quick Connect: Using TaskMajor with Your Favorite AI Agent
+# Connect TaskMajor to Your AI Agent
 
-> **TL;DR**: TaskMajor is an MCP server for TaskWarrior. Connect it to Copilot, Claude Code, Cursor, or any MCP-compatible AI agent to manage tasks with natural language.
-
-TaskMajor exposes all task operations via the Model Context Protocol (MCP), a standard interface that allows any AI agent to interact with your tasks using natural language.
-
-## What You Can Do
-
-Once connected, ask your agent:
-
-- *"Add a task to fix the login bug"*
-- *"What's on my plate for today?"*
-- *"Mark the design review as done"*
-- *"Show me overdue tasks"*
-- *"Triage my inbox and set priorities"*
-
-The agent will use TaskMajor to execute these commands on your TaskWarrior database.
-
----
+> **TL;DR**: TaskMajor is an MCP server for TaskWarrior. Start it once, then connect Copilot, Claude Code, Cursor, Hermes, or any MCP-compatible agent.
 
 ## Prerequisites
 
-1. **TaskWarrior installed**: TaskMajor requires the `task` command
-   ```bash
-   # macOS
-   brew install task
-   
-   # Linux (Ubuntu/Debian)
-   sudo apt-get install task
-   
-   # Or build from source: https://taskwarrior.org/download/build/
-   ```
+- **TaskWarrior v3.0+**: `brew install task` (macOS) or [taskwarrior.org/download](https://taskwarrior.org/download/)
+- **TaskMajor installed**: `git clone … && uv sync`
+- **Python 3.10+**
 
-2. **TaskMajor installed**: Clone and set up
-   ```bash
-   git clone https://github.com/yourusername/taskmajor.git
-   cd taskmajor
-   uv sync  # or: pip install -e .
-   ```
+## Start TaskMajor
 
-3. **Python 3.10+**: Required by TaskMajor
+All agents below require TaskMajor to be running first:
 
----
+```bash
+cd /path/to/taskmajor
+uv run -m taskmajor.bootstrap.server
+```
 
-## Choose Your Agent
+Expected output:
+```
+INFO:    TaskMajor MCP Server ready
+```
 
-Select your AI agent to see copy-paste configuration instructions:
-
-- **[GitHub Copilot (VS Code)](#github-copilot-vs-code)** — Built into VS Code, excellent integration
-- **[Claude Code (CLI)](#claude-code-cli)** — Command-line Anthropic agent
-- **[Cursor IDE](#cursor-ide)** — AI-first code editor
-- **[Generic MCP Client](#generic-mcp-client)** — Any MCP-compatible tool
+For **stdio agents** (Copilot, Claude Code, Cursor, Generic MCP), the agent launches the server automatically — you don't need to start it manually. For **HTTP agents** (Hermes), leave the server running in a dedicated terminal.
 
 ---
 
@@ -57,49 +30,47 @@ Select your AI agent to see copy-paste configuration instructions:
 
 ### Setup
 
-1. **Start TaskMajor in a terminal**:
-   ```bash
-   cd /path/to/taskmajor
-   uv run -m taskmajor.bootstrap.server
-   ```
-   
-   Expected output:
-   ```
-   Starting MCP server on stdio
-   TaskMajor MCP Server ready
-   ```
+1. Open VS Code Settings (`Cmd+,` / `Ctrl+,`), search `@ext:github.copilot`
+2. Click **Edit in settings.json** and add:
 
-2. **Configure VS Code settings.json**:
+```json
+{
+  "github.copilot.chat.mcp": {
+    "taskMajor": {
+      "command": "uv",
+      "args": ["run", "-m", "taskmajor.bootstrap.server"],
+      "type": "stdio"
+    }
+  }
+}
+```
 
-   Open VS Code settings (`Cmd+,` / `Ctrl+,`), search for `@ext:github.copilot`, and add:
-   
-   ```json
-   {
-     "github.copilot.modelContext.mcp": {
-       "taskMajor": {
-         "command": "uv",
-         "args": ["run", "-m", "taskmajor.bootstrap.server"],
-         "type": "stdio",
-         "disabled": false
-       }
-     }
-   }
-   ```
+3. Save and restart VS Code
+4. Open Copilot Chat (`Cmd+Shift+I`) and ask: `What's on my plate today?`
 
-3. **Test the connection**:
-   
-   Open Copilot Chat (Cmd+Shift+I / Ctrl+Shift+I) and ask:
-   ```
-   Can you check my TaskMajor tasks for today?
-   ```
+### Custom data location
 
-   Copilot should respond with today's tasks from TaskWarrior.
+```json
+{
+  "github.copilot.chat.mcp": {
+    "taskMajor": {
+      "command": "uv",
+      "args": ["run", "-m", "taskmajor.bootstrap.server"],
+      "type": "stdio",
+      "env": {
+        "TASKMAJOR_TASKDATA": "/path/to/.task",
+        "TASKMAJOR_TASKRC": "/path/to/.taskrc"
+      }
+    }
+  }
+}
+```
 
 ### Troubleshooting
 
-- **"TaskMajor not found"**: Ensure `uv` is in your PATH. Run `which uv` to verify.
-- **"Connection refused"**: Check that the MCP server is running in another terminal.
-- **No tasks returned**: Verify TaskWarrior has tasks. Run `task list` in your terminal.
+- **`uv` not found**: run `which uv`, use full path in `"command"` if needed
+- **Connection refused**: restart VS Code after config changes
+- **No tasks returned**: verify TaskWarrior works with `task list`
 
 ---
 
@@ -107,40 +78,42 @@ Select your AI agent to see copy-paste configuration instructions:
 
 ### Setup
 
-1. **Start TaskMajor**:
-   ```bash
-   cd /path/to/taskmajor
-   uv run -m taskmajor.bootstrap.server
-   ```
+1. Create or edit `~/.claude/mcp_servers.json`:
 
-2. **Configure Claude MCP servers** (~/.claude/mcp_servers.json):
-   
-   ```json
-   {
-     "taskMajor": {
-       "command": "uv",
-       "args": ["run", "-m", "taskmajor.bootstrap.server"],
-       "type": "stdio"
-     }
-   }
-   ```
+```json
+{
+  "taskMajor": {
+    "command": "uv",
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
+    "type": "stdio"
+  }
+}
+```
 
-3. **Test the connection**:
-   
-   ```bash
-   claude
-   ```
-   
-   Then ask:
-   ```
-   What tasks do I have this week?
-   ```
+2. Run `claude` and ask: `What tasks do I have this week?`
+
+### Custom data location or timeout
+
+```json
+{
+  "taskMajor": {
+    "command": "uv",
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
+    "type": "stdio",
+    "timeout": 10,
+    "env": {
+      "TASKMAJOR_TASKDATA": "/path/to/.task",
+      "TASKMAJOR_TASKRC": "/path/to/.taskrc"
+    }
+  }
+}
+```
 
 ### Troubleshooting
 
-- **File not found (~/.claude/)**: Create the directory: `mkdir -p ~/.claude`
-- **Permission denied**: Ensure MCP server executable: `chmod +x /path/to/taskmajor/taskmajor/server.py`
-- **Connection timeout**: Increase timeout in mcp_servers.json if needed
+- **Directory missing**: `mkdir -p ~/.claude`
+- **Permission denied**: `chmod 755 ~/.task && chmod 644 ~/.task/*.json ~/.taskrc`
+- **Module not found**: test manually with `cd /path/to/taskmajor && uv run -m taskmajor.bootstrap.server`
 
 ---
 
@@ -148,47 +121,59 @@ Select your AI agent to see copy-paste configuration instructions:
 
 ### Setup
 
-1. **Start TaskMajor**:
-   ```bash
-   cd /path/to/taskmajor
-   uv run -m taskmajor.bootstrap.server
-   ```
+1. Open Cursor Settings (`Cmd+,` / `Ctrl+,`), search `mcp`
+2. Locate and edit `mcp_servers.json`:
 
-2. **Configure Cursor settings.json** (Cmd+, / Ctrl+,):
-   
-   Search for `mcp` and add:
-   ```json
-   {
-     "mcp.servers": {
-       "taskMajor": {
-         "command": "uv",
-         "args": ["run", "-m", "taskmajor.bootstrap.server"],
-         "type": "stdio"
-       }
-     }
-   }
-   ```
+```json
+{
+  "taskMajor": {
+    "command": "uv",
+    "args": ["run", "-m", "taskmajor.bootstrap.server"],
+    "type": "stdio"
+  }
+}
+```
 
-3. **Test with Cursor Agent**:
-   
-   Open Cursor's agent panel (Cmd+K / Ctrl+K) and ask:
-   ```
-   Show me overdue tasks
-   ```
+3. Save and restart Cursor
+4. Open Cursor Agent (`Cmd+K`) and ask: `Show me overdue tasks`
 
 ### Troubleshooting
 
-- Check Cursor's MCP configuration file location (varies by OS)
-- Restart Cursor after config changes
-- Verify TaskMajor is responding: `python -m taskmajor.bootstrap.server --version`
+- **`uv` not found**: use full path `"command": "/usr/local/bin/uv"`
+- **Connection refused**: verify with `python -m taskmajor.bootstrap.server`
+- **No tasks returned**: `task list` then `task sync`
+
+---
+
+## Hermes
+
+Hermes connects via HTTP — TaskMajor must be running as a server (see [Start TaskMajor](#start-taskmajor) above).
+
+### Setup
+
+Add to `~/.hermes/config.yaml`:
+
+```yaml
+mcp_servers:
+  taskmajor:
+    url: http://127.0.0.1:8888/mcp
+    headers:
+      Authorization: Bearer <your-token>
+```
+
+Then ask Hermes: `What are my tasks for today?`
+
+### Troubleshooting
+
+- **Connection refused**: ensure `uv run -m taskmajor.bootstrap.server` is running in a terminal
+- **401 Unauthorized**: check the Bearer token value in your config
+- **Wrong port**: verify `server_port` in `taskmajor/config/config.yaml` matches the URL
 
 ---
 
 ## Generic MCP Client
 
-If you use a different MCP client (e.g., Claude Desktop, Anthropic API, custom tool), TaskMajor follows the standard MCP protocol.
-
-### Standard MCP Configuration
+For any MCP-compatible client (Claude Desktop, custom tools, Anthropic SDK integrations):
 
 ```json
 {
@@ -197,73 +182,40 @@ If you use a different MCP client (e.g., Claude Desktop, Anthropic API, custom t
     "args": ["run", "-m", "taskmajor.bootstrap.server"],
     "type": "stdio",
     "env": {
-      "TASKMAJOR_LOG_LEVEL": "info"
+      "TASKMAJOR_LOG_LEVEL": "INFO"
     }
   }
 }
 ```
 
-### Verify Connection (Manual Test)
-
-Start TaskMajor and manually test with FastMCP inspector:
-
+Verify with the FastMCP inspector:
 ```bash
 uv run fastmcp dev inspector taskmajor/bootstrap/core.py:main
 ```
-
-This opens an interactive web UI where you can:
-- Test tools (add_task, query_tasks, etc.)
-- Read resources (taskmajor://agenda/today, taskmajor://config/schema)
-- Verify the MCP server is working
 
 ---
 
 ## Common Patterns
 
-### Pattern 1: Daily Standup
 ```
-"What are my top 3 tasks for today?"
-```
-
-The agent will call `query_tasks(filters={status: pending}, sort=[-urgency])` and return your most urgent tasks.
-
-### Pattern 2: Quick Capture
-```
-"Add a task: Review PR from Alice"
-```
-
-The agent will call `add_task(description="Review PR from Alice", project="Inbox")`.
-
-### Pattern 3: Triage Inbox
-```
-"Show me tasks in the review queue and help me prioritize them"
-```
-
-The agent will call `query_tasks(filters={project: "Inbox"})` and guide you through triage.
-
-### Pattern 4: Context Switching
-```
+"Add a task to fix the login bug"
+"What's on my plate for today?"
+"Mark the design review as done"
+"Show me overdue tasks"
+"Triage my inbox and set priorities"
 "Switch to my @work context"
 ```
-
-The agent will call `set_context(name="work")` to activate the work filter.
 
 ---
 
 ## Environment Variables
 
-TaskMajor respects standard configuration via environment variables. The most common:
-
-```bash
-# TaskWarrior data location (default: ~/.task_mcp)
-export TASKMAJOR_TASKDATA=~/.task_mcp
-
-# TaskWarrior config location (default: ~/.taskrc_mcp)
-export TASKMAJOR_TASKRC=~/.taskrc_mcp
-
-# Log level (default: INFO)
-export TASKMAJOR_LOG_LEVEL=DEBUG
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TASKMAJOR_TASKDATA` | `~/.task_mcp` | TaskWarrior data directory |
+| `TASKMAJOR_TASKRC` | `~/.taskrc_mcp` | TaskWarrior config file |
+| `TASKMAJOR_LOG_LEVEL` | `INFO` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+| `TASKMAJOR_SERVER_PORT` | `8888` | HTTP port (relevant for Hermes / HTTP clients) |
 
 See [Configuration](../../getting-started/configuration.md) for the full list.
 
@@ -271,22 +223,7 @@ See [Configuration](../../getting-started/configuration.md) for the full list.
 
 ## What's Next?
 
-### Learn the API
-- [Resources](../../api-reference/resources.md) — Read-only task views (`taskmajor://agenda/today`, etc.)
-- [Tools](../../api-reference/tools.md) — Actions your agent can perform
-- [API Reference](../../api-reference/index.md) — Complete documentation
-
-### Advanced Setup
-- [Configuration](../../getting-started/configuration.md) — Customize behavior with env vars
-- [Observability](../../developer/observability.md) — Enable tracing and metrics
-
-### Troubleshooting
-- [Common Issues](#troubleshooting) — Permissions, paths, connection errors
-
----
-
-## Need Help?
-
-- **Something not working?** Check [Troubleshooting](#troubleshooting)
-- **Want to contribute an agent guide?** See [Contributing](../../developer/contributing.md)
-- **Bug or feature request?** Open an [issue on GitHub](https://github.com/yourusername/taskmajor/issues)
+- [API Reference](../../api-reference/index.md) — All tools and resources
+- [Configuration](../../getting-started/configuration.md) — Advanced setup
+- [Profiles](../profiles/profile-system.md) — Customize TaskMajor behavior
+- [Contributing](../../developer/contributing.md) — Add a guide for your agent
