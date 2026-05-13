@@ -58,7 +58,7 @@ Ready to transform your task management? Jump straight into the [Quick Start](#q
    You should see: `INFO: TaskMajor MCP Server ready`.
 
 4. **Connect Your Agent**
-   That's it. Now, simply configure your AI agent (Copilot, Claude, Cursor) to connect to this local MCP server. See the **[Connect Your Agent](docs/user-guides/integrations/simple-agent-setup.md)** guide for copy-paste snippets for your specific editor.
+   That's it. Now, simply configure your AI agent (Hermes, Copilot, Claude, Cursor, ...) to connect to this local MCP server. See the **[Connect Your Agent](docs/user-guides/integrations/simple-agent-setup.md)** guide for copy-paste snippets for your specific editor.
 
 ### Docker Option
 If you prefer containerization or need a bundled TaskWarrior instance:
