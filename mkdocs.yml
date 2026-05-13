@@ -31,12 +31,7 @@ nav:
   - Home: index.md
   - Quick Start:
       - Quickstart: getting-started/quickstart.md
-      - Simple Agent Setup: user-guides/integrations/simple-agent-setup.md
-      - GitHub Copilot: user-guides/integrations/copilot.md
-      - Claude Code: user-guides/integrations/claude-code.md
-      - Cursor IDE: user-guides/integrations/cursor.md
-      - Generic MCP Client: user-guides/integrations/generic-mcp.md
-      - MCP JSON Client: user-guides/integrations/mcp-json.md
+      - Connect Your Agent: user-guides/integrations/simple-agent-setup.md
   - Installation & Setup:
       - Getting Started: getting-started/index.md
       - Build from Source: deployment/build-from-source.md
@@ -44,7 +39,6 @@ nav:
   - Configuration: getting-started/configuration.md
   - API Reference:
       - Overview: api-reference/index.md
-      - Auto-generated: api-reference/autodoc.md
       - Resources: api-reference/resources.md
       - Tools: api-reference/tools.md
   - Architecture: developer/architecture.md
@@ -62,7 +56,6 @@ nav:
   - Development:
       - Branch Protection: developer/branch-protection.md
       - CI/CD Infrastructure: developer/ci-cd-infrastructure.md
-      - Pre-commit: developer/pre-commit.md
       - Contributing: developer/contributing.md
       - Adding Agent Integrations: developer/agent-integrations.md
       - Profile Composition: developer/profile-composition.md

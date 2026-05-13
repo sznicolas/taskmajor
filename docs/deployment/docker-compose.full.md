@@ -24,8 +24,8 @@ Useful variables for local development. Use the `.env` file or export variables 
 | TASKMAJOR_SERVER_HOST | 0.0.0.0 | No | Server bind address
 | TASKMAJOR_SERVER_PORT | 7777 | No | HTTP port exposed by the app (mapping in docker-compose.yaml)
 | TASKMAJOR_SERVER_NAME | TaskMajor Server | No | Display name visible in metadata and logs
-| TASKMAJOR_TASKRC | ~/.taskrc | No | Path to TaskWarrior config file mounted into container (`/etc/task/.taskrc` in compose)
-| TASKMAJOR_TASKDATA | ~/.task | No | Path to TaskWarrior data directory (mounted at `/data/task` in compose)
+| TASKMAJOR_TASKRC | ~/.taskrc_mcp | No | Path to TaskWarrior config file mounted into container (`/etc/task/.taskrc` in compose)
+| TASKMAJOR_TASKDATA | ~/.task_mcp | No | Path to TaskWarrior data directory (mounted at `/data/task` in compose)
 | TASKMAJOR_LOG_LEVEL | INFO | No | Logging level (DEBUG, INFO, WARNING, ERROR)
 | TASKMAJOR_LOG_FORMAT | json | No | Log format: `text` or `json`
 | TASKMAJOR_OTEL_ENABLED | false | No | Enable OpenTelemetry export (set true to enable)

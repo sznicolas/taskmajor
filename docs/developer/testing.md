@@ -10,7 +10,7 @@ TaskMajor has comprehensive test coverage across multiple layers:
 - **Edge case tests**: Boundary conditions and special scenarios
 - **Profile tests**: Profile composition, extends chains, resource/prompt loading
 - **Integration tests**: End-to-end initialization and profile loading
-- **Total: 251 tests collected** (245 passing, 6 skipped), organized by domain
+- **Tests organized by domain** (run `pytest --collect-only -q` for current count)
 
 **Recent changes (Phase 6):**
 - Consolidated 11 redundant config getters into 2 comprehensive tests
@@ -737,7 +737,6 @@ For fixtures needed across many files, add them to `tests/conftest.py`.
 ```bash
 # Reproduce CI environment locally
 uv sync
-export PYTHONPATH=/Users/nschmeltz/repos/atelier/task/taskmcp
 pytest -v --tb=short
 
 # If Hypothesis test is flaky, get the seed from CI output:
@@ -883,7 +882,7 @@ uv run pytest -v --tb=short
 ```
 
 **Success criteria:**
-- All 251+ tests pass
+- All tests pass
 - No timeout errors
 - Minimum test count check (≥140 tests)
 
@@ -1054,7 +1053,7 @@ Why 60%?
 
 ### Performance Baseline
 
-Currently, 251 tests collected (245 passing, 6 skipped) complete in ~3–4 seconds:
+The full test suite completes in ~3–4 seconds locally:
 - Fast CI feedback
 - Tests are isolated (no external I/O)
 - No performance benchmark tests yet (Phase 4+)
