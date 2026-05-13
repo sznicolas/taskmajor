@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import argparse
 import logging
-from typing import cast, Literal
+from typing import Literal, cast
 
 from fastmcp import FastMCP
 from fastmcp.resources import FunctionResource
