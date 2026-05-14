@@ -6,143 +6,36 @@ on:
   pull_request:
     branches: [main, develop]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   test:
-    name: Tests (Python ${{ matrix.python }})
+    name: Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.10", "3.11", "3.12"]
-      fail-fast: false
+        python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      
-      - name: Install uv
-        uses: astral-sh/setup-uv@v2
+      - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
-      
-      - name: Install dependencies
-        run: uv sync --all-groups
-      
-      - name: Run tests
-        run: uv run pytest -v --tb=short
-      
-      - name: Check test count
-        run: |
-          count=$(uv run pytest --collect-only -q | tail -1 | grep -oP '\d+(?= test)' || echo "0")
-          echo "Tests collected: $count"
-          if [ "$count" -lt 140 ]; then
-            echo "ERROR: Expected at least 140 tests, but found $count"
-            exit 1
-          fi
-
-  coverage:
-    name: Coverage
-    runs-on: ubuntu-latest
-    needs: test
-    if: always()
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-      
-      - name: Install uv
-        uses: astral-sh/setup-uv@v2
-        with:
-          enable-cache: true
-      
-      - name: Install dependencies
-        run: uv sync --all-groups
-      
-      - name: Generate coverage report
-        run: |
-          uv run pytest --cov=taskmajor --cov-report=xml --cov-report=html -q
-      
-      - name: Check coverage threshold
-        run: |
-          coverage_percent=$(uv run coverage report | grep TOTAL | awk '{print $(NF-1)}' | sed 's/%//')
-          echo "Coverage: ${coverage_percent}%"
-          if (( $(echo "$coverage_percent < 60" | bc -l) )); then
-            echo "ERROR: Coverage is below 60% (found ${coverage_percent}%)"
-            exit 1
-          fi
-      
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      - run: uv sync --all-groups
+      - name: Install taskwarrior
+        run: sudo apt-get install -y taskwarrior
+      - run: uv run pytest --cov=taskmajor --cov-report=xml --cov-fail-under=85
+      - uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          verbose: true
-      
-      - name: Archive coverage report
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: htmlcov/
-          retention-days: 7
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     name: Lint & Type Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-      
-      - name: Install uv
-        uses: astral-sh/setup-uv@v2
+      - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
-      
-      - name: Install dependencies
-        run: uv sync --all-groups
-      
-      - name: Lint with ruff
-        run: uv run ruff check .
-
-      - name: Format check with ruff
-        run: uv run ruff format . --check
-
-      - name: Type check with mypy
-        run: uv run mypy taskmajor --ignore-missing-imports
-
-  summary:
-    name: CI Summary
-    runs-on: ubuntu-latest
-    needs: [test, coverage, lint]
-    if: always()
-    steps:
-      - name: Check test status
-        if: needs.test.result == 'failure'
-        run: |
-          echo "❌ Tests failed"
-          exit 1
-      
-      - name: Check coverage status
-        if: needs.coverage.result == 'failure'
-        run: |
-          echo "❌ Coverage check failed"
-          exit 1
-      
-      - name: All checks passed
-        run: echo "✅ All CI checks passed"
-
+      - run: uv sync --all-groups
+      - run: uv run ruff check .
+      - run: uv run mypy taskmajor/

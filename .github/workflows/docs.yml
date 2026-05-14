@@ -12,18 +12,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v2
+      - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
 
+      - name: Install doc dependencies
+        run: uv sync --group docs
+
+      - name: Generate profile docs
+        run: uv run python tools/generate_profile_docs.py
+
+      - name: Check profile docs are up to date
+        run: |
+          git diff --exit-code docs/user-guides/profiles/reference/ mkdocs.yml \
+            || { echo "❌ Profile docs are stale. Run: python tools/generate_profile_docs.py"; exit 1; }
+
       - name: Build docs
-        run: bash scripts/build_docs.sh
+        run: uv run mkdocs build
 
       - name: Upload site artifact
         uses: actions/upload-artifact@v4

@@ -25,6 +25,7 @@ from taskmajor.domains.tasks import TaskService
 from taskmajor.domains.taskwarrior import TaskMajorConfig, config
 from taskmajor.domains.taskwarrior.init import init_taskwarrior
 from taskmajor.mcp import register_all
+from taskmajor.utils.task_serializer import install_serializer
 
 log = logging.getLogger(__name__)
 
@@ -202,6 +203,7 @@ def create_mcp(
         taskrc_file=cfg.taskrc,
         data_location=cfg.taskdata,
     )
+    install_serializer(taskwarrior_client)
     profile_manager = ProfileManager(cfg, cli_profile=cli_profile)
     error_log = AgentErrorLog(cfg.agent_errors_path)
 

@@ -76,6 +76,6 @@ All tests should pass. If you encounter failures, check:
 
 ## Next Steps
 
-- [Quick Start](quickstart.md) — Try your first task operations
+- [Quick Start](getting-started.md) — Try your first task operations
 - [Configuration](configuration.md) — Customize environment settings
 - [API Reference](../api-reference/index.md) — Explore all resources and tools

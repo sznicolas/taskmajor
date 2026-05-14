@@ -15,7 +15,6 @@ import argparse
 import importlib.util
 import sys
 from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
 
 HERE = Path(__file__).parent.resolve()
@@ -166,7 +165,7 @@ def write_index_md(outdir: Path, profiles: list[str], chains: dict[str, list[str
     header = (
         "<!-- AUTO-GENERATED - Do not edit manually -->\n\n"
         "> **AUTO-GENERATED - Do not edit manually**\n\n"
-        f"Generated: {datetime.now().isoformat()}\n\n---\n\n"
+        f"Regenerate: `python tools/generate_profile_docs.py`\n\n---\n\n"
     )
 
     body_lines: list[str] = [
@@ -263,7 +262,7 @@ def update_mkdocs_configuration(
 
     profiles_block = {
         "Profiles": [
-            {"Index": "user-guides/profiles/reference/index.md"},
+            {"Index": "user-guides/profiles/reference/README.md"},
             {"Reference": ref_items},
         ]
     }
@@ -333,7 +332,7 @@ def update_mkdocs_configuration(
 
 
 def build_profile_doc_artifacts(
-    sim, ctx, *, generated_at: str | None = None, regen_cmd: str | None = None
+    sim, ctx, *, regen_cmd: str | None = None
 ) -> dict[str, str]:
     """Build README.md and instructions/debug.md for a profile using simulate_profiles APIs.
 
@@ -341,8 +340,6 @@ def build_profile_doc_artifacts(
     ctx: ProfileContext from sim.load_profile_context
     Returns mapping relative path -> content
     """
-    if generated_at is None:
-        generated_at = datetime.now().isoformat()
     if regen_cmd is None:
         regen_cmd = "python tools/generate_profile_docs.py"
 
@@ -359,7 +356,6 @@ def build_profile_doc_artifacts(
 
     profile_header = "<!-- AUTO-GENERATED - Do not edit manually -->\n\n"
     profile_header += "> **AUTO-GENERATED - Do not edit manually**\n\n"
-    profile_header += f"Generated: {generated_at}  \n"
     profile_header += f"Regenerate: `{regen_cmd}`\n\n"
     profile_header += "---\n\n"
 
@@ -422,12 +418,7 @@ def main(argv: list[str] | None = None) -> int:
         ctxs.append(ctx)
         chains[profile] = [c.get("name") for c in ctx.chain]
 
-        generated_at = datetime.now().isoformat()
-        regen_cmd = regen_base
-
-        artifacts = build_profile_doc_artifacts(
-            sim, ctx, generated_at=generated_at, regen_cmd=regen_cmd
-        )
+        artifacts = build_profile_doc_artifacts(sim, ctx, regen_cmd=regen_base)
 
         # Write artifacts returned as relative paths -> content
         for rel_path, content in artifacts.items():

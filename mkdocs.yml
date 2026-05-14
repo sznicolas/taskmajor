@@ -28,10 +28,9 @@ plugins:
       handlers:
         python: {}
 nav:
-  - Home: index.md
   - Quick Start:
-      - Quickstart: getting-started/quickstart.md
-      - Connect Your Agent: user-guides/integrations/simple-agent-setup.md
+      - Quickstart: getting-started/getting-started.md
+      - Connect Your Agent: getting-started/connect-your-agent.md
   - Installation & Setup:
       - Getting Started: getting-started/index.md
       - Build from Source: deployment/build-from-source.md
@@ -51,8 +50,7 @@ nav:
           https://github.com/yourusername/taskmajor/issues
       - Observability: developer/observability.md
   - Workflows & Guides:
-      - GTD Workflow: user-guides/workflows/gtd-workflow.md
-      - Task Lifecycle: user-guides/workflows/task-lifecycle.md
+      - Workflows: user-guides/workflows.md
   - Development:
       - Branch Protection: developer/branch-protection.md
       - CI/CD Infrastructure: developer/ci-cd-infrastructure.md
@@ -63,7 +61,7 @@ nav:
       - Testing: developer/testing.md
   - User Guides:
       - Profiles:
-          - Index: user-guides/profiles/reference/index.md
+          - Index: user-guides/profiles/reference/README.md
           - Reference:
               - Base:
                   - README: user-guides/profiles/reference/base/README.md
