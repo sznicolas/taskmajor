@@ -31,6 +31,8 @@ resources:
 
 ## Tools and validation
 
+- Resources declared in manifests use backend functions documented in [API Reference → Resources](../../api-reference/resources.md#backend-functions).
+- Available tools are listed in [API Reference → Tools](../../api-reference/tools.md).
 - Resource parameters are validated during profile load. See `taskmajor/domains/profiles/resource_mapper.py` for exact rules.
 - Use `backend.params.filters` for `get_stats` rather than passing unknown top-level keys (e.g. `type`).
 
@@ -44,4 +46,4 @@ Example:
 python3 tools/simulate_profiles.py --profiles project-mgmt
 ```
 
-For composition semantics, examples, and contributor checklist see [Profile composition rules](../../developer/profile-composition.md).
+For composition semantics, examples, and contributor checklist see the Profile composition rules page linked above.

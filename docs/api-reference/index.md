@@ -201,17 +201,6 @@ add_task({
 })
 ```
 
-#### `update_task(task_id, task_input)`
-Modify an existing task.
-
-```python
-# Update only changed fields
-update_task(
-    task_id="12345",
-    task_input={"priority": "L", "due": "next month"}
-)
-```
-
 #### `done_task(task_id)`
 Mark a task as complete.
 
@@ -496,5 +485,5 @@ for task in review_tasks:
 ## See Also
 
 - [Configuration](../getting-started/configuration.md) — Environment setup
-- [Resources](resources.md) — Detailed resource specs (legacy)
-- [Tools](tools.md) — Detailed tool specs (legacy)
+- [Resources](resources.md) — Detailed resource specs
+- [Tools](tools.md) — Detailed tool specs
