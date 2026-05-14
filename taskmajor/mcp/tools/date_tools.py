@@ -4,8 +4,12 @@ Date-related MCP tools: resolve and validate TaskWarrior date expressions.
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastmcp import FastMCP
 from taskwarrior import TaskWarrior
+
+from taskmajor.mcp.errors import INTERNAL_ERROR, INVALID_INPUT, fail, ok
 
 # Expressions that are valid but task_calc returns a normalized duration
 # rather than an absolute ISO datetime.
@@ -46,7 +50,7 @@ def register_date_tools(
     if _allowed("resolve_date"):
 
         @mcp.tool
-        def resolve_date(expression: str) -> dict:
+        def resolve_date(expression: str) -> dict[str, Any]:
             """
             Resolve a TaskWarrior date expression to an ISO datetime string.
 
@@ -74,29 +78,32 @@ def register_date_tools(
                     "but does not resolve it to an absolute date. "
                     "It is valid as a due/scheduled/wait field value."
                 )
-                normalized = taskwarrior_client.task_calc(expression)
-                return {"expression": expression, "resolved": normalized, "warning": warning}
+                try:
+                    normalized = taskwarrior_client.task_calc(expression)
+                except Exception as e:
+                    return fail(str(e), INVALID_INPUT)
+                return ok({"expression": expression, "resolved": normalized, "warning": warning})
 
             try:
                 resolved = taskwarrior_client.task_calc(expression)
             except Exception as e:
-                return {"expression": expression, "error": str(e)}
+                return fail(str(e), INVALID_INPUT)
 
             date_part, _, time_part = resolved.partition("T")
-            result: dict = {
+            result_data: dict = {
                 "expression": expression,
                 "resolved": resolved,
                 "date": date_part,
                 "time": time_part or None,
             }
             if warning:
-                result["warning"] = warning
-            return result
+                result_data["warning"] = warning
+            return ok(result_data)
 
     if _allowed("validate_date"):
 
         @mcp.tool
-        def validate_date(expression: str) -> dict:
+        def validate_date(expression: str) -> dict[str, Any]:
             """
             Check whether a string is a valid TaskWarrior date expression.
 
@@ -118,8 +125,11 @@ def register_date_tools(
                     "Use 'today+570min' or 'today+9.5h' for 9h30."
                 )
 
-            valid = taskwarrior_client.date_validator(expression)
-            result: dict = {"expression": expression, "valid": valid}
+            try:
+                valid = taskwarrior_client.date_validator(expression)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
+            result_data: dict = {"expression": expression, "valid": valid}
             if warning:
-                result["warning"] = warning
-            return result
+                result_data["warning"] = warning
+            return ok(result_data)

@@ -4,9 +4,12 @@ Context management MCP tools (runtime).
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastmcp import FastMCP
 
 from taskmajor.domains.tasks import TaskService
+from taskmajor.mcp.errors import INTERNAL_ERROR, fail, ok
 
 
 def register_context_tools(
@@ -27,7 +30,7 @@ def register_context_tools(
     if _allowed("list_contexts"):
 
         @mcp.tool
-        def list_contexts() -> dict:
+        def list_contexts() -> dict[str, Any]:
             """
             List all defined TaskWarrior contexts and indicate which is active.
 
@@ -37,7 +40,7 @@ def register_context_tools(
             try:
                 contexts = task_service.list_contexts()
                 current = task_service.get_current_context()
-                return {
+                return ok({
                     "active": current,
                     "contexts": [
                         {
@@ -48,14 +51,14 @@ def register_context_tools(
                         }
                         for c in contexts
                     ],
-                }
+                })
             except Exception as e:
-                return {"error": str(e)}
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("set_context"):
 
         @mcp.tool
-        def set_context(name: str) -> str:
+        def set_context(name: str) -> dict[str, Any]:
             """
             Activate a TaskWarrior context. All subsequent task queries will be
             filtered by this context.
@@ -65,20 +68,20 @@ def register_context_tools(
             """
             try:
                 task_service.set_context(name)
-                return f"Context '{name}' activated."
+                return ok(f"Context '{name}' activated.")
             except Exception as e:
-                return f"Failed to set context '{name}': {e}"
+                return fail(f"Failed to set context '{name}': {e}", INTERNAL_ERROR)
 
     if _allowed("unset_context"):
 
         @mcp.tool
-        def unset_context() -> str:
+        def unset_context() -> dict[str, Any]:
             """
             Deactivate the current TaskWarrior context. Queries will no longer
             be filtered.
             """
             try:
                 task_service.unset_context()
-                return "Context deactivated."
+                return ok("Context deactivated.")
             except Exception as e:
-                return f"Failed to unset context: {e}"
+                return fail(f"Failed to unset context: {e}", INTERNAL_ERROR)

@@ -7,7 +7,7 @@ allow-direct-references = true
 
 [project]
 name = "taskmajor"
-version = "0.2.4"
+version = "0.2.5"
 description = "TaskMajor MCP. Coordinate your tasks. Execute with precision."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -70,6 +70,10 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["taskmajor"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = ["tools"]
 
 #[tool.uv.sources]
 #pytaskwarrior = { path = "../../pytaskwarrior", editable = true }

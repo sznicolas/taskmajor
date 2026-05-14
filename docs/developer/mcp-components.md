@@ -332,18 +332,5 @@
 
 ## Prompts
 
-### DAILY_REVIEW_PROMPT
-
-- Source: `taskmajor/mcp/prompts/review_prompts.py:9`
-
-- Prompt snippet: `# Daily Review  Perform a complete daily review for the user.  ## Steps  1. **Overdue** — Check `taskmajor://status/overdue`. List each overdue task with its delay.    If any, propose rescheduling or completing them.  2. **Today's Agenda** — Check `taskmajor://agenda/today`. Present:    - Appointments (entry_type=appointment) with their time    - Tasks due today, sorted by priority    - Active tas...`
-
-
-
-### WEEKLY_REVIEW_PROMPT
-
-- Source: `taskmajor/mcp/prompts/review_prompts.py:51`
-
-- Prompt snippet: `# Weekly Review  Perform a complete weekly review.  ## Steps  1. **Week Summary** — Call `list_tasks(status="completed")`.    Filter those completed this week (last 7 days).    Summary: "{count} tasks completed this week."  2. **Week Ahead** — Check `taskmajor://agenda/week`. Present the planning day by day.    - Identify busy and free days.    - Identify appointments and reminders (entry_type=app...`
 
 

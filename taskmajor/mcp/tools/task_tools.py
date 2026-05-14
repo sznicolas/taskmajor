@@ -10,6 +10,7 @@ from fastmcp import FastMCP
 from taskwarrior import TaskInputDTO
 
 from taskmajor.domains.tasks import TaskQueryFilters, TaskService
+from taskmajor.mcp.errors import INTERNAL_ERROR, INVALID_INPUT, TASK_NOT_FOUND, fail, ok
 
 
 def register_task_tools(
@@ -56,7 +57,12 @@ def register_task_tools(
                 }
                 ```
             """
-            return task_service.query_tasks(filters=filters, sort=sort, limit=limit, offset=offset)
+            try:
+                return ok(task_service.query_tasks(filters=filters, sort=sort, limit=limit, offset=offset))
+            except ValueError as e:
+                return fail(str(e), INVALID_INPUT)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("get_stats"):
 
@@ -76,7 +82,10 @@ def register_task_tools(
                 }
                 ```
             """
-            return task_service.get_stats(filters=filters)
+            try:
+                return ok(task_service.get_stats(filters=filters))
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("next_task"):
 
@@ -95,7 +104,10 @@ def register_task_tools(
                 }
                 ```
             """
-            return task_service.next_task(filters=filters)
+            try:
+                return ok(task_service.next_task(filters=filters))
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("get_task"):
 
@@ -117,9 +129,9 @@ def register_task_tools(
             try:
                 task = task_service.taskwarrior_client.get_task(task_id)
             except Exception as e:
-                return {"error": str(e)}
+                return fail(str(e), INTERNAL_ERROR)
             if not task:
-                return {"error": f"Task {task_id} not found"}
+                return fail(f"Task {task_id} not found", TASK_NOT_FOUND)
 
             serialized = task_service.serialize_task(task)
 
@@ -134,12 +146,12 @@ def register_task_tools(
             else:
                 serialized["modified"] = None
 
-            return serialized
+            return ok(serialized)
 
     if _allowed("done_task"):
 
         @mcp.tool
-        def done_task(task_id: str) -> str:
+        def done_task(task_id: str) -> dict[str, Any]:
             """
             Mark a task as completed.
 
@@ -153,9 +165,12 @@ def register_task_tools(
                 }
                 ```
             """
-            if task_service.complete_task(task_id):
-                return f"Task {task_id} marked as completed successfully."
-            return f"Failed to complete task {task_id}. Task may not exist."
+            try:
+                if task_service.complete_task(task_id):
+                    return ok(f"Task {task_id} marked as completed successfully.")
+                return fail(f"Task {task_id} not found", TASK_NOT_FOUND)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("add_task"):
 
@@ -222,8 +237,13 @@ def register_task_tools(
                 - Recurrence expressions examples: 'daily', '2weeks', 'every 3 days'
                 - Tags should include the '+' prefix (e.g., "+work", not "work")
             """
-            created_task = task_service.add_task(task_input)
-            return task_service.serialize_task(created_task)
+            try:
+                created_task = task_service.add_task(task_input)
+                return ok(task_service.serialize_task(created_task))
+            except ValueError as e:
+                return fail(str(e), INVALID_INPUT)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("update_task"):
 
@@ -275,13 +295,18 @@ def register_task_tools(
                 - Recurrence expressions examples: 'daily', '2weeks', 'every 3 days'
                 - Use this for both triage (assigning project/priority) and modifications
             """
-            updated_task = task_service.update_task(task_id, task_input)
-            return task_service.serialize_task(updated_task)
+            try:
+                updated_task = task_service.update_task(task_id, task_input)
+                return ok(task_service.serialize_task(updated_task))
+            except ValueError as e:
+                return fail(str(e), INVALID_INPUT)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("delete_task"):
 
         @mcp.tool
-        def delete_task(task_id: str) -> str:
+        def delete_task(task_id: str) -> dict[str, Any]:
             """
             Mark a task as deleted (soft delete).
 
@@ -295,14 +320,17 @@ def register_task_tools(
                 }
                 ```
             """
-            if task_service.delete_task(task_id):
-                return f"Task {task_id} marked as deleted successfully."
-            return f"Failed to delete task {task_id}. Task may not exist."
+            try:
+                if task_service.delete_task(task_id):
+                    return ok(f"Task {task_id} marked as deleted successfully.")
+                return fail(f"Task {task_id} not found", TASK_NOT_FOUND)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("start_task"):
 
         @mcp.tool
-        def start_task(task_id: str) -> str:
+        def start_task(task_id: str) -> dict[str, Any]:
             """
             Start working on a task (sets start time).
 
@@ -316,14 +344,17 @@ def register_task_tools(
                 }
                 ```
             """
-            if task_service.start_task(task_id):
-                return f"Task {task_id} started successfully."
-            return f"Failed to start task {task_id}. Task may not exist."
+            try:
+                if task_service.start_task(task_id):
+                    return ok(f"Task {task_id} started successfully.")
+                return fail(f"Task {task_id} not found", TASK_NOT_FOUND)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("stop_task"):
 
         @mcp.tool
-        def stop_task(task_id: str) -> str:
+        def stop_task(task_id: str) -> dict[str, Any]:
             """
             Stop working on a task (clears start time).
 
@@ -337,9 +368,12 @@ def register_task_tools(
                 }
                 ```
             """
-            if task_service.stop_task(task_id):
-                return f"Task {task_id} stopped successfully."
-            return f"Failed to stop task {task_id}. Task may not exist."
+            try:
+                if task_service.stop_task(task_id):
+                    return ok(f"Task {task_id} stopped successfully.")
+                return fail(f"Task {task_id} not found", TASK_NOT_FOUND)
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("get_projects"):
 
@@ -358,7 +392,10 @@ def register_task_tools(
             Returns:
                 List of project names and total count
             """
-            return task_service.get_projects()
+            try:
+                return ok(task_service.get_projects())
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("get_tags"):
 
@@ -377,7 +414,10 @@ def register_task_tools(
             Returns:
                 List of tags (with '+' prefix) and total count
             """
-            return task_service.get_tags()
+            try:
+                return ok(task_service.get_tags())
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("get_udas"):
 
@@ -396,4 +436,7 @@ def register_task_tools(
             Returns:
                 List of UDAs and total count
             """
-            return task_service.get_udas()
+            try:
+                return ok(task_service.get_udas())
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)

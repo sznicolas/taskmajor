@@ -9,6 +9,7 @@ from typing import Any
 from fastmcp import FastMCP
 
 from taskmajor.domains.observability import AgentErrorLog
+from taskmajor.mcp.errors import INTERNAL_ERROR, fail, ok
 
 
 def register_diagnostic_tools(
@@ -29,7 +30,7 @@ def register_diagnostic_tools(
     if _allowed("report_error"):
 
         @mcp.tool
-        def report_error(tool_name: str, parameters: dict[str, Any], error: str) -> str:
+        def report_error(tool_name: str, parameters: dict[str, Any], error: str) -> dict[str, Any]:
             """
             Report an error encountered while using a tool.
 
@@ -44,5 +45,8 @@ def register_diagnostic_tools(
             Returns:
                 Confirmation that the error has been logged.
             """
-            entry = error_log.append(tool_name, parameters, error)
-            return f"Error logged at {entry['timestamp']}."
+            try:
+                entry = error_log.append(tool_name, parameters, error)
+                return ok(f"Error logged at {entry['timestamp']}.")
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)

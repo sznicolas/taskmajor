@@ -30,12 +30,4 @@ jobs:
             exit 2
           fi
           # Basic JSON sanity and presence of a top-level server key
-          python - <<'PY'
-import json,sys
-with open('artifacts/mcp_mcpjson.json',encoding='utf-8') as f:
-    j=json.load(f)
-if not isinstance(j, dict) or len(j)==0:
-    print('ERROR: artifacts/mcp_mcpjson.json does not contain a server object', file=sys.stderr)
-    sys.exit(2)
-print('OK: mcp_mcpjson.json looks valid; server keys:', list(j.keys())[:5])
-PY
+          python3 -c "import json,sys; j=json.load(open('artifacts/mcp_mcpjson.json',encoding='utf-8')); sys.exit(2) if not isinstance(j,dict) or len(j)==0 else print('OK: mcp_mcpjson.json valid; server keys:',list(j.keys())[:5])"
