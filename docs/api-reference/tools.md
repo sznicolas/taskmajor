@@ -157,13 +157,74 @@ Log an agent error to the MCP journal.
 
 ---
 
-## Inactive Surface
+## Metadata
 
-The repository also contains dormant code for:
+### `get_projects() -> dict`
 
-- Date tools
-- Context tools
-- Legacy helpers not registered
-- Old unregistered helpers
+All projects currently in use by pending tasks.
 
-These are not part of the current active runtime surface.
+### `get_tags() -> dict`
+
+All tags currently in use by pending tasks.
+
+### `get_udas() -> dict`
+
+All UDAs defined in the TaskWarrior configuration.
+
+---
+
+## Date Tools
+
+### `resolve_date(expression: str) -> dict`
+
+Resolve a TaskWarrior date expression to an ISO datetime string. Use before passing dates to `add_task` or `update_task`.
+
+Supported expressions: `today`, `tomorrow`, `friday`, `eom`, `eow`, `today+2d`, `P2W`, etc.
+
+### `validate_date(expression: str) -> dict`
+
+Check whether a string is a valid TaskWarrior date expression. Returns `{"expression": ..., "valid": true|false}`.
+
+---
+
+## Context Management
+
+### `list_contexts() -> dict`
+
+List all defined TaskWarrior contexts and the currently active one.
+
+### `set_context(name: str) -> dict`
+
+Activate a named TaskWarrior context (filters future queries to that context's read filter).
+
+### `unset_context() -> dict`
+
+Clear the active TaskWarrior context.
+
+---
+
+## Configuration
+
+### `get_config() -> dict`
+
+Return the current TaskMajor server configuration.
+
+### `set_timezone(timezone: str) -> dict`
+
+Update the server timezone.
+
+### `add_uda(uda_config: UdaConfig) -> dict`
+
+Add a new User-Defined Attribute to the TaskWarrior configuration.
+
+### `delete_uda(name: str) -> dict`
+
+Remove a UDA from the TaskWarrior configuration.
+
+### `define_context(context: ContextDTO) -> dict`
+
+Create or update a TaskWarrior context.
+
+### `delete_context(name: str) -> dict`
+
+Remove a TaskWarrior context.

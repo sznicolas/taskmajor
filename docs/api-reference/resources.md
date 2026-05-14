@@ -282,3 +282,21 @@ Profile resources use these TaskService backend functions (ALLOWED_BACKENDS):
       task_id: "abc123"
       priority: "H"
   ```
+
+- **`get_projects`** — All projects currently in use (no params)
+  ```yaml
+  backend:
+    function: get_projects
+  ```
+
+- **`get_tags`** — All tags currently in use (no params)
+  ```yaml
+  backend:
+    function: get_tags
+  ```
+
+- **`get_udas`** — All UDAs defined in TaskWarrior configuration (no params)
+  ```yaml
+  backend:
+    function: get_udas
+  ```

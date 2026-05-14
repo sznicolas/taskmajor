@@ -18,19 +18,26 @@ A manifest can declare any combination of the following components:
 
 | Component | Description |
 |-----------|-------------|
-| `extends` | Parent profile to inherit from |
+| `extends` | Parent profile(s) to inherit from |
 | `tools` | MCP tools enabled for this profile |
 | `resources` | Read-only MCP resource views |
 | `udas` | TaskWarrior User-Defined Attributes |
-| `prompts` | Agent instruction prompts |
-| `instructions_file` | Directory of instruction fragment files |
+| `prompts` | Agent instruction prompts (explicit file paths) |
+| `contexts` | TaskWarrior contexts defined at startup |
+| `instructions/` | Directory of instruction fragment files (auto-discovered) |
 
 ### `extends`
 
-Inherit tools, resources, udas, and prompts from a parent profile. Composition semantics per component are described in the Profile composition rules page linked above.
+Inherit tools, resources, udas, prompts, and contexts from a parent profile. Accepts a string (single parent) or a list (multiple parents, chained in order). Composition semantics per component are described in the Profile composition rules page linked above.
 
 ```yaml
+# Single parent
 extends: standard
+
+# Multiple parents (chained in declaration order)
+extends:
+  - base
+  - my-shared-bundle
 ```
 
 ### `tools`
@@ -39,6 +46,7 @@ List of MCP tool names to enable. Tools are unioned with the parent profile (dup
 
 ```yaml
 tools:
+  # Task CRUD
   - add_task
   - get_task
   - query_tasks
@@ -48,11 +56,25 @@ tools:
   - start_task
   - stop_task
   - next_task
-  - resolve_date
-  - validate_date
+  # Metadata
   - get_projects
   - get_tags
   - get_udas
+  # Date utilities
+  - resolve_date
+  - validate_date
+  # Context management
+  - list_contexts
+  - set_context
+  - unset_context
+  # Configuration
+  - get_config
+  - set_timezone
+  - add_uda
+  - delete_uda
+  - define_context
+  - delete_context
+  # Diagnostics
   - report_error
 ```
 
@@ -103,6 +125,8 @@ resources:
 
 Declare TaskWarrior User-Defined Attributes. UDAs are inherited from parent profiles; child profiles cannot change a UDA's `type` or extend the parent's `values` list.
 
+Valid types: `string`, `numeric`, `date`, `duration`.
+
 ```yaml
 udas:
   # String UDA with allowed values
@@ -111,12 +135,18 @@ udas:
     label: "Energy"
     description: "Energy required: low | medium | high"
     values: [low, medium, high]
+    default: medium        # optional default value
 
   # Numeric UDA (no allowed-values restriction)
   - name: estimate
     type: numeric
     label: "Estimate (hours)"
     description: "Estimated effort in hours."
+
+  # Date UDA
+  - name: reviewed_on
+    type: date
+    label: "Last Reviewed"
 
   # Free-form string UDA
   - name: owner
@@ -127,20 +157,42 @@ udas:
 
 ### `prompts`
 
-List of named prompts to expose to the agent. Prompts are loaded from `taskmajor/mcp/prompts/` or the profile's own `prompts/` directory.
+Prompts are discovered automatically from the profile's `prompts/*.md` directory — no declaration needed for this common case.
+
+To declare a prompt with an explicit file path (useful when the file lives outside `prompts/`), use the dict form:
 
 ```yaml
 prompts:
-  - daily_review
-  - weekly_review
+  - name: sprint_planning
+    file: prompts/sprint_planning.md
 ```
 
-### `instructions_file`
+> **Note**: String-only entries (e.g. `- daily_review`) are not processed by the loader and have no effect. Always use the dict form or rely on filesystem auto-discovery.
 
-Path (relative to the profile directory) to a folder of Markdown instruction fragments. Fragments are merged with the parent profile's instructions in filename order. An empty file removes the parent fragment.
+### `contexts`
+
+Declare TaskWarrior contexts to define at server startup. Each context is a named filter pair applied when the agent activates it.
 
 ```yaml
-instructions_file: instructions/
+contexts:
+  - name: work
+    read_filter: "project:work or project:infra"
+    write_filter: "project:work"
+  - name: perso
+    read_filter: "project:perso or project:home"
+    write_filter: "project:perso"
+```
+
+### `instructions/` directory
+
+Instruction fragments are loaded automatically from the `instructions/` directory inside the profile folder — no manifest key needed. Fragments are merged in filename order across the extends chain. An empty file (0 bytes) removes the inherited fragment.
+
+```
+my-profile/
+├── manifest.yaml
+└── instructions/
+    ├── 010_objective.md      # custom guidance
+    └── 030_date_usage.md     # empty → removes parent fragment
 ```
 
 ---
@@ -163,6 +215,11 @@ udas:
     label: "Sprint"
     description: "Sprint name (e.g., Sprint-42)."
 
+contexts:
+  - name: team
+    read_filter: "project:my-team"
+    write_filter: "project:my-team"
+
 resources:
   - uri: "taskmajor://queue/blockers"
     name: "Blocked Queue"
@@ -174,9 +231,8 @@ resources:
         sort: ["priority", "due"]
 
 prompts:
-  - sprint_planning
-
-instructions_file: instructions/
+  - name: sprint_planning
+    file: prompts/sprint_planning.md
 ```
 
 ---
