@@ -445,42 +445,52 @@ class TestDoneTaskTool:
 
     def test_done_task_calls_complete_task(self):
         """done_task calls task_service.complete_task(task_id)."""
+        from taskmajor.mcp.errors import ok
+
         service = _mock_task_service()
         service.complete_task = MagicMock(return_value=True)
 
         # Simulate done_task tool
         if service.complete_task("task-123"):
-            result = "Task task-123 marked as completed successfully."
+            result = ok("Task task-123 marked as completed successfully.")
         else:
-            result = "Failed to complete task task-123. Task may not exist."
+            from taskmajor.mcp.errors import TASK_NOT_FOUND, fail
+            result = fail("Task task-123 not found", TASK_NOT_FOUND)
 
         service.complete_task.assert_called_once_with("task-123")
-        assert isinstance(result, str)
-        assert "successfully" in result.lower()
+        assert isinstance(result, dict)
+        assert result["success"] is True
 
     def test_done_task_returns_success_message_on_true(self):
-        """done_task returns success message when complete_task returns True."""
+        """done_task returns success ToolResult when complete_task returns True."""
+        from taskmajor.mcp.errors import ok
+
         service = _mock_task_service()
         service.complete_task = MagicMock(return_value=True)
 
         if service.complete_task("task-123"):
-            result = "Task task-123 marked as completed successfully."
+            result = ok("Task task-123 marked as completed successfully.")
         else:
-            result = "Failed to complete task task-123. Task may not exist."
+            from taskmajor.mcp.errors import TASK_NOT_FOUND, fail
+            result = fail("Task task-123 not found", TASK_NOT_FOUND)
 
-        assert "successfully" in result.lower()
+        assert result["success"] is True
+        assert "successfully" in result["data"].lower()
 
-    def test_done_task_returns_failure_message_on_false(self):
-        """done_task returns failure message when complete_task returns False."""
+    def test_done_task_returns_failure_on_false(self):
+        """done_task returns failure ToolResult when complete_task returns False."""
+        from taskmajor.mcp.errors import TASK_NOT_FOUND, fail, ok
+
         service = _mock_task_service()
         service.complete_task = MagicMock(return_value=False)
 
         if service.complete_task("task-123"):
-            result = "Task task-123 marked as completed successfully."
+            result = ok("Task task-123 marked as completed successfully.")
         else:
-            result = "Failed to complete task task-123. Task may not exist."
+            result = fail("Task task-123 not found", TASK_NOT_FOUND)
 
-        assert "failed" in result.lower()
+        assert result["success"] is False
+        assert result["error_code"] == TASK_NOT_FOUND
 
 
 # ============================================================================
@@ -559,17 +569,21 @@ class TestDeleteTaskTool:
 
     def test_delete_task_calls_service_delete_task(self):
         """delete_task calls task_service.delete_task(task_id)."""
+        from taskmajor.mcp.errors import ok
+
         service = _mock_task_service()
         service.delete_task = MagicMock(return_value=True)
 
         # Simulate delete_task tool
         if service.delete_task("task-id"):
-            result = "Task task-id marked as deleted successfully."
+            result = ok("Task task-id marked as deleted successfully.")
         else:
-            result = "Failed to delete task task-id. Task may not exist."
+            from taskmajor.mcp.errors import TASK_NOT_FOUND, fail
+            result = fail("Task task-id not found", TASK_NOT_FOUND)
 
         service.delete_task.assert_called_once_with("task-id")
-        assert isinstance(result, str)
+        assert isinstance(result, dict)
+        assert result["success"] is True
 
 
 # ============================================================================
@@ -582,29 +596,37 @@ class TestStartStopTaskTools:
 
     def test_start_task_calls_service_start_task(self):
         """start_task calls task_service.start_task(task_id)."""
+        from taskmajor.mcp.errors import ok
+
         service = _mock_task_service()
         service.start_task = MagicMock(return_value=True)
 
         if service.start_task("task-id"):
-            result = "Task task-id started successfully."
+            result = ok("Task task-id started successfully.")
         else:
-            result = "Failed to start task task-id. Task may not exist."
+            from taskmajor.mcp.errors import TASK_NOT_FOUND, fail
+            result = fail("Task task-id not found", TASK_NOT_FOUND)
 
         service.start_task.assert_called_once_with("task-id")
-        assert isinstance(result, str)
+        assert isinstance(result, dict)
+        assert result["success"] is True
 
     def test_stop_task_calls_service_stop_task(self):
         """stop_task calls task_service.stop_task(task_id)."""
+        from taskmajor.mcp.errors import ok
+
         service = _mock_task_service()
         service.stop_task = MagicMock(return_value=True)
 
         if service.stop_task("task-id"):
-            result = "Task task-id stopped successfully."
+            result = ok("Task task-id stopped successfully.")
         else:
-            result = "Failed to stop task task-id. Task may not exist."
+            from taskmajor.mcp.errors import TASK_NOT_FOUND, fail
+            result = fail("Task task-id not found", TASK_NOT_FOUND)
 
         service.stop_task.assert_called_once_with("task-id")
-        assert isinstance(result, str)
+        assert isinstance(result, dict)
+        assert result["success"] is True
 
 
 # ============================================================================

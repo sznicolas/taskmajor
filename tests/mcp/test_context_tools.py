@@ -6,7 +6,6 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-import pytest
 from fastmcp import FastMCP
 
 from taskmajor.mcp.tools.context_tools import register_context_tools
@@ -22,7 +21,8 @@ def _run(coro):
 
 async def _get_fn(mcp: FastMCP, name: str):
     tool = await mcp.get_tool(name)
-    return tool.fn
+    assert tool is not None
+    return tool.fn  # type: ignore[attr-defined]
 
 
 # ---------------------------------------------------------------------------
@@ -43,9 +43,10 @@ class TestListContexts:
         fn = _run(_get_fn(mcp, "list_contexts"))
         result = fn()
 
-        assert result["active"] == "work"
-        assert len(result["contexts"]) == 1
-        assert result["contexts"][0]["name"] == "work"
+        assert result["success"] is True
+        assert result["data"]["active"] == "work"
+        assert len(result["data"]["contexts"]) == 1
+        assert result["data"]["contexts"][0]["name"] == "work"
 
     def test_list_contexts_service_raises_returns_error(self):
         mcp = _make_mcp()
@@ -56,7 +57,8 @@ class TestListContexts:
         fn = _run(_get_fn(mcp, "list_contexts"))
         result = fn()
 
-        assert "error" in result
+        assert result["success"] is False
+        assert result["error"] is not None
 
 
 # ---------------------------------------------------------------------------
@@ -74,8 +76,9 @@ class TestSetContext:
         fn = _run(_get_fn(mcp, "set_context"))
         result = fn(name="work")
 
-        assert "work" in result
-        assert "activated" in result.lower()
+        assert result["success"] is True
+        assert "work" in result["data"]
+        assert "activated" in result["data"].lower()
         service.set_context.assert_called_once_with("work")
 
     def test_set_context_service_raises_returns_error_string(self):
@@ -87,8 +90,8 @@ class TestSetContext:
         fn = _run(_get_fn(mcp, "set_context"))
         result = fn(name="nonexistent")
 
-        assert "Failed" in result or "failed" in result
-        assert "nonexistent" in result
+        assert result["success"] is False
+        assert "nonexistent" in result["error"]
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +109,8 @@ class TestUnsetContext:
         fn = _run(_get_fn(mcp, "unset_context"))
         result = fn()
 
-        assert "deactivated" in result.lower() or "Context" in result
+        assert result["success"] is True
+        assert "deactivated" in result["data"].lower()
         service.unset_context.assert_called_once()
 
     def test_unset_context_service_raises_returns_error_string(self):
@@ -118,7 +122,8 @@ class TestUnsetContext:
         fn = _run(_get_fn(mcp, "unset_context"))
         result = fn()
 
-        assert "Failed" in result or "failed" in result
+        assert result["success"] is False
+        assert result["error"] is not None
 
 
 # ---------------------------------------------------------------------------

@@ -5,10 +5,10 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, cast
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
-from taskwarrior import TaskInputDTO, TaskOutputDTO
+from taskwarrior import TaskOutputDTO
 
 from taskmajor.domains.tasks import TaskService
 

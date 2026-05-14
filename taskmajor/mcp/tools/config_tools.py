@@ -9,6 +9,7 @@ from taskwarrior.dto.context_dto import ContextDTO
 from taskwarrior.dto.uda_dto import UdaConfig
 
 from taskmajor.domains.taskwarrior import TaskConfigService
+from taskmajor.mcp.errors import CONFIG_ERROR, INTERNAL_ERROR, INVALID_INPUT, fail, ok
 
 
 def register_config_tools(
@@ -35,12 +36,15 @@ def register_config_tools(
 
             Use this to inspect the current setup before making changes.
             """
-            return task_config.get_all_config()
+            try:
+                return ok(task_config.get_all_config())
+            except Exception as e:
+                return fail(str(e), INTERNAL_ERROR)
 
     if _allowed("set_timezone"):
 
         @mcp.tool
-        def set_timezone(timezone: str) -> str:
+        def set_timezone(timezone: str) -> dict[str, Any]:
             """
             Set the timezone in the configuration.
 
@@ -52,14 +56,16 @@ def register_config_tools(
             """
             try:
                 task_config.set_timezone(timezone)
-                return f"Timezone set to '{timezone}'."
+                return ok(f"Timezone set to '{timezone}'.")
+            except ValueError as e:
+                return fail(str(e), INVALID_INPUT)
             except Exception as e:
-                return f"Failed to set timezone: {e}"
+                return fail(f"Failed to set timezone: {e}", CONFIG_ERROR)
 
     if _allowed("add_uda"):
 
         @mcp.tool
-        def add_uda(uda_config: UdaConfig) -> str:
+        def add_uda(uda_config: UdaConfig) -> dict[str, Any]:
             """
             Define or update a User Defined Attribute (UDA).
 
@@ -71,14 +77,16 @@ def register_config_tools(
             """
             try:
                 task_config.add_uda(uda_config)
-                return f"UDA '{uda_config.name}' (type={uda_config.uda_type}) defined successfully."
+                return ok(f"UDA '{uda_config.name}' (type={uda_config.uda_type}) defined successfully.")
+            except ValueError as e:
+                return fail(str(e), INVALID_INPUT)
             except Exception as e:
-                return f"Failed to define UDA '{uda_config.name}': {e}"
+                return fail(f"Failed to define UDA '{uda_config.name}': {e}", CONFIG_ERROR)
 
     if _allowed("delete_uda"):
 
         @mcp.tool
-        def delete_uda(name: str) -> str:
+        def delete_uda(name: str) -> dict[str, Any]:
             """
             Delete a User Defined Attribute (UDA).
 
@@ -92,14 +100,14 @@ def register_config_tools(
             """
             try:
                 task_config.delete_uda(name)
-                return f"UDA '{name}' deleted successfully."
+                return ok(f"UDA '{name}' deleted successfully.")
             except Exception as e:
-                return f"Failed to delete UDA '{name}': {e}"
+                return fail(f"Failed to delete UDA '{name}': {e}", CONFIG_ERROR)
 
     if _allowed("define_context"):
 
         @mcp.tool
-        def define_context(context: ContextDTO) -> str:
+        def define_context(context: ContextDTO) -> dict[str, Any]:
             """
             Create or update a TaskWarrior context.
 
@@ -114,14 +122,14 @@ def register_config_tools(
             """
             try:
                 task_config.define_context(context)
-                return f"Context '{context.name}' defined successfully."
+                return ok(f"Context '{context.name}' defined successfully.")
             except Exception as e:
-                return f"Failed to define context '{context.name}': {e}"
+                return fail(f"Failed to define context '{context.name}': {e}", CONFIG_ERROR)
 
     if _allowed("delete_context"):
 
         @mcp.tool
-        def delete_context(name: str) -> str:
+        def delete_context(name: str) -> dict[str, Any]:
             """
             Delete a TaskWarrior context.
 
@@ -133,6 +141,6 @@ def register_config_tools(
             """
             try:
                 task_config.delete_context(name)
-                return f"Context '{name}' deleted."
+                return ok(f"Context '{name}' deleted.")
             except Exception as e:
-                return f"Failed to delete context '{name}': {e}"
+                return fail(f"Failed to delete context '{name}': {e}", CONFIG_ERROR)

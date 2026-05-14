@@ -14,7 +14,6 @@ from taskmajor.mcp.tools.date_tools import (
     register_date_tools,
 )
 
-
 # ---------------------------------------------------------------------------
 # _has_broken_minutes
 # ---------------------------------------------------------------------------
@@ -78,7 +77,8 @@ def _run(coro):
 
 async def _get_fn(mcp: FastMCP, name: str):
     tool = await mcp.get_tool(name)
-    return tool.fn
+    assert tool is not None
+    return tool.fn  # type: ignore[attr-defined]
 
 
 # ---------------------------------------------------------------------------
@@ -96,9 +96,10 @@ class TestResolveDateTool:
         fn = _run(_get_fn(mcp, "resolve_date"))
         result = fn(expression="friday")
 
-        assert result["resolved"] == "2026-05-20T00:00:00Z"
-        assert "date" in result
-        assert "warning" not in result
+        assert result["success"] is True
+        assert result["data"]["resolved"] == "2026-05-20T00:00:00Z"
+        assert "date" in result["data"]
+        assert "warning" not in result["data"]
 
     def test_resolve_date_broken_minutes_adds_warning(self):
         mcp = _make_mcp()
@@ -109,8 +110,9 @@ class TestResolveDateTool:
         fn = _run(_get_fn(mcp, "resolve_date"))
         result = fn(expression="today+9h30m")
 
-        assert "warning" in result
-        assert "broken" in result["warning"].lower() or "+" in result["warning"]
+        assert result["success"] is True
+        assert "warning" in result["data"]
+        assert "broken" in result["data"]["warning"].lower() or "+" in result["data"]["warning"]
 
     def test_resolve_date_iso_duration_adds_warning_and_skips_split(self):
         mcp = _make_mcp()
@@ -121,10 +123,11 @@ class TestResolveDateTool:
         fn = _run(_get_fn(mcp, "resolve_date"))
         result = fn(expression="P2W")
 
-        assert "warning" in result
-        assert result["resolved"] == "P14D"
+        assert result["success"] is True
+        assert "warning" in result["data"]
+        assert result["data"]["resolved"] == "P14D"
         # No date/time split keys since we return early for ISO durations
-        assert "date" not in result
+        assert "date" not in result["data"]
 
     def test_resolve_date_task_calc_raises_returns_error(self):
         mcp = _make_mcp()
@@ -135,7 +138,8 @@ class TestResolveDateTool:
         fn = _run(_get_fn(mcp, "resolve_date"))
         result = fn(expression="garbage!")
 
-        assert "error" in result
+        assert result["success"] is False
+        assert result["error"] is not None
 
     def test_resolve_date_no_time_part(self):
         mcp = _make_mcp()
@@ -146,7 +150,7 @@ class TestResolveDateTool:
         fn = _run(_get_fn(mcp, "resolve_date"))
         result = fn(expression="friday")
 
-        assert result["time"] is None
+        assert result["data"]["time"] is None
 
 
 # ---------------------------------------------------------------------------
@@ -164,8 +168,9 @@ class TestValidateDateTool:
         fn = _run(_get_fn(mcp, "validate_date"))
         result = fn(expression="tomorrow")
 
-        assert result["valid"] is True
-        assert "warning" not in result
+        assert result["success"] is True
+        assert result["data"]["valid"] is True
+        assert "warning" not in result["data"]
 
     def test_validate_date_broken_minutes_adds_warning(self):
         mcp = _make_mcp()
@@ -176,8 +181,9 @@ class TestValidateDateTool:
         fn = _run(_get_fn(mcp, "validate_date"))
         result = fn(expression="today+9h30m")
 
-        assert "warning" in result
-        assert result["valid"] is True
+        assert result["success"] is True
+        assert "warning" in result["data"]
+        assert result["data"]["valid"] is True
 
     def test_validate_date_invalid_expression(self):
         mcp = _make_mcp()
@@ -188,7 +194,8 @@ class TestValidateDateTool:
         fn = _run(_get_fn(mcp, "validate_date"))
         result = fn(expression="not-a-date")
 
-        assert result["valid"] is False
+        assert result["success"] is True
+        assert result["data"]["valid"] is False
 
 
 # ---------------------------------------------------------------------------
