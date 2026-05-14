@@ -165,7 +165,7 @@ def write_index_md(outdir: Path, profiles: list[str], chains: dict[str, list[str
     header = (
         "<!-- AUTO-GENERATED - Do not edit manually -->\n\n"
         "> **AUTO-GENERATED - Do not edit manually**\n\n"
-        f"Regenerate: `python tools/generate_profile_docs.py`\n\n---\n\n"
+        "Regenerate: `python tools/generate_profile_docs.py`\n\n---\n\n"
     )
 
     body_lines: list[str] = [

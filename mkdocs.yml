@@ -49,8 +49,6 @@ nav:
       - Deployment Troubleshooting: 
           https://github.com/yourusername/taskmajor/issues
       - Observability: developer/observability.md
-  - Workflows & Guides:
-      - Workflows: user-guides/workflows.md
   - Development:
       - Branch Protection: developer/branch-protection.md
       - CI/CD Infrastructure: developer/ci-cd-infrastructure.md
