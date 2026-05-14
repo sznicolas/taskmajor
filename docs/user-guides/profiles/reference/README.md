@@ -2,7 +2,7 @@
 
 > **AUTO-GENERATED - Do not edit manually**
 
-Generated: 2026-05-12T23:38:05.082634
+Regenerate: `python tools/generate_profile_docs.py`
 
 ---
 

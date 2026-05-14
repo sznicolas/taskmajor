@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.12
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: generate-profile-docs
+        name: Generate profile docs
+        entry: uv run python tools/generate_profile_docs.py
+        language: system
+        pass_filenames: false
+        files: ^taskmajor/profiles/
