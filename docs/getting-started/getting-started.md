@@ -93,4 +93,3 @@ Check `.env` paths have read/write permissions
 
 - [Configuration](configuration.md) — Advanced settings
 - [API Reference](../api-reference/index.md) — Complete documentation
-- [GTD Workflow](../user-guides/workflows.md) — Methodology guide

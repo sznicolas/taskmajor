@@ -153,24 +153,6 @@ Task counts by status, project, and priority.
 
 ---
 
-### `taskmajor://debug/errors`
-History of errors reported by the agent (JSONL format, most recent first).
-
-```json
-{
-  "errors": [
-    {
-      "timestamp": "2026-02-28T10:00:00Z",
-      "tool_name": "add_task",
-      "parameters": {"description": "..."},
-      "error": "Invalid date format"
-    }
-  ]
-}
-```
-
----
-
 ## Static Resources (Always Available)
 
 These 4 resources are always registered and cannot be declared in profiles:
