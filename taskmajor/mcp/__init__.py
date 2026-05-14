@@ -11,12 +11,15 @@ Usage in server.py:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastmcp import FastMCP
 
 from taskmajor.domains.observability import AgentErrorLog as AgentErrorLog
 from taskmajor.domains.tasks import TaskService as TaskService
+
+if TYPE_CHECKING:
+    from taskmajor.domains.sync.sync_engine import SyncEngine
 
 
 def register_all(
@@ -24,13 +27,14 @@ def register_all(
     task_service: Any,
     error_log: Any,
     tool_whitelist: set[str] | None = None,
+    sync_engine: SyncEngine | None = None,
 ) -> None:
     """Register all MCP components (tools, resources, prompts, templates)."""
     from taskmajor.mcp.resources import register_resources
     from taskmajor.mcp.templates import register_templates
     from taskmajor.mcp.tools import register_tools
 
-    register_tools(mcp, task_service, error_log, tool_whitelist=tool_whitelist)
+    register_tools(mcp, task_service, error_log, tool_whitelist=tool_whitelist, sync_engine=sync_engine)
     register_resources(mcp, task_service, error_log)
     register_templates(mcp, task_service)
 
@@ -47,11 +51,12 @@ def register_tools(
     task_service: Any,
     error_log: Any,
     tool_whitelist: set[str] | None = None,
+    sync_engine: SyncEngine | None = None,
 ) -> None:
     """Delegate to the package-level tools.register_tools implementation."""
     from taskmajor.mcp.tools import register_tools as _pkg_register_tools
 
-    _pkg_register_tools(mcp, task_service, error_log, tool_whitelist=tool_whitelist)
+    _pkg_register_tools(mcp, task_service, error_log, tool_whitelist=tool_whitelist, sync_engine=sync_engine)
 
 
 def register_templates(mcp: FastMCP, task_service: Any) -> None:

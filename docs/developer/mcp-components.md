@@ -330,6 +330,30 @@
 
 
 
+### force_sync
+
+> **Conditional**: only registered when `sync.enabled = true` in `config.yaml`.
+
+- Source: `taskmajor/mcp/tools/sync_tools.py`
+
+- Signature: () -> dict[str, Any]
+
+- Doc: Force an immediate TaskWarrior synchronization. Useful to push local changes or pull remote changes without waiting for the next scheduled sync.
+
+
+
+### sync_status
+
+> **Conditional**: only registered when `sync.enabled = true` in `config.yaml`.
+
+- Source: `taskmajor/mcp/tools/sync_tools.py`
+
+- Signature: () -> dict[str, Any]
+
+- Doc: Return the current synchronization health status: mode, running, interval_seconds, last_sync (ISO 8601 or null), consecutive_failures, last_error, sync_configured.
+
+
+
 ## Prompts
 
 

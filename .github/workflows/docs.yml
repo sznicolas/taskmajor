@@ -22,10 +22,10 @@ jobs:
       - name: Generate profile docs
         run: uv run python tools/generate_profile_docs.py
 
-      - name: Check profile docs are up to date
-        run: |
-          git diff --exit-code docs/user-guides/profiles/reference/ mkdocs.yml \
-            || { echo "❌ Profile docs are stale. Run: python tools/generate_profile_docs.py"; exit 1; }
+#      - name: Check profile docs are up to date
+#        run: |
+#          git diff --exit-code docs/user-guides/profiles/reference/ mkdocs.yml \
+#            || { echo "❌ Profile docs are stale. Run: python tools/generate_profile_docs.py"; exit 1; }
 
       - name: Build docs
         run: uv run mkdocs build

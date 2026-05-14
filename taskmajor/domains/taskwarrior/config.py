@@ -3,10 +3,61 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+
+
+class LocalSyncConfig(BaseModel):
+    """Local sync server configuration (taskchampion-sync-server or compatible)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    server_dir: str = "~/.task_mcp/sync_server"
+
+    @field_validator("server_dir", mode="before")
+    @classmethod
+    def _expand_path(cls, value: Any) -> Any:
+        if not value:
+            return value
+        return str(Path(value).expanduser())
+
+
+class RemoteSyncConfig(BaseModel):
+    """Remote sync server configuration."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    origin: str | None = None
+    client_id: str | None = None
+    encryption_secret: str | None = None
+
+    @model_validator(mode="after")
+    def _remote_requires_origin(self) -> RemoteSyncConfig:
+        # If RemoteSyncConfig exists, origin must be provided
+        if not getattr(self, "origin", None):
+            raise ValueError("remote sync requires 'origin' when remote is configured")
+        return self
+
+
+class SyncConfig(BaseModel):
+    """Synchronization configuration for TaskWarrior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["periodic", "manual"] = "periodic"
+    interval_seconds: int = 300
+    on_exit: bool = True
+    local: LocalSyncConfig | None = None
+    remote: RemoteSyncConfig | None = None
+
+    @field_validator("interval_seconds", mode="before")
+    @classmethod
+    def _positive_interval(cls, value: Any) -> Any:
+        if isinstance(value, int) and value <= 0:
+            raise ValueError("interval_seconds must be > 0")
+        return value
 
 
 class TaskMajorConfig(BaseModel):
@@ -34,6 +85,9 @@ class TaskMajorConfig(BaseModel):
     log_format: str = "text"
 
     agent_errors_path: str = str(Path.home() / ".taskmajor" / "agent_errors.jsonl")
+
+    # Synchronization configuration
+    sync: SyncConfig = SyncConfig()
 
     otel_service_name: str | None = None
     otel_enabled: bool = True

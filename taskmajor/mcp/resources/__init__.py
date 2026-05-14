@@ -5,7 +5,7 @@ This module registers the 4 static resources that cannot be declaratively define
 in profile YAML because they require backends that are not TaskService methods:
 - taskmajor://now (taskwarrior_client.task_calc + task_config.get_timezone)
 - taskmajor://debug/errors (AgentErrorLog service)
-- taskmajor://context/current (raw taskwarrior_client.context_service)
+- taskmajor://context/current (taskwarrior_client.get_contexts / get_current_context)
 - taskmajor://history/undo (conditional undo_stack on TaskService)
 
 All other resources (agenda, status, queue, roadmap, analytics, config) are

@@ -298,7 +298,7 @@ class TaskService:
             str | None: Name of current context or None if no context is active
         """
         try:
-            contexts = self.taskwarrior_client.context_service.get_contexts()
+            contexts = self.taskwarrior_client.get_contexts()
         except Exception:
             self.logger.warning("Failed to fetch contexts from TaskWarrior", exc_info=True)
             return []
@@ -319,7 +319,7 @@ class TaskService:
             str | None: Name of current context or None if no context is active
         """
         try:
-            current = self.taskwarrior_client.context_service.get_current_context()
+            current = self.taskwarrior_client.get_current_context()
         except Exception:
             self.logger.debug("Failed to get current context", exc_info=True)
             return None

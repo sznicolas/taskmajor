@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 from fastmcp import FastMCP
@@ -165,8 +165,8 @@ class TestGetTaskTool:
         mcp = _make_mcp()
         svc = _mock_service()
         task = MagicMock()
-        task.entry = datetime(2026, 1, 1, 10, 0, 0, tzinfo=UTC)
-        task.modified = datetime(2026, 1, 2, 12, 0, 0, tzinfo=UTC)
+        task.entry = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
+        task.modified = datetime(2026, 1, 2, 12, 0, 0, tzinfo=timezone.utc)
         svc.taskwarrior_client.get_task.return_value = task
         svc.serialize_task.return_value = {"uuid": "abc", "description": "test"}
         register_task_tools(mcp, svc)

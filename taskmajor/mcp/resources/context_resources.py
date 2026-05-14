@@ -23,8 +23,8 @@ def register_context_resources(mcp: FastMCP, taskwarrior_client: TaskWarrior) ->
     )
     def get_context_current() -> str:
         def _payload() -> dict[str, Any]:
-            contexts = taskwarrior_client.context_service.get_contexts()
-            current = taskwarrior_client.context_service.get_current_context()
+            contexts = taskwarrior_client.get_contexts()
+            current = taskwarrior_client.get_current_context()
             return {
                 "active": current,
                 "contexts": [

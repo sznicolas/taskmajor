@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+from copy import deepcopy
 from typing import Literal, cast
 
 from fastmcp import FastMCP
@@ -23,11 +24,65 @@ from taskmajor.domains.observability import (
 from taskmajor.domains.profiles import ProfileConflictError, ProfileManager
 from taskmajor.domains.tasks import TaskService
 from taskmajor.domains.taskwarrior import TaskMajorConfig, config
+from taskmajor.domains.taskwarrior.config import SyncConfig
 from taskmajor.domains.taskwarrior.init import init_taskwarrior
 from taskmajor.mcp import register_all
-from taskmajor.utils.task_serializer import install_serializer
+from taskmajor.utils.taskwarrior_proxy import TaskWarriorProxy
 
 log = logging.getLogger(__name__)
+
+
+def resolve_sync_config(sync_cfg: SyncConfig, args: argparse.Namespace) -> SyncConfig:
+    """Apply CLI overrides on top of the already-parsed SyncConfig.
+
+    CLI flags take precedence over config.yaml values. Only flags that were
+    explicitly provided (non-None sentinel) are applied.
+
+    Evaluation order:
+    1. Backend flags (--sync-local-dir, --sync-remote-origin) can auto-enable sync.
+    2. --sync-enabled / --no-sync is applied last and always wins.
+
+    Args:
+        sync_cfg: Parsed SyncConfig from TaskMajorConfig (loaded from config.yaml).
+        args:     Parsed argparse.Namespace from start_mcp().
+
+    Returns:
+        A new SyncConfig instance with CLI overrides applied.
+    """
+    data = deepcopy(sync_cfg.model_dump())
+
+    # --sync-mode
+    if getattr(args, "sync_mode", None) is not None:
+        data["mode"] = args.sync_mode
+
+    # --sync-interval
+    if getattr(args, "sync_interval", None) is not None:
+        data["interval_seconds"] = args.sync_interval
+
+    # --sync-local-dir: set path + auto-enable local + top-level sync
+    if getattr(args, "sync_local_dir", None) is not None:
+        local = data.setdefault("local", {})
+        local["enabled"] = True
+        local["server_dir"] = args.sync_local_dir
+        data["enabled"] = True
+
+    # --sync-remote-origin: set origin + auto-enable remote + top-level sync
+    if getattr(args, "sync_remote_origin", None) is not None:
+        remote = data.setdefault("remote", {})
+        remote["enabled"] = True
+        remote["origin"] = args.sync_remote_origin
+        data["enabled"] = True
+
+    # --sync-remote-client-id
+    if getattr(args, "sync_remote_client_id", None) is not None:
+        remote = data.setdefault("remote", {})
+        remote["client_id"] = args.sync_remote_client_id
+
+    # --sync-enabled / --no-sync applied last so it always wins over auto-enable
+    if getattr(args, "sync_enabled", None) is not None:
+        data["enabled"] = args.sync_enabled
+
+    return SyncConfig.model_validate(data)
 
 
 def parse_profile_args() -> argparse.Namespace:
@@ -199,11 +254,31 @@ def create_mcp(
     mcp = FastMCP(name=cfg.server_name)
     patch_mcp_instrumentation(mcp)
     init_taskwarrior(cfg)
-    taskwarrior_client = TaskWarrior(
-        taskrc_file=cfg.taskrc,
-        data_location=cfg.taskdata,
+
+    _taskrc = cfg.taskrc
+    _taskdata = cfg.taskdata
+    taskwarrior_client = TaskWarriorProxy(
+        factory=lambda: TaskWarrior(taskrc_file=_taskrc, data_location=_taskdata)
     )
-    install_serializer(taskwarrior_client)
+    import atexit
+
+    atexit.register(taskwarrior_client.shutdown)
+
+    # Create SyncEngine if sync is enabled in config
+    sync_engine = None
+    if cfg.sync.enabled:
+        from taskmajor.domains.sync.sync_engine import SyncEngine
+
+        sync_engine = SyncEngine(taskwarrior_client, cfg.sync.model_dump())
+        sync_engine.start()
+        atexit.register(sync_engine.stop)
+        log.info(
+            "[SyncEngine] Initialized (mode=%s, interval=%ds, on_exit=%s)",
+            cfg.sync.mode,
+            cfg.sync.interval_seconds,
+            cfg.sync.on_exit,
+        )
+
     profile_manager = ProfileManager(cfg, cli_profile=cli_profile)
     error_log = AgentErrorLog(cfg.agent_errors_path)
 
@@ -229,7 +304,7 @@ def create_mcp(
         tool_whitelist.update(manifest.tools)
     log.info("Effective tool whitelist (%d tools): %s", len(tool_whitelist), sorted(tool_whitelist))
 
-    register_all(mcp, task_service, error_log, tool_whitelist=tool_whitelist)
+    register_all(mcp, task_service, error_log, tool_whitelist=tool_whitelist, sync_engine=sync_engine)
     _apply_profile(mcp, task_service, profile_manager)
 
     return mcp, task_service, error_log
@@ -255,6 +330,56 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
     parser.add_argument("--transport", help="MCP transport (stdio, streamable-http, sse)")
     parser.add_argument("--no-profiles", action="store_true", help="Disable profile loading")
 
+    # Sync CLI flags (all optional — CLI overrides config.yaml)
+    sync_group = parser.add_mutually_exclusive_group()
+    sync_group.add_argument(
+        "--sync-enabled",
+        dest="sync_enabled",
+        action="store_true",
+        default=None,
+        help="Enable TaskWarrior sync (overrides config.yaml)",
+    )
+    sync_group.add_argument(
+        "--no-sync",
+        dest="sync_enabled",
+        action="store_false",
+        help="Disable TaskWarrior sync (overrides config.yaml)",
+    )
+    parser.add_argument(
+        "--sync-mode",
+        choices=["periodic", "manual"],
+        default=None,
+        help="Sync mode: periodic (timer) or manual (force_sync tool only)",
+    )
+    parser.add_argument(
+        "--sync-interval",
+        type=int,
+        default=None,
+        metavar="SECONDS",
+        help="Periodic sync interval in seconds (default: 300)",
+    )
+    parser.add_argument(
+        "--sync-local-dir",
+        default=None,
+        metavar="PATH",
+        help="Local sync server directory. Enables local sync and top-level sync.",
+    )
+    parser.add_argument(
+        "--sync-remote-origin",
+        default=None,
+        metavar="URL",
+        help="Remote sync server URL. Enables remote sync and top-level sync.",
+    )
+    parser.add_argument(
+        "--sync-remote-client-id",
+        default=None,
+        metavar="UUID",
+        help="Client UUID for remote sync server.",
+    )
+    # Note: --sync-remote-secret is intentionally omitted — passing secrets on the
+    # command line exposes them in process listings (ps aux) and shell history.
+    # Set encryption_secret in config.yaml instead.
+
     # Parse all additional arguments as config overrides, but keep command-line args separate
     cfg = config_override or config
 
@@ -272,6 +397,9 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
         cfg.server_host = args.server_host
     if args.log_level:
         cfg.log_level = args.log_level
+
+    # Apply sync CLI overrides (CLI > config.yaml)
+    cfg.sync = resolve_sync_config(cfg.sync, args)
 
     # Determine profile from command line or config
     if args.profile:
@@ -315,18 +443,21 @@ async def start_mcp(config_override: TaskMajorConfig | None = None) -> None:
         # Not a TaskConfigurationError - re-raise so the caller/test sees it
         raise
     info = task_service.taskwarrior_client.get_info()
-    version = info.get("version")
-    if not (isinstance(version, str) and version.startswith("3")):
-        import sys
+    backend_type = info.get("backend_type", "")
+    if backend_type != "taskchampion":
+        # CLI adapter: verify the TaskWarrior binary is version 3.x
+        version = info.get("backend_version", "")
+        if not (isinstance(version, str) and version.startswith("3")):
+            import sys
 
-        msg = (
-            "TaskMajor cannot start because the TaskWarrior 'task' version shoud be '3.*.*'.\n"
-            "If your TaskWarrior version is older, please ensure TaskWarrior is installed and available in PATH, and that\n"
-            "pytaskwarrior is correctly configured. See the build instructions:\n"
-            "https://pytaskwarrior.readthedocs.io/en/latest/building-taskwarrior/\n\n"
-        )
-        print(msg, file=sys.stderr)
-        raise SystemExit(1)
+            msg = (
+                "TaskMajor cannot start because the TaskWarrior 'task' version should be '3.*.*'.\n"
+                "If your TaskWarrior version is older, please ensure TaskWarrior is installed and available in PATH, and that\n"
+                "pytaskwarrior is correctly configured. See the build instructions:\n"
+                "https://pytaskwarrior.readthedocs.io/en/latest/building-taskwarrior/\n\n"
+            )
+            print(msg, file=sys.stderr)
+            raise SystemExit(1)
 
     # Run MCP transport. Don't pass port/host for stdio transport implementations
     # because run_stdio_async() does not accept these keyword arguments.
