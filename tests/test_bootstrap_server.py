@@ -31,20 +31,20 @@ def _run_server_with_config(monkeypatch, *, taskrc: str = "/tmp/taskrc", taskdat
     async def fake_start_mcp(*args, **kwargs):
         return None
 
-    core_mod.main = fake_main
-    core_mod.create_mcp = fake_create_mcp
-    core_mod.start_mcp = fake_start_mcp
+    setattr(core_mod, "main", fake_main)
+    setattr(core_mod, "create_mcp", fake_create_mcp)
+    setattr(core_mod, "start_mcp", fake_start_mcp)
     monkeypatch.setitem(sys.modules, "taskmajor.bootstrap.core", core_mod)
 
     # Stub the taskwarrior config module used by the server entrypoint
     cfg_mod = types.ModuleType("taskmajor.domains.taskwarrior.config")
-    cfg_mod.taskrc = taskrc
-    cfg_mod.taskdata = taskdata
+    setattr(cfg_mod, "taskrc", taskrc)
+    setattr(cfg_mod, "taskdata", taskdata)
     if config_file is not None:
-        cfg_mod.config_file = config_file
+        setattr(cfg_mod, "config_file", config_file)
 
     pkg_mod = types.ModuleType("taskmajor.domains.taskwarrior")
-    pkg_mod.config = cfg_mod
+    setattr(pkg_mod, "config", cfg_mod)
     monkeypatch.setitem(sys.modules, "taskmajor.domains.taskwarrior.config", cfg_mod)
     monkeypatch.setitem(sys.modules, "taskmajor.domains.taskwarrior", pkg_mod)
 

@@ -71,5 +71,9 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["taskmajor"]
 
+[tool.mypy]
+python_version = "3.12"
+mypy_path = ["tools"]
+
 #[tool.uv.sources]
 #pytaskwarrior = { path = "../../pytaskwarrior", editable = true }
