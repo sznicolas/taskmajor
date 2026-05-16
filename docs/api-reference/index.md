@@ -433,7 +433,7 @@ GET taskmajor://agenda/today
 
 # Tool: more control
 query_tasks(
-    filters={"status": "pending", "due": "today"},
+    filters={"status": "pending", "due_before": "today"},
     sort=["priority"],
     limit=10
 )

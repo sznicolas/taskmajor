@@ -51,4 +51,3 @@ resources:
 prompts:
   - sprint_planning
   - project_status
-instructions_file: instructions/

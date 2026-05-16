@@ -217,3 +217,48 @@ def test_profile_manifest_from_yaml_file_not_found():
     path = Path("/tmp/nonexistent_profile_manifest.yaml")
     with pytest.raises(FileNotFoundError):
         ProfileManifest.from_yaml(path)
+
+
+def test_profile_manifest_unknown_keys_stored(caplog):
+    """Unknown keys are stored in unknown_keys and a warning is logged."""
+    yaml_content = """
+name: testprofile
+version: 1.0.0
+tools:
+  - add_task
+instructions_file: instructions/
+legacy_field: some_value
+"""
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".yaml") as tf:
+        tf.write(yaml_content)
+        tf.flush()
+        path = Path(tf.name)
+    try:
+        import logging
+        with caplog.at_level(logging.WARNING, logger="taskmajor.domains.profiles.models"):
+            manifest = ProfileManifest.from_yaml(path)
+        assert sorted(manifest.unknown_keys) == ["instructions_file", "legacy_field"]
+        assert any("instructions_file" in r.message for r in caplog.records)
+        assert any("legacy_field" in r.message for r in caplog.records)
+    finally:
+        os.unlink(path)
+
+
+def test_profile_manifest_no_unknown_keys():
+    """Manifest with only known keys has empty unknown_keys."""
+    yaml_content = """
+name: cleanprofile
+version: 1.0.0
+extends: base
+tools:
+  - add_task
+"""
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".yaml") as tf:
+        tf.write(yaml_content)
+        tf.flush()
+        path = Path(tf.name)
+    try:
+        manifest = ProfileManifest.from_yaml(path)
+        assert manifest.unknown_keys == []
+    finally:
+        os.unlink(path)

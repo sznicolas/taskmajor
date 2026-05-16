@@ -18,7 +18,7 @@ A small CLI is provided for convenience; it prints rendered Markdown to stdout.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -79,6 +79,7 @@ class ProfileContext:
     resources: dict[str, Any]
     final_instructions: str
     fragments: list[tuple[str, str]]
+    warnings: list[str] = field(default_factory=list)
 
 
 def discover_builtin_profiles() -> list[str]:
@@ -178,6 +179,12 @@ def load_profile_context(profile_name: str) -> ProfileContext:
     except Exception:
         fragments = []
 
+    # Warnings: unknown keys in manifests
+    warnings: list[str] = []
+    for manifest in manifests:
+        for key in getattr(manifest, "unknown_keys", []) or []:
+            warnings.append(f"Profile '{manifest.name}': unrecognized manifest key '{key}'")
+
     return ProfileContext(
         profile_name=profile_name,
         chain=chain,
@@ -192,6 +199,7 @@ def load_profile_context(profile_name: str) -> ProfileContext:
         resources=resource_defs,
         final_instructions=final_instructions,
         fragments=fragments,
+        warnings=warnings,
     )
 
 
@@ -215,6 +223,15 @@ def render_profile_report(ctx: ProfileContext, format: str = "markdown") -> str:
     md: list[str] = []
     md.append(f"# Profile: {ctx.profile_name}")
     md.append("")
+
+    # Surface warnings prominently before anything else
+    if ctx.warnings:
+        md.append("## ⚠️ Warnings")
+        md.append("")
+        for w in ctx.warnings:
+            md.append(f"- {w}")
+        md.append("")
+
     md.append("## Chain:")
     md.append("")
     for item in ctx.chain:
