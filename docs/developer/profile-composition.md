@@ -13,7 +13,7 @@ Key profile components:
 - tools
 - UDAs (user-defined attributes)
 
-Profiles can extend a single parent via `extends` (a chain parent → child). There is no multiple-inheritance merging of parents — composition is deterministic along the extends chain.
+Profiles extend a parent via `extends` (a chain parent → child). A single parent string (`extends: base`) is the recommended form; a list (`extends: [p1, p2]`) is also supported for multi-parent chains, but introduces complexity and should be used sparingly. Composition is always deterministic along the chain.
 
 To share common components across profiles, create a base profile (e.g. `base`) and have other profiles extend it via `extends: base`.
 
@@ -237,9 +237,10 @@ name: my-team
 version: "1.0.0"
 extends: minimal
 tools:
-  - jq
+  - query_tasks
+  - add_task
 resources:
-  - uri: "/team/tasks"
+  - uri: "taskmajor://team/tasks"
     name: "Team tasks"
     description: "Tasks for my team"
     backend:

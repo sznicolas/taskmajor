@@ -108,7 +108,7 @@ Before submitting, **test every step**:
 
 ### Step 4: Compare with Existing Guides
 
-Check [GitHub Copilot](../getting-started/connect-your-agent.md) or [Claude Code](../getting-started/connect-your-agent.md#claude-code-cli) for:
+Check existing integration guides in `docs/user-guides/integrations/` (if any) for:
 - Tone and style
 - Section structure
 - Troubleshooting format
@@ -338,7 +338,7 @@ When linking to other parts of TaskMajor, use relative paths:
 
 ### Before You Submit
 
-- Check [existing guides](../getting-started/connect-your-agent.md) for style and structure
+- Check existing guides in `docs/user-guides/integrations/` (if any) for style and structure
 - Read this guide top to bottom
 - Test your guide on a fresh setup
 - Verify all links work
@@ -386,7 +386,5 @@ Contributors who add agent integration guides will be:
 
 ## Additional Resources
 
-- [Simple Agent Setup](../getting-started/connect-your-agent.md) — Overview of all supported agents
 - [API Reference](../api-reference/index.md) — TaskMajor capabilities to document
 - [Contributing Guide](contributing.md) — General contribution guidelines
-- [GitHub Copilot Guide](../getting-started/connect-your-agent.md#github-copilot-vs-code) — Example of a complete guide

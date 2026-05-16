@@ -22,8 +22,6 @@ pip install pre-commit
 pre-commit install
 ```
 
-See [pre-commit.md](pre-commit.md) for details on automatic formatting.
-
 ### 2. Make Your Changes
 
 ```bash

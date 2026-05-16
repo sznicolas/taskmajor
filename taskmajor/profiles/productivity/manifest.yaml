@@ -41,4 +41,3 @@ resources:
 prompts:
   - daily_review
   - weekly_review
-instructions_file: instructions/

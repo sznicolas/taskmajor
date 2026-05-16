@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import yaml
 
@@ -69,8 +69,20 @@ class ProfileManifest:
     resources: list[dict[str, Any]] = field(default_factory=list)
     prompts: list[PromptDeclaration] = field(default_factory=list)
     tools: list[str] = field(default_factory=list)
+    unknown_keys: list[str] = field(default_factory=list)
     # runtime-attached profile path (set by ProfileManager when loading)
     path: Path | None = None
+
+    KNOWN_KEYS: ClassVar[frozenset[str]] = frozenset({
+        "name", "version", "description", "author",
+        "extends",
+        "udas",
+        "contexts", "context",
+        "review",
+        "resources",
+        "prompts",
+        "tools",
+    })
 
     @staticmethod
     def from_yaml(path: Path) -> ProfileManifest:
@@ -82,6 +94,16 @@ class ProfileManifest:
             raise ValueError("Profile manifest YAML must contain a mapping")
         if "name" not in data or "version" not in data:
             raise ValueError("Profile manifest YAML must contain 'name' and 'version'")
+
+        # Detect unknown keys and warn early so profile authors get fast feedback.
+        unknown_keys = sorted(set(data.keys()) - ProfileManifest.KNOWN_KEYS)
+        if unknown_keys:
+            log.warning(
+                "Profile manifest '%s' contains unrecognized key(s): %s — "
+                "these are ignored. Check for typos or outdated fields.",
+                path,
+                ", ".join(unknown_keys),
+            )
 
         # Parse extends: accept string or list[str]
         extends_raw = data.get("extends", [])
@@ -169,4 +191,5 @@ class ProfileManifest:
             resources=data.get("resources", []),
             prompts=prompts,
             tools=tools,
+            unknown_keys=unknown_keys,
         )
