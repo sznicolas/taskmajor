@@ -66,7 +66,7 @@ class SyncConfig(BaseModel):
         return (self.local is not None) or (self.remote is not None)
 
     @model_validator(mode="after")
-    def _inject_default_local(self) -> "SyncConfig":
+    def _inject_default_local(self) -> SyncConfig:
         # If sync exists but no backend configured, inject a default local backend
         # unless the user explicitly disabled sync via CLI ("--no-sync").
         if not self.is_configured and not getattr(self, "disabled_via_cli", False):

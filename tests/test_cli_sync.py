@@ -22,15 +22,8 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-import argparse
-from pathlib import Path
-
-import pytest
-from pydantic import ValidationError
-
 from taskmajor.bootstrap.core import resolve_sync_config
 from taskmajor.domains.taskwarrior.config import LocalSyncConfig, RemoteSyncConfig, SyncConfig
-
 
 # ---------------------------------------------------------------------------
 # Helpers

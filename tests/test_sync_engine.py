@@ -13,16 +13,13 @@ Covers:
 
 from __future__ import annotations
 
-import threading
 from datetime import datetime
-from typing import Any
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from taskmajor.domains.sync.sync_engine import SyncEngine, SyncHealth
 from taskmajor.domains.taskwarrior.config import SyncConfig, TaskMajorConfig
-
 
 # ---------------------------------------------------------------------------
 # Helpers
