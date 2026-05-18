@@ -13,6 +13,7 @@ Fixtures are organized by:
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -28,6 +29,7 @@ from taskmajor.domains.taskwarrior.config import TaskMajorConfig
 # ============================================================================
 # Mock Objects
 # ============================================================================
+logging.raiseExceptions = False
 
 
 @pytest.fixture

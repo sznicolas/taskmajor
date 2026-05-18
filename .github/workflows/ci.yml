@@ -32,10 +32,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install dist/*
-          python - <<'PY'
-import taskmajor
-print('imported', taskmajor.__name__)
-PY
+          python -c "import taskmajor; print('imported', taskmajor.__name__)"
 
       - name: Smoke run server help
         run: uv run -m taskmajor.bootstrap.server --help
