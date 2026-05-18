@@ -54,7 +54,7 @@ Source: `taskmajor/mcp/tools/`
 | `get_metadata` | API capabilities, resource URIs, filter/sort options |
 | `report_error` | Log a tool error to the agent error log |
 
-### Sync (optional — only registered when `sync.enabled = true`)
+### Sync (optional — only registered when a sync backend is configured)
 | Tool | Purpose |
 |---|---|
 | `force_sync` | Force an immediate TaskWarrior synchronization |

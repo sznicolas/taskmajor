@@ -36,26 +36,27 @@ otel_enabled: true
 otel_service_name: TaskMajor
 
 # Synchronization
-# The is_sync_configured() guard skips sync silently when no server is set up,
-# so enabled: true is safe even before configuring a sync server.
-sync:
-  enabled: true
-  mode: "periodic"        # periodic | manual
-  interval_seconds: 300   # 5 minutes (ignored in manual mode)
-  on_exit: true           # sync on server shutdown
+# Sync is controlled via the `tw_conf.sync` block. If no backend is configured
+# a sensible local backend is injected for robustness; to disable sync entirely
+# omit the `sync:` block or start with `--no-sync`.
+tw_conf:
+  taskrc: ~/.taskrc_mcp
+  taskdata: ~/.task_mcp
 
-  # Local sync server — uncomment to activate:
-  # local:
-  #   enabled: true
-  #   server_dir: "~/.task_sync_server"
+  sync:
+    mode: "periodic"        # periodic | manual
+    interval_seconds: 300    # 5 minutes (ignored in manual mode)
+    on_exit: true            # sync on server shutdown
 
-  # Remote sync server — uncomment and fill in all fields:
-  # Store encryption_secret here only, never pass it on the command line.
-  # remote:
-  #   enabled: true
-  #   origin: "https://your-sync-server.example.com"
-  #   client_id: "your-uuid"
-  #   encryption_secret: "your-secret"
+    # Local sync server (default/backwards-compatible)
+    local:
+      server_dir: "~/.task_mcp/sync_server"
+
+    # Remote sync server — uncomment and fill in if used
+    # remote:
+    #   origin: "https://your-sync-server.example.com"
+    #   client_id: "your-uuid"
+    #   encryption_secret: "your-secret"  # put secrets in config.yaml, not CLI
 ```
 
 ## CLI overrides

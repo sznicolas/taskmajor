@@ -277,27 +277,28 @@ class TestSyncConfiguredGuard:
 class TestSyncConfigModel:
     def test_defaults(self):
         cfg = SyncConfig()
-        assert cfg.enabled is False
-        assert cfg.mode == "manual"
+        # default behavior: inject a sensible local backend for robustness
+        assert cfg.is_configured is True
+        assert cfg.mode == "periodic"
         assert cfg.interval_seconds == 300
         assert cfg.on_exit is True
 
     def test_taskmajorconfig_has_sync_field(self):
         cfg = TaskMajorConfig()
         assert isinstance(cfg.sync, SyncConfig)
-        assert cfg.sync.enabled is False
+        assert cfg.sync.is_configured is True
 
     def test_sync_config_parsed_from_dict(self):
         cfg = SyncConfig.model_validate(
-            {"enabled": True, "mode": "periodic", "interval_seconds": 60, "on_exit": False}
+            {"mode": "periodic", "interval_seconds": 60, "on_exit": False, "local": {"server_dir": "/tmp/s"}}
         )
-        assert cfg.enabled is True
         assert cfg.mode == "periodic"
         assert cfg.interval_seconds == 60
         assert cfg.on_exit is False
+        assert cfg.local.server_dir == "/tmp/s"
 
     def test_extra_fields_forbidden(self):
         from pydantic import ValidationError
 
         with pytest.raises(ValidationError):
-            SyncConfig.model_validate({"enabled": True, "unknown_field": "oops"})
+            SyncConfig.model_validate({"unknown_field": "oops"})

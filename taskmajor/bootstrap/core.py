@@ -33,17 +33,15 @@ log = logging.getLogger(__name__)
 
 
 def resolve_sync_config(sync_cfg: SyncConfig, args: argparse.Namespace) -> SyncConfig:
-    """Apply CLI overrides on top of the already-parsed SyncConfig.
+    """Apply CLI overrides on top of the parsed SyncConfig (new semantics).
 
-    CLI flags take precedence over config.yaml values. Only flags that were
-    explicitly provided (non-None sentinel) are applied.
-
-    Evaluation order:
-    1. Backend flags (--sync-local-dir, --sync-remote-origin) can auto-enable sync.
-    2. --sync-enabled / --no-sync is applied last and always wins.
+    - CLI flags take precedence when provided.
+    - --sync-local-dir injects/overrides ``local``.
+    - --sync-remote-origin injects/overrides ``remote`` (client_id may also be set).
+    - --no-sync (sync_enabled==False) clears backends (disables sync).
 
     Args:
-        sync_cfg: Parsed SyncConfig from TaskMajorConfig (loaded from config.yaml).
+        sync_cfg: Parsed SyncConfig model from TaskMajorConfig.
         args:     Parsed argparse.Namespace from start_mcp().
 
     Returns:
@@ -51,36 +49,28 @@ def resolve_sync_config(sync_cfg: SyncConfig, args: argparse.Namespace) -> SyncC
     """
     data = deepcopy(sync_cfg.model_dump())
 
-    # --sync-mode
+    # Mode & interval
     if getattr(args, "sync_mode", None) is not None:
         data["mode"] = args.sync_mode
-
-    # --sync-interval
     if getattr(args, "sync_interval", None) is not None:
         data["interval_seconds"] = args.sync_interval
 
-    # --sync-local-dir: set path + auto-enable local + top-level sync
+    # Inject local backend if CLI provided a path
     if getattr(args, "sync_local_dir", None) is not None:
-        local = data.setdefault("local", {})
-        local["enabled"] = True
-        local["server_dir"] = args.sync_local_dir
-        data["enabled"] = True
+        data["local"] = {"server_dir": args.sync_local_dir}
 
-    # --sync-remote-origin: set origin + auto-enable remote + top-level sync
+    # Inject remote backend if CLI provided origin
     if getattr(args, "sync_remote_origin", None) is not None:
-        remote = data.setdefault("remote", {})
-        remote["enabled"] = True
+        remote = data.get("remote") or {}
         remote["origin"] = args.sync_remote_origin
-        data["enabled"] = True
+        if getattr(args, "sync_remote_client_id", None) is not None:
+            remote["client_id"] = args.sync_remote_client_id
+        data["remote"] = remote
 
-    # --sync-remote-client-id
-    if getattr(args, "sync_remote_client_id", None) is not None:
-        remote = data.setdefault("remote", {})
-        remote["client_id"] = args.sync_remote_client_id
-
-    # --sync-enabled / --no-sync applied last so it always wins over auto-enable
-    if getattr(args, "sync_enabled", None) is not None:
-        data["enabled"] = args.sync_enabled
+    # Explicitly disable sync when user passes --no-sync
+    if getattr(args, "sync_enabled", None) is False:
+        data["local"] = None
+        data["remote"] = None
 
     return SyncConfig.model_validate(data)
 
@@ -264,20 +254,24 @@ def create_mcp(
 
     atexit.register(taskwarrior_client.shutdown)
 
-    # Create SyncEngine if sync is enabled in config
+    # Create SyncEngine if a sync backend is configured (local or remote)
     sync_engine = None
-    if cfg.sync.enabled:
-        from taskmajor.domains.sync.sync_engine import SyncEngine
+    from taskmajor.domains.sync.sync_engine import SyncEngine
 
-        sync_engine = SyncEngine(taskwarrior_client, cfg.sync.model_dump())
+    if getattr(cfg.sync, "is_configured", False):
+        # Pass the SyncConfig model directly so the engine can inspect is_configured
+        sync_engine = SyncEngine(taskwarrior_client, cfg.sync)
         sync_engine.start()
         atexit.register(sync_engine.stop)
         log.info(
-            "[SyncEngine] Initialized (mode=%s, interval=%ds, on_exit=%s)",
+            "[SyncEngine] Initialized (mode=%s, interval=%ds, on_exit=%s, configured=%s)",
             cfg.sync.mode,
             cfg.sync.interval_seconds,
             cfg.sync.on_exit,
+            cfg.sync.is_configured,
         )
+    else:
+        log.info("[SyncEngine] Not starting: no sync backend configured (local/remote absent)")
 
     profile_manager = ProfileManager(cfg, cli_profile=cli_profile)
     error_log = AgentErrorLog(cfg.agent_errors_path)

@@ -19,26 +19,22 @@ otel_metrics_endpoint: null
 otel_logs_endpoint: null
 
 # Synchronization
-# Enabled by default. The is_sync_configured() guard in SyncEngine silently
-# skips sync calls when TaskWarrior has no sync server configured, so keeping
-# this enabled causes no harm when no sync server is set up.
+# If no backend is configured, a sensible local backend is injected for robustness.
+# To disable sync entirely, remove the sync block or configure --no-sync on CLI.
 sync:
-  enabled: true
   mode: "periodic"        # periodic | manual
   interval_seconds: 300   # 5 minutes (ignored in manual mode)
   on_exit: true           # force sync when server shuts down
 
   # Local sync server (taskchampion-sync-server running locally).
   # Uncomment and set server_dir to activate.
-  # local:
-  #   enabled: true
-  #   server_dir: "~/.task_sync_server"
+  local:
+    server_dir: "~/.task_mcp/sync_server"
 
   # Remote sync server.
   # Uncomment and fill in all fields to activate.
   # Store encryption_secret in config.yaml only — do not pass it on the CLI.
   # remote:
-  #   enabled: true
   #   origin: "https://your-sync-server.example.com"
   #   client_id: "your-uuid-here"
   #   encryption_secret: "your-secret-here"

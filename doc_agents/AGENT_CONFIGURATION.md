@@ -58,65 +58,48 @@ Important: the `stdio` transport is not a network transport — it connects the 
 
 ---
 
-## Sync CLI flags
+## Synchronization Configuration
 
-All sync flags are optional. CLI overrides config.yaml, which overrides Pydantic model defaults.
+Synchronization is controlled by the `tw_conf.sync` block in `config.yaml`.
+It is **enabled by default** if a `local` or `remote` backend is present.
+If neither is present, a default local backend is injected automatically for robustness.
 
-| Flag | Type | Description |
-|---|---|---|
-| `--sync-enabled` | flag | Enable sync (overrides config.yaml) |
-| `--no-sync` | flag | Disable sync (overrides config.yaml and backend auto-enable; always wins) |
-| `--sync-mode {periodic,manual}` | string | `periodic` = timer; `manual` = force_sync tool only |
-| `--sync-interval SECONDS` | int | Periodic interval in seconds (default: 300) |
-| `--sync-local-dir PATH` | path | Local sync server directory. Auto-enables local sync and top-level sync. |
-| `--sync-remote-origin URL` | string | Remote sync server URL. Auto-enables remote sync and top-level sync. |
-| `--sync-remote-client-id UUID` | string | Client UUID for remote sync server. |
-
-> **Security note:** `--sync-remote-secret` is intentionally not available as a CLI flag.
-> Passing secrets via argv exposes them in process listings (`ps aux`) and shell history.
-> Set `encryption_secret` in `config.yaml` instead.
-
-### Resolution order
-1. Backend flags (`--sync-local-dir`, `--sync-remote-origin`) can auto-enable sync.
-2. `--sync-enabled` / `--no-sync` is applied last and **always wins**.
-
-### Examples
-
-```bash
-# Disable sync for this run (even if config.yaml has enabled: true)
-uv run -m taskmajor.bootstrap.server --no-sync
-
-# Override to manual mode for this run
-uv run -m taskmajor.bootstrap.server --sync-mode manual
-
-# Use a specific local sync server dir and start periodic sync
-uv run -m taskmajor.bootstrap.server --sync-local-dir ~/.my_sync_server
-
-# Fully configure remote sync via CLI (secret must be in config.yaml)
-uv run -m taskmajor.bootstrap.server \
-  --sync-remote-origin https://sync.example.com \
-  --sync-remote-client-id your-uuid
-```
-
-### config.yaml sync section reference
+### Configuration Example
 
 ```yaml
-sync:
-  enabled: true           # bool — enable/disable sync engine
-  mode: "periodic"        # periodic | manual
-  interval_seconds: 300   # seconds between syncs (periodic mode only)
-  on_exit: true           # sync on server shutdown
-
-  # local:                # uncomment to use a local sync server
-  #   enabled: true
-  #   server_dir: "~/.task_sync_server"
-
-  # remote:               # uncomment to use a remote sync server
-  #   enabled: true
-  #   origin: "https://sync.example.com"
-  #   client_id: "your-uuid"
-  #   encryption_secret: "your-secret"   # store here, not on CLI
+tw_conf:
+  taskrc: "~/.taskrc_mcp"
+  taskdata: "~/.task_mcp"
+  
+  sync:
+    mode: "periodic"          # periodic | manual
+    interval_seconds: 300     # ignored if mode: manual
+    on_exit: true             # force sync on shutdown
+    
+    # Local backend (default, robustness)
+    local:
+      server_dir: "~/.task_mcp/sync_server"
+    
+    # Remote backend (optional)
+    # remote:
+    #   origin: "https://sync.example.com"
+    #   client_id: "your-uuid"
+    #   encryption_secret: "your-secret"
 ```
+
+### CLI Overrides
+
+- `--sync-mode {periodic,manual}`: Override sync mode.
+- `--sync-interval SECONDS`: Override interval.
+- `--sync-local-dir PATH`: Force local backend with custom path.
+- `--sync-remote-origin URL`: Force remote backend.
+- `--no-sync`: Disable sync entirely (clears local and remote).
+
+### Behavior
+
+- **Default**: If `sync:` exists but no `local` or `remote` is defined, a local backend is auto-injected at `~/.task_mcp/sync_server`.
+- **Disabled**: If `--no-sync` is passed or if `sync:` is completely absent, no sync occurs.
+- **Guard**: If sync is configured but invalid (e.g., remote without origin), it logs a warning and skips sync.
 
 ## See also
 - MCP interface reference: `doc_agents/MCP_INTERFACE.md`

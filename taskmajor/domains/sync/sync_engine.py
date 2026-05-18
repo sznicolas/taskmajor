@@ -56,11 +56,27 @@ class SyncEngine:
                   (keys: mode, interval_seconds, on_exit, enabled).
     """
 
-    def __init__(self, tw_proxy: TaskWarriorProxy, config: dict[str, Any]) -> None:
+    def __init__(self, tw_proxy: TaskWarriorProxy, config: Any) -> None:
+        """Initialize SyncEngine.
+
+        Accepts either a mapping (dict) as before or a SyncConfig model instance.
+        """
         self._tw = tw_proxy
-        self._mode = config.get("mode", "manual")
-        self._interval = int(config.get("interval_seconds", 300))
-        self._on_exit = bool(config.get("on_exit", True))
+        self._raw_config = config
+        # Detect whether config is a SyncConfig model with `is_configured` property
+        self._config_is_model = hasattr(config, "is_configured")
+
+        if self._config_is_model:
+            cfg = config
+            self._mode = getattr(cfg, "mode", "manual")
+            self._interval = int(getattr(cfg, "interval_seconds", 300))
+            self._on_exit = bool(getattr(cfg, "on_exit", True))
+        else:
+            # legacy dict-like config
+            self._mode = config.get("mode", "manual")
+            self._interval = int(config.get("interval_seconds", 300))
+            self._on_exit = bool(config.get("on_exit", True))
+
         self._timer: threading.Timer | None = None
         self._running = False
         self._health = SyncHealth()
@@ -70,8 +86,24 @@ class SyncEngine:
     # ------------------------------------------------------------------
 
     def start(self) -> None:
-        """Start the engine. Schedules timer if mode is ``periodic``."""
+        """Start the engine. Schedules timer if mode is ``periodic``.
+
+        If no backend is configured (local or remote) the engine will not start
+        automatic syncs and logs that sync is disabled for clarity.
+        """
+        # Mark running early so stop() behaves sensibly if called
         self._running = True
+
+        # Determine whether a backend is configured
+        if self._config_is_model:
+            configured = bool(getattr(self._raw_config, "is_configured", False))
+        else:
+            configured = bool(self._raw_config.get("local") or self._raw_config.get("remote"))
+
+        if not configured:
+            logger.info("[SyncEngine] Sync disabled: no local or remote backend configured.")
+            return
+
         if self._mode == "periodic":
             self._schedule_next()
             logger.info(

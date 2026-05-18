@@ -1,6 +1,6 @@
 """Sync MCP tools — force_sync and sync_status.
 
-Registered only when a SyncEngine is active (sync.enabled = true in config).
+Registered only when a SyncEngine is active (i.e., when a sync backend is configured).
 """
 
 from __future__ import annotations
