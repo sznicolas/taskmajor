@@ -85,7 +85,6 @@ def _run_server_with_config(monkeypatch, *, taskrc: str = "/tmp/taskrc", taskdat
         return None
 
     # Wrap fake runner in a Mock so tests can assert it was called
-    from unittest.mock import Mock
 
     asyncio_run_mock = Mock(side_effect=_fake_asyncio_run)
     monkeypatch.setattr(asyncio, "run", asyncio_run_mock)
