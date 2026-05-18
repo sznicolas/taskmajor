@@ -1,64 +1,30 @@
 # ============================================================================
-# STAGE 1: Build TaskWarrior
+# STAGE 1: Builder
 # ============================================================================
-FROM debian:bookworm-slim AS taskbuilder
-
-# WORKDIR /tmp
-WORKDIR /root/code/
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && \
-    apt-get install -y \
-            build-essential \
-            cmake \
-            curl \
-            git \
-            libgnutls28-dev \
-            uuid-dev
-
-# Setup language environment
-ENV LC_ALL=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
-
-# Add source directory
-# ADD .. /root/code/
-
-# Setup Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh && \
-    sh rustup.sh -y --profile minimal --default-toolchain stable --component rust-docs &&\
-    git clone https://github.com/GothenburgBitFactory/taskwarrior.git &&\
-    cd taskwarrior && \
-    git clean -dfx && \
-    git submodule init && \
-    git submodule update && \
-    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build build -j 8 && \
-    rm -rf /root/.cargo /root/.rustup /tmp/taskwarrior/.git
-
-# ============================================================================
-# STAGE 2: Build Python dependencies
-# ============================================================================
-
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS appbuilder
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 ENV UV_PYTHON_INSTALL_DIR=/python
 
 # Only use the managed Python version
 ENV UV_PYTHON_PREFERENCE=only-managed
 
-WORKDIR /app
+WORKDIR /build
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project
-COPY . /app
+COPY . /build
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
 RUN uv sync --no-install-project && uv python install 3.12
-
+# Nettoyer le venv : supprimer __pycache__, .pyc, et les .dist-info inutiles
+RUN find /build/.venv -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
+    find /build/.venv -type f -name '*.pyc' -delete 2>/dev/null; \
+    find /build/.venv -type f -name '*.pyo' -delete 2>/dev/null; \
+    rm -rf /build/.venv/lib/python3.12/site-packages/*/tests 2>/dev/null; \
+    rm -rf /build/.venv/lib/python3.12/site-packages/*/.github 2>/dev/null
 
 # ============================================================================
-# STAGE 3: Runtime
+# STAGE 2: Runtime
 # ============================================================================
 FROM python:3.12-slim
 
@@ -67,15 +33,18 @@ ENV PYTHONUNBUFFERED=1 \
 
 RUN groupadd --system --gid 1001 taskmajor && \
     useradd --system --gid 1001 --uid 1001 --create-home taskmajor && \
-    mkdir /data ; chown taskmajor /data
+    mkdir /data && chown taskmajor /data
+
+WORKDIR /app
+
+ENV PATH="/app/.venv/bin:$PATH"
+COPY --from=builder /python /python
+COPY --from=builder --chown=taskmajor:taskmajor /build/.venv /app/.venv
+COPY --from=builder --chown=taskmajor:taskmajor /build/taskmajor /app/taskmajor
 
 USER taskmajor
-WORKDIR /app
-ENV PATH="/app/.venv/bin:$PATH"
-COPY --from=appbuilder /python /python
 
-COPY --from=taskbuilder /root/code/taskwarrior/build/src/task /usr/local/bin/task
-COPY --from=appbuilder --chown=taskmajor:taskmajor /app/.venv /app/.venv
-COPY --from=appbuilder --chown=taskmajor:taskmajor /app/taskmajor /app/taskmajor
+ENV PATH="/app/.venv/bin:$PATH"
+ENV TASKMAJOR_DATA_DIR="/data"
 
 CMD ["python", "-m", "taskmajor.bootstrap.server"]

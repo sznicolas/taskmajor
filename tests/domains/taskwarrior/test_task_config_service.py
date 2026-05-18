@@ -59,14 +59,13 @@ class TestGetTimezone:
 
 
 class TestSetTimezone:
-    def test_valid_timezone_calls_run_task_command(self):
+    def test_valid_timezone_calls_config_store_set_value(self):
         tw = _mock_tw()
-        tw.adapter.run_task_command.return_value = SimpleNamespace(returncode=0, stderr="")
         svc = TaskConfigService(tw)
 
         svc.set_timezone("UTC")
 
-        tw.adapter.run_task_command.assert_called_once_with(["config", "timezone", "UTC"])
+        tw.config_store.set_value.assert_called_once_with("timezone", "UTC")
 
     def test_invalid_iana_timezone_raises_value_error(self):
         tw = _mock_tw()
@@ -74,14 +73,6 @@ class TestSetTimezone:
 
         with pytest.raises(ValueError, match="Unknown timezone"):
             svc.set_timezone("Not/A/Real/Zone/At/All")
-
-    def test_nonzero_returncode_raises_runtime_error(self):
-        tw = _mock_tw()
-        tw.adapter.run_task_command.return_value = SimpleNamespace(returncode=1, stderr="oops")
-        svc = TaskConfigService(tw)
-
-        with pytest.raises(RuntimeError, match="Failed to set timezone"):
-            svc.set_timezone("UTC")
 
 
 # ---------------------------------------------------------------------------
@@ -97,7 +88,7 @@ class TestAddUda:
 
         svc.add_uda(uda_config)
 
-        tw.uda_service.define_uda.assert_called_once_with(uda_config)
+        tw.define_uda.assert_called_once_with(uda_config)
 
     def test_numeric_uda_with_values_logs_warning_and_still_calls_define_uda(self, caplog):
         tw = _mock_tw()
@@ -108,7 +99,7 @@ class TestAddUda:
             svc.add_uda(uda_config)
 
         assert any("numeric" in r.getMessage() or "values" in r.getMessage() for r in caplog.records)
-        tw.uda_service.define_uda.assert_called_once()
+        tw.define_uda.assert_called_once()
 
     def test_inspection_exception_is_swallowed_and_define_uda_still_called(self):
         """A non-fatal exception during UDA type inspection does not block define_uda."""
@@ -124,7 +115,7 @@ class TestAddUda:
 
         svc.add_uda(uda_config)  # must not raise
 
-        tw.uda_service.define_uda.assert_called_once()
+        tw.define_uda.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -192,24 +183,24 @@ class TestGetContexts:
 
 
 class TestDefineContext:
-    def test_delegates_to_context_service(self):
+    def test_delegates_to_define_context_facade(self):
         tw = _mock_tw()
         svc = TaskConfigService(tw)
         ctx = SimpleNamespace(name="work", read_filter="+work", write_filter="+work")
 
         svc.define_context(ctx)
 
-        tw.context_service.define_context.assert_called_once_with(ctx)
+        tw.define_context.assert_called_once_with(ctx)
 
 
 class TestDeleteContext:
-    def test_delegates_to_context_service(self):
+    def test_delegates_to_delete_context_facade(self):
         tw = _mock_tw()
         svc = TaskConfigService(tw)
 
         svc.delete_context("work")
 
-        tw.context_service.delete_context.assert_called_once_with("work")
+        tw.delete_context.assert_called_once_with("work")
 
 
 # ---------------------------------------------------------------------------

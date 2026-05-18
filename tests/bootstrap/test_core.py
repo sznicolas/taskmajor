@@ -309,7 +309,7 @@ class TestStartMcp:
         mock_mcp = MagicMock()
         mock_mcp.run_async = AsyncMock()
         mock_ts = MagicMock()
-        mock_ts.taskwarrior_client.get_info.return_value = {"version": "3.0.0"}
+        mock_ts.taskwarrior_client.get_info.return_value = {"backend_type": "taskchampion"}
 
         with patch("taskmajor.bootstrap.core.create_mcp", return_value=(mock_mcp, mock_ts, MagicMock())):
             cfg = TaskMajorConfig()
@@ -323,7 +323,7 @@ class TestStartMcp:
         mock_mcp = MagicMock()
         mock_mcp.run_async = AsyncMock()
         mock_ts = MagicMock()
-        mock_ts.taskwarrior_client.get_info.return_value = {"version": "3.0.0"}
+        mock_ts.taskwarrior_client.get_info.return_value = {"backend_type": "taskchampion"}
 
         with patch("taskmajor.bootstrap.core.create_mcp", return_value=(mock_mcp, mock_ts, MagicMock())):
             cfg = TaskMajorConfig()
@@ -353,7 +353,11 @@ class TestStartMcp:
         monkeypatch.setattr(sys, "argv", ["taskmajor"])
         mock_mcp = MagicMock()
         mock_ts = MagicMock()
-        mock_ts.taskwarrior_client.get_info.return_value = {"version": "2.6.3"}
+        # CLI adapter with an old version should trigger the version check failure
+        mock_ts.taskwarrior_client.get_info.return_value = {
+            "backend_type": "taskwarrior-cli",
+            "backend_version": "2.6.3",
+        }
 
         with patch("taskmajor.bootstrap.core.create_mcp", return_value=(mock_mcp, mock_ts, MagicMock())):
             with pytest.raises(SystemExit) as exc_info:
@@ -376,7 +380,7 @@ class TestStartMcp:
         mock_mcp = MagicMock()
         mock_mcp.run_async = AsyncMock()
         mock_ts = MagicMock()
-        mock_ts.taskwarrior_client.get_info.return_value = {"version": "3.1.0"}
+        mock_ts.taskwarrior_client.get_info.return_value = {"backend_type": "taskchampion"}
 
         with patch("taskmajor.bootstrap.core.create_mcp", return_value=(mock_mcp, mock_ts, MagicMock())):
             cfg = TaskMajorConfig()

@@ -372,13 +372,13 @@ def test_metadata_exposes_v2_contract():
             tags=["waiting"],
         ),
     ]
-    mock_taskwarrior.context_service.get_contexts.return_value = [
+    mock_taskwarrior.get_contexts.return_value = [
         SimpleNamespace(name="calls", read_filter="+@calls", write_filter="+@calls", active=True),
         SimpleNamespace(
             name="office", read_filter="+@office", write_filter="+@office", active=False
         ),
     ]
-    mock_taskwarrior.context_service.get_current_context.return_value = "calls"
+    mock_taskwarrior.get_current_context.return_value = "calls"
 
     task_service = TaskService(mock_taskwarrior)
     metadata = task_service.get_metadata()
@@ -515,9 +515,9 @@ def test_complete_task_verifies_completion_via_status():
 
 
 def test_list_contexts_returns_empty_on_error():
-    """When context_service.get_contexts() raises, list_contexts returns []."""
+    """When get_contexts() raises, list_contexts returns []."""
     tw = Mock()
-    tw.context_service.get_contexts.side_effect = RuntimeError("context fetch failed")
+    tw.get_contexts.side_effect = RuntimeError("context fetch failed")
 
     service = TaskService(tw)
     result = service.list_contexts()

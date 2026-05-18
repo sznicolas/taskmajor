@@ -8,10 +8,15 @@ in this __init__.py.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from fastmcp import FastMCP
 
 from taskmajor.domains.observability import AgentErrorLog
 from taskmajor.domains.tasks import TaskService
+
+if TYPE_CHECKING:
+    from taskmajor.domains.sync.sync_engine import SyncEngine
 
 
 def register_tools(
@@ -19,6 +24,7 @@ def register_tools(
     task_service: TaskService,
     error_log: AgentErrorLog,
     tool_whitelist: set[str] | None = None,
+    sync_engine: SyncEngine | None = None,
 ) -> None:
     """Register MCP tools filtered by whitelist.
 
@@ -26,6 +32,8 @@ def register_tools(
         tool_whitelist: Set of tool names to register. If None, all tools are
                         registered (useful for tests). In production, the whitelist
                         is derived from the active profile chain.
+        sync_engine:    Optional SyncEngine instance. When provided, sync tools
+                        (force_sync, sync_status) are registered.
     """
     from taskmajor.mcp.tools.config_tools import register_config_tools
     from taskmajor.mcp.tools.context_tools import register_context_tools
@@ -38,3 +46,8 @@ def register_tools(
     register_context_tools(mcp, task_service, whitelist=tool_whitelist)
     register_date_tools(mcp, task_service.taskwarrior_client, whitelist=tool_whitelist)
     register_config_tools(mcp, task_service.task_config, whitelist=tool_whitelist)
+
+    if sync_engine is not None:
+        from taskmajor.mcp.tools.sync_tools import register_sync_tools
+
+        register_sync_tools(mcp, sync_engine, whitelist=tool_whitelist)

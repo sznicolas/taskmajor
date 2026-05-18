@@ -50,9 +50,7 @@ class TaskConfigService:
             raise ValueError(
                 f"Unknown timezone {timezone!r}. Must be a valid IANA timezone (e.g. 'Europe/Paris', 'UTC')."
             ) from err
-        result = self._tw.adapter.run_task_command(["config", "timezone", timezone])
-        if result.returncode != 0:
-            raise RuntimeError(f"Failed to set timezone: {result.stderr}")
+        self._tw.config_store.set_value("timezone", timezone)
         log.info("Timezone set to %r", timezone)
 
     # ------------------------------------------------------------------
@@ -92,7 +90,7 @@ class TaskConfigService:
             # Non-fatal: do not prevent UDA creation for unexpected DTO shapes
             log.debug("Could not inspect UdaConfig for numeric/values consistency", exc_info=True)
 
-        self._tw.uda_service.define_uda(uda_config)
+        self._tw.define_uda(uda_config)
         log.info(f"UDA '{uda_config.name}' (type={uda_config.uda_type}) configured")
 
     def delete_uda(self, name: str) -> None:
@@ -125,12 +123,12 @@ class TaskConfigService:
         Raises:
             ValueError: If the context configuration is invalid.
         """
-        self._tw.context_service.define_context(context)
+        self._tw.define_context(context)
         log.info(f"Context '{context.name}' defined")
 
     def delete_context(self, name: str) -> None:
         """Delete a context definition by delegating to the TaskWarrior ContextService."""
-        self._tw.context_service.delete_context(name)
+        self._tw.delete_context(name)
         log.info(f"Context '{name}' deleted")
 
     # ------------------------------------------------------------------
