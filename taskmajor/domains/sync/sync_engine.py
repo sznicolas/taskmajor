@@ -98,7 +98,10 @@ class SyncEngine:
         if self._config_is_model:
             configured = bool(getattr(self._raw_config, "is_configured", False))
         else:
-            configured = bool(self._raw_config.get("local") or self._raw_config.get("remote"))
+            # Legacy dict config: consider local/remote keys or the legacy 'enabled' flag
+            configured = bool(
+                self._raw_config.get("local") or self._raw_config.get("remote") or self._raw_config.get("enabled")
+            )
 
         if not configured:
             logger.info("[SyncEngine] Sync disabled: no local or remote backend configured.")
