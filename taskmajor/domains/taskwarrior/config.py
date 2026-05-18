@@ -51,6 +51,8 @@ class SyncConfig(BaseModel):
     on_exit: bool = True
     local: LocalSyncConfig | None = None
     remote: RemoteSyncConfig | None = None
+    # Internal flag set by CLI resolver to indicate user explicitly disabled sync
+    disabled_via_cli: bool = False
 
     @field_validator("interval_seconds", mode="before")
     @classmethod
@@ -66,7 +68,8 @@ class SyncConfig(BaseModel):
     @model_validator(mode="after")
     def _inject_default_local(self) -> "SyncConfig":
         # If sync exists but no backend configured, inject a default local backend
-        if not self.is_configured:
+        # unless the user explicitly disabled sync via CLI ("--no-sync").
+        if not self.is_configured and not getattr(self, "disabled_via_cli", False):
             # provide a sensible default local backend for robustness
             self.local = LocalSyncConfig()
         return self

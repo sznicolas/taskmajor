@@ -71,6 +71,9 @@ def resolve_sync_config(sync_cfg: SyncConfig, args: argparse.Namespace) -> SyncC
     if getattr(args, "sync_enabled", None) is False:
         data["local"] = None
         data["remote"] = None
+        # Mark that the user intentionally disabled sync so model validators
+        # don't auto-inject a default local backend.
+        data["disabled_via_cli"] = True
 
     return SyncConfig.model_validate(data)
 
