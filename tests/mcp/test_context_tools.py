@@ -16,7 +16,8 @@ def _make_mcp() -> FastMCP:
 
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    # Use asyncio.run for compatibility with modern Python event loop policy
+    return asyncio.run(coro)
 
 
 async def _get_fn(mcp: FastMCP, name: str):
