@@ -13,7 +13,8 @@ from taskmajor.domains.agent.resource_tools import (
 
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    # Use asyncio.run to avoid DeprecationWarning about event loop retrieval
+    return asyncio.run(coro)
 
 
 class FakeRunContext:

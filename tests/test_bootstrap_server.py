@@ -72,8 +72,22 @@ def _run_server_with_config(monkeypatch, *, taskrc: str = "/tmp/taskrc", taskdat
     monkeypatch.setattr(logging, "basicConfig", basic_config_mock)
     monkeypatch.setattr(logging, "getLogger", fake_get_logger)
 
-    # Patch asyncio.run so main() is not actually executed
-    asyncio_run_mock = Mock()
+    # Patch asyncio.run so main() is not actually executed. The fake runner
+    # must accept the coroutine object and close it to avoid "coroutine was
+    # never awaited" warnings when the real asyncio.run is not used.
+    def _fake_asyncio_run(coro):
+        try:
+            # If a coroutine object was passed, close it to avoid warnings
+            if hasattr(coro, "close"):
+                coro.close()
+        except Exception:
+            pass
+        return None
+
+    # Wrap fake runner in a Mock so tests can assert it was called
+    from unittest.mock import Mock
+
+    asyncio_run_mock = Mock(side_effect=_fake_asyncio_run)
     monkeypatch.setattr(asyncio, "run", asyncio_run_mock)
 
     # Run the module as if invoked with `python -m taskmajor.bootstrap.server`

@@ -122,8 +122,22 @@ class SyncEngine:
             self._timer.cancel()
             self._timer = None
         if self._on_exit:
-            logger.info("[SyncEngine] Performing final sync on exit")
-            self._do_sync()
+            # Guard logging and final sync so teardown (pytest logging shutdown)
+            # does not cause "I/O operation on closed file" errors when handlers
+            # have already been closed. Any exceptions during final sync or
+            # logging are swallowed to avoid noisy test teardown errors.
+            try:
+                logger.info("[SyncEngine] Performing final sync on exit")
+            except Exception:
+                pass
+            try:
+                self._do_sync()
+            except Exception:
+                # _do_sync already records errors in health; avoid raising here.
+                try:
+                    logger.error("[SyncEngine] Final sync failed during stop")
+                except Exception:
+                    pass
 
     # ------------------------------------------------------------------
     # Sync execution
