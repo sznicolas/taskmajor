@@ -332,7 +332,7 @@
 
 ### force_sync
 
-> **Conditional**: only registered when `sync.enabled = true` in `config.yaml`.
+> **Conditional**: only registered when a sync backend (local or remote) is configured in `config.yaml`.
 
 - Source: `taskmajor/mcp/tools/sync_tools.py`
 
@@ -344,7 +344,7 @@
 
 ### sync_status
 
-> **Conditional**: only registered when `sync.enabled = true` in `config.yaml`.
+> **Conditional**: only registered when a sync backend (local or remote) is configured in `config.yaml`.
 
 - Source: `taskmajor/mcp/tools/sync_tools.py`
 

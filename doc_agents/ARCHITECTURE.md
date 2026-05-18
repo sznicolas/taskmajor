@@ -22,7 +22,7 @@ This separation makes profile loading independently testable.
 - `ProfileManager` — resolves inheritance chain, accumulates instructions/prompts/resources
 - `TaskService` — all task business logic; used by tools and resource backends
 - `ResourceMapper` — maps resource URIs declared in manifests to TaskService methods
-- `SyncEngine` — periodic or manual TaskWarrior sync. Reads `SyncConfig` from `TaskMajorConfig.sync`. Only created when `sync.enabled = true`. Calls `synchronize()` through the `TaskWarriorProxy` (thread-safe). Exposes `force_sync` and `sync_status` MCP tools.
+- `SyncEngine` — periodic or manual TaskWarrior sync. Reads `SyncConfig` from `TaskMajorConfig.sync`. Only created when a sync backend is configured (local or remote). Calls `synchronize()` through the `TaskWarriorProxy` (thread-safe). Exposes `force_sync` and `sync_status` MCP tools.
 
 ## SyncEngine
 
@@ -34,7 +34,7 @@ This separation makes profile loading independently testable.
 
 **Lifecycle in `create_mcp()`:**
 1. Extract `cfg.sync` (a `SyncConfig` Pydantic model, top-level in `config.yaml`)
-2. If `sync.enabled`, create `SyncEngine(tw_proxy, cfg.sync.model_dump())`
+2. If a sync backend is configured, create `SyncEngine(tw_proxy, cfg.sync)`
 3. Call `engine.start()`
 4. Register `atexit.register(engine.stop)` — triggers `on_exit` sync if configured
 5. Pass engine to `register_tools()` → `register_sync_tools()` adds `force_sync` / `sync_status`

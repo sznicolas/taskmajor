@@ -14,7 +14,8 @@ Fixtures are organized by:
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
+UTC = timezone.utc
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import Mock

@@ -59,6 +59,18 @@ class SyncConfig(BaseModel):
             raise ValueError("interval_seconds must be > 0")
         return value
 
+    @property
+    def is_configured(self) -> bool:
+        return (self.local is not None) or (self.remote is not None)
+
+    @model_validator(mode="after")
+    def _inject_default_local(self) -> "SyncConfig":
+        # If sync exists but no backend configured, inject a default local backend
+        if not self.is_configured:
+            # provide a sensible default local backend for robustness
+            self.local = LocalSyncConfig()
+        return self
+
 
 class TaskMajorConfig(BaseModel):
     """Configuration settings for TaskMajor."""

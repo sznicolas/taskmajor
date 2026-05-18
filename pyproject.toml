@@ -74,3 +74,10 @@ known-first-party = ["taskmajor"]
 [tool.mypy]
 python_version = "3.12"
 mypy_path = ["tools"]
+
+[tool.hatch.build]
+include = [
+  "taskmajor/config/**",
+  "taskmajor/profiles/**",
+  "taskmajor/mcp/templates/**",
+]

@@ -1,0 +1,76 @@
+# ============================================================================
+# STAGE 1: Builder
+# ============================================================================
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+ENV UV_PYTHON_INSTALL_DIR=/python
+
+# Only use the managed Python version
+ENV UV_PYTHON_PREFERENCE=only-managed
+
+WORKDIR /build
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv lock --pre && \
+    uv sync --locked --no-install-project
+
+COPY . /build
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked
+RUN uv sync --no-install-project && uv python install 3.12
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv export --no-dev --no-hashes --output-file requirements.txt && \
+    grep -v "file://" requirements.txt > requirements-clean.txt || mv requirements.txt requirements-clean.txt
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    mkdir -p /wheels && \
+    # Construire des roues pour toutes les dépendances (inclure pré-releases)
+    python -m pip wheel --pre --wheel-dir=/wheels -r requirements-clean.txt && \
+    # Télécharger explicitement la pré-release taskchampion si nécessaire
+    python -m pip download --pre --dest=/wheels "taskchampion3-py-dev>=3.0.1.1a0" || true && \
+    # S'assurer que hatchling (build-backend) est présent dans le wheelhouse
+    python -m pip download --dest=/wheels hatchling || true && \
+    # Construire la roue du projet local
+    python -m pip wheel --no-deps --wheel-dir=/wheels .
+# Nettoyer le venv : supprimer __pycache__, .pyc, et les .dist-info inutiles
+RUN find /build/.venv -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
+    find /build/.venv -type f -name '*.pyc' -delete 2>/dev/null; \
+    find /build/.venv -type f -name '*.pyo' -delete 2>/dev/null; \
+    rm -rf /build/.venv/lib/python3.12/site-packages/*/tests 2>/dev/null; \
+    rm -rf /build/.venv/lib/python3.12/site-packages/*/.github 2>/dev/null
+
+# ============================================================================
+# STAGE 2: Runtime
+# ============================================================================
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+RUN groupadd --system --gid 1001 taskmajor && \
+    useradd --system --gid 1001 --uid 1001 --create-home taskmajor && \
+    mkdir /data && chown taskmajor /data
+
+WORKDIR /app
+
+# Copier wheelhouse et sources (copier en chown pour éviter couche chown)
+COPY --from=builder --chown=taskmajor:taskmajor /wheels /wheels
+COPY --from=builder --chown=taskmajor:taskmajor /build/requirements-clean.txt /app/requirements-clean.txt
+COPY --from=builder --chown=taskmajor:taskmajor /build/taskmajor /app/taskmajor
+COPY --from=builder --chown=taskmajor:taskmajor /build/pyproject.toml /app/pyproject.toml
+
+# Installer depuis wheelhouse (éviter compilation dans runtime)
+RUN python -m pip install --no-index --no-cache-dir --find-links=/wheels /wheels/taskmajor-*.whl && \
+    python -m pip install --no-index --no-cache-dir --find-links=/wheels -r /app/requirements-clean.txt && \
+    rm -rf /wheels
+
+# Basculer vers l'utilisateur non-root
+USER taskmajor
+
+# Basculer vers l'utilisateur non-root
+USER taskmajor
+
+ENV TASKMAJOR_DATA_DIR="/data"
+
+CMD ["python", "-m", "taskmajor.bootstrap.server"]

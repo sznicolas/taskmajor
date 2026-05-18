@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+recursive-include taskmajor/config *
+recursive-include taskmajor/profiles *
+recursive-include taskmajor/mcp/templates *
+recursive-include taskmajor/domains/profiles *

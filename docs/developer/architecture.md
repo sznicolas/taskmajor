@@ -39,7 +39,7 @@ taskmajor/
     │   ├── context_tools.py     # Context management
     │   ├── config_tools.py      # Configuration tools
     │   ├── diagnostic_tools.py  # Diagnostics
-    │   └── sync_tools.py        # Sync tools (registered when sync.enabled)
+    │   └── sync_tools.py        # Sync tools (registered when a sync backend is configured)
     ├── prompts/                 # Agent system prompts (referenced by profiles)
     └── templates/               # Resource templates
         └── date_templates.py    # Date templating logic
@@ -111,7 +111,7 @@ mcp, task_service, error_log = create_mcp()
 2. Create `FastMCP` instance
 3. Initialize TaskWarrior (`init_taskwarrior`)
 4. Create `TaskWarriorProxy` (spawns worker thread, `TaskWarrior` created inside worker)
-5. **Create `SyncEngine`** if `sync.enabled` — starts timer, registers `atexit.register(engine.stop)`
+5. **Create `SyncEngine`** if a sync backend is configured — starts timer, registers `atexit.register(engine.stop)`
 6. Load profile chain (`ProfileManager`)
 7. Create `TaskService`
 8. Register tools (including sync tools if engine is active) and resources
@@ -164,7 +164,7 @@ def register_all(mcp, task_service, error_log, tool_whitelist=None, sync_engine=
     register_templates(mcp, task_service)
 ```
 
-Sync tools (`force_sync`, `sync_status`) are registered only when `sync_engine` is not `None` (i.e., `sync.enabled = true` in config).
+Sync tools (`force_sync`, `sync_status`) are registered only when `sync_engine` is not `None` (i.e., when a sync backend is configured).
 
 ## Resources
 
@@ -222,7 +222,7 @@ Each resource specifies a `backend.function` (e.g. `query_tasks`, `get_stats`) a
 - `set_context(name)`
 - `unset_context()`
 
-### Sync *(registered only when `sync.enabled = true`)*
+### Sync *(registered only when a sync backend is configured)*
 - `force_sync()` — trigger immediate TaskWarrior synchronization
 - `sync_status()` — return health snapshot (mode, last\_sync, consecutive\_failures, sync\_configured)
 
